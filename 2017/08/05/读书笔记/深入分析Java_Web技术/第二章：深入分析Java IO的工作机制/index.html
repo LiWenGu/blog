@@ -97,13 +97,15 @@
 <meta name="description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。而字符转字节一般直接用new">
 <meta property="og:type" content="article">
 <meta property="og:title" content="二、深入分析Java IO的工作机制">
-<meta property="og:url" content="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/index.html">
+<meta property="og:url" content="http://yoursite.com/2017/08/05/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/index.html">
 <meta property="og:site_name" content="Hello">
 <meta property="og:description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。而字符转字节一般直接用new">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/1.png?raw=true">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/2.png?raw=true">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/3.png?raw=true">
+<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/4.png?raw=true">
+<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true">
 <meta property="og:updated_time" content="2017-08-04T08:19:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二、深入分析Java IO的工作机制">
@@ -137,7 +139,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/08/05/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"/>
 
 
 
@@ -320,7 +322,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/05/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="TheOthers">
@@ -349,8 +351,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-04T17:16:17+08:00">
-                2017-08-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-05T01:24:45+08:00">
+                2017-08-05
               </time>
             
 
@@ -442,7 +444,23 @@
 </ol>
 <h1 id="4-访问磁盘文件"><a href="#4-访问磁盘文件" class="headerlink" title="4. 访问磁盘文件"></a>4. 访问磁盘文件</h1><p>前面介绍了操作数据，接着这里介绍数据写向何处，例如持久化到物理磁盘。<br>FileInputStream对象是操作一个文件的接口，创建的同时会创建该文件的描述对象FileDescriptor。操作文件对象的时候可以通过getFD()<br>方法获取真正与底层操作系统相关联的文件描述。例如调用FileDescriptor.sync()方法将操作系统缓存中的数据强制刷新到物理磁盘中。<br>byte-&gt;char是解码过程，因此读取文件都是需要StreamDecoder类帮助。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/3.png?raw=true" alt=""></p>
 <h2 id="1-Java序列化技术"><a href="#1-Java序列化技术" class="headerlink" title="1. Java序列化技术"></a>1. Java序列化技术</h2><p>将对象转化成一串二进制表示的字符数组，反序列化时需要原始类作为模板，原因在于序列化之后的文件不保存类的完整结构信息。建议保存为<br>通用的json/xml格式，比较耗的序列化工具：protobuf。序列化以及反序列需要注意一些常见的问题，例如serialVersionUID被修改，序列化<br>对象中有属性为对象但是该属性对象没有实现Serializable等。</p>
-<h2 id="2-网络I-O工作机制"><a href="#2-网络I-O工作机制" class="headerlink" title="2. 网络I/O工作机制"></a>2. 网络I/O工作机制</h2>
+<h1 id="5-网络I-O工作机制"><a href="#5-网络I-O工作机制" class="headerlink" title="5. 网络I/O工作机制"></a>5. 网络I/O工作机制</h1><h2 id="1-TCP状态："><a href="#1-TCP状态：" class="headerlink" title="1. TCP状态："></a>1. TCP状态：</h2><p><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/4.png?raw=true" alt="">  </p>
+<ol>
+<li>三次握手<br>客户端CLOSED、SYN-SEND、ESTABLISHED。<br>服务端LISTEN、SYN-RCVD、ESTABLISHED。  </li>
+<li>四次挥手<br>客户端ESTABLISHED、FIN_WAIT_1、FIN_WAIT_2、TIME_WAIT。<br>服务端ESTABLISHED、CLOSE_WAIT、LAST_ACK、CLOSE。</li>
+</ol>
+<h2 id="2-影响网络传输的因素"><a href="#2-影响网络传输的因素" class="headerlink" title="2. 影响网络传输的因素"></a>2. 影响网络传输的因素</h2><ul>
+<li>网络带宽：物理链路在1s内传输的最大比特值，一般都是1.7Mb/s。</li>
+<li>传输距离。</li>
+<li>TCP拥塞控制：TCP传输是一个“停等停等”的过程，要步调一致则需要通过拥塞控制来调节。TCP在传输时会设定一个“窗口”，窗口大小由带宽和数据<br>在两端的来回时间，即响应时间决定的。</li>
+</ul>
+<h2 id="3-Java-Socket的工作机制"><a href="#3-Java-Socket的工作机制" class="headerlink" title="3. Java Socket的工作机制"></a>3. Java Socket的工作机制</h2><p><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true" alt=""><br>客户端开始建立一个Socket实例时，操作系统将为这个Socket实例分配一个没有被使用的本地端口号，并创建一个包含本地地址、远程地址和<br>端口号的套接字数据结构，这个数据结构一直保存在系统中直到这个连接关闭。在创建Socket实例的构造函数正确返回之前，将进行TCP的三次握手协议，<br>三次握手，完成之后，Socket实例创建完成。<br>服务端将创建一个ServerSocket实例，只要指定的端口号没有被占用，一般实例都会创建成功，操作系统底层也会为ServerSocket实例创建一个底层<br>数据结构，这个数据结构中包含指定的端口号和包含监听地址的通配符，通常都是“*”，即监听所有地址。之后调用accept()方法，进入阻塞状态，等待<br>客户端的请求。当一个新的请求到达时，为这个连接创建一个新的套接字数据结构，该套接字数据的信息包含的地址和端口信息正是请求源地址<br>和端口，同时这个新创建的数据结构将会关联到ServerSocket实例的一个未完成的连接数据结构列表中。注意，此时服务端的与之对应的Socket实例<br>并没有完成创建，而是要等待与客户端的3次握手完成后，这个服务端的Socket实例才会返回，并从未连接数据结构列表移到已完成列表。所以与ServerSocket<br>所关联的列表中每个数据结构都代表与一个客户端建立的TCP连接。</p>
+<h2 id="4-数据传输"><a href="#4-数据传输" class="headerlink" title="4. 数据传输"></a>4. 数据传输</h2><p>服务端和客户端都会拥有一个Socket实例，每个Socket实例都有一个InputStream和OutputStream，通过这两个对象来交换数据，同时操作系统会为<br>这两个对象分配一定大小的缓存区。  </p>
+<ul>
+<li>写入：数据-&gt;OutputStream对应的SendQ队列，队列填满时，数据将会转移到另一端的InputStream的RecvQ队列中，如果RecvQ已经满了，那么<br>OuptStream的write方法将会阻塞，直到RecvQ队列可以容纳SendQ队列的数据。因此网络IO还需要一个协调的过程，如果两边同时传输数据则会产生死锁。</li>
+</ul>
+<h1 id="6-NIO的工作方式"><a href="#6-NIO的工作方式" class="headerlink" title="6. NIO的工作方式"></a>6. NIO的工作方式</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端<br>一个处理线程、线程池用来减少线程创建和回收的成本。但是，当需要大量的HTTP长连接，例如Web旺旺，虽然并不是每个连接都一直在传输数据，但是如果要<br>对某个客户端（VIP）提供更高的服务优先，很难通过线程本省的优先级完成，同时访问一些竞争资源时，也会有问题，因此需要同步。因此NIO应运而生。</p>
+<h2 id="2-NIO的工作机制"><a href="#2-NIO的工作机制" class="headerlink" title="2. NIO的工作机制"></a>2. NIO的工作机制</h2>
       
     </div>
     
@@ -466,15 +484,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="next" title="一、深入Web请求过程">
+                <i class="fa fa-chevron-left"></i> 一、深入Web请求过程
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="prev" title="一、深入Web请求过程">
-                一、深入Web请求过程 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -634,7 +652,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-JAVA的I-O类库的基本架构"><span class="nav-text">1. JAVA的I/O类库的基本架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-字节字符的转换"><span class="nav-text">2. 字节字符的转换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-访问文件的几种方式"><span class="nav-text">3. 访问文件的几种方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-访问磁盘文件"><span class="nav-text">4. 访问磁盘文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Java序列化技术"><span class="nav-text">1. Java序列化技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-网络I-O工作机制"><span class="nav-text">2. 网络I/O工作机制</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-JAVA的I-O类库的基本架构"><span class="nav-text">1. JAVA的I/O类库的基本架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-字节字符的转换"><span class="nav-text">2. 字节字符的转换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-访问文件的几种方式"><span class="nav-text">3. 访问文件的几种方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-访问磁盘文件"><span class="nav-text">4. 访问磁盘文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Java序列化技术"><span class="nav-text">1. Java序列化技术</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-网络I-O工作机制"><span class="nav-text">5. 网络I/O工作机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-TCP状态："><span class="nav-text">1. TCP状态：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-影响网络传输的因素"><span class="nav-text">2. 影响网络传输的因素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Java-Socket的工作机制"><span class="nav-text">3. Java Socket的工作机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-数据传输"><span class="nav-text">4. 数据传输</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-NIO的工作方式"><span class="nav-text">6. NIO的工作方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-BIO的缺点"><span class="nav-text">1. BIO的缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-NIO的工作机制"><span class="nav-text">2. NIO的工作机制</span></a></li></ol></li></ol></div>
             
 
           </div>
