@@ -94,19 +94,19 @@
 
 
 
-<meta name="description" content="关于DNS请求以及对CDN了解">
+<meta name="description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一、深入Web请求过程">
 <meta property="og:url" content="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/index.html">
 <meta property="og:site_name" content="Hello">
-<meta property="og:description" content="关于DNS请求以及对CDN了解">
+<meta property="og:description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png">
 <meta property="og:updated_time" content="2017-08-04T08:19:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一、深入Web请求过程">
-<meta name="twitter:description" content="关于DNS请求以及对CDN了解">
+<meta name="twitter:description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png">
 
 
@@ -348,7 +348,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-04T16:19:27+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-04T17:16:17+08:00">
                 2017-08-04
               </time>
             
@@ -409,10 +409,6 @@
 
           
 
-          
-              <div class="post-description">
-                  关于DNS请求以及对CDN了解
-              </div>
           
 
         </div>
@@ -635,7 +631,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-DNS域名解析"><span class="nav-number">1.</span> <span class="nav-text">1. DNS域名解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-清除缓存的域名"><span class="nav-number">2.</span> <span class="nav-text">2. 清除缓存的域名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-CDN工作机制"><span class="nav-number">3.</span> <span class="nav-text">3. CDN工作机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-负载均衡"><span class="nav-number">4.</span> <span class="nav-text">4. 负载均衡</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-CDN动态加速"><span class="nav-number">5.</span> <span class="nav-text">5. CDN动态加速</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-总结"><span class="nav-number">6.</span> <span class="nav-text">6. 总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-DNS域名解析"><span class="nav-text">1. DNS域名解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-清除缓存的域名"><span class="nav-text">2. 清除缓存的域名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-CDN工作机制"><span class="nav-text">3. CDN工作机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-负载均衡"><span class="nav-text">4. 负载均衡</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-CDN动态加速"><span class="nav-text">5. CDN动态加速</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-总结"><span class="nav-text">6. 总结</span></a></li></ol></div>
             
 
           </div>
