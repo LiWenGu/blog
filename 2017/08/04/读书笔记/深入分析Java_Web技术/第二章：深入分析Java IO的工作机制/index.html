@@ -15,17 +15,21 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。而字符转字节一般直接用new">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2017/08/04/hello-world/index.html">
+<meta property="og:title" content="二、深入分析Java IO的工作机制">
+<meta property="og:url" content="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/index.html">
 <meta property="og:site_name" content="Hello">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。而字符转字节一般直接用new">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-04T06:08:13.257Z">
+<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/1.png?raw=true">
+<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/2.png?raw=true">
+<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/3.png?raw=true">
+<meta property="og:updated_time" content="2017-08-04T07:02:45.387Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="二、深入分析Java IO的工作机制">
+<meta name="twitter:description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。而字符转字节一般直接用new">
+<meta name="twitter:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/1.png?raw=true">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -57,7 +61,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Hello World | Hello</title>
+<title>二、深入分析Java IO的工作机制 | Hello</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -162,7 +166,7 @@
                         
                             <li><a href="/archives/">所有文章</a></li>
                         
-                            <li><a href="/tags/">标签云</a></li>
+                            <li><a href="/archives">归档</a></li>
                         
                             <li><a href="/about/">关于我</a></li>
                         
@@ -239,7 +243,7 @@
                 
                     <li><a href="/archives/">所有文章</a></li>
                 
-                    <li><a href="/tags/">标签云</a></li>
+                    <li><a href="/archives">归档</a></li>
                 
                     <li><a href="/about/">关于我</a></li>
                 
@@ -261,11 +265,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/08/04/hello-world/" class="article-date">
-      <time datetime="2017-08-04T06:08:13.254Z" itemprop="datePublished">2017-08-04</time>
+      <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" class="article-date">
+      <time datetime="2017-08-04T07:02:45.385Z" itemprop="datePublished">2017-08-04</time>
 </a>
 
 
@@ -280,7 +284,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Hello World
+      二、深入分析Java IO的工作机制
     </h1>
   
 
@@ -288,6 +292,10 @@
       
       <div class="article-info article-info-post">
         
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/读书笔记-深入分析Java-Web技术/">读书笔记/深入分析Java_Web技术</a>
+    </div>
+
 
         
         <div class="clearfix"></div>
@@ -297,16 +305,24 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-
+        <h1 id="1-JAVA的I-O类库的基本架构"><a href="#1-JAVA的I-O类库的基本架构" class="headerlink" title="1. JAVA的I/O类库的基本架构"></a>1. JAVA的I/O类库的基本架构</h1><ul>
+<li>基于字节操作的I/O接口：InputStream和OutputStream。</li>
+<li>基于字符操作的I/O操作：Writer和Reader。</li>
+<li>基于磁盘操作的I/O操作：File。</li>
+<li>基于网络操作的I/O操作：Socket。</li>
+</ul>
+<h1 id="2-字节字符的转换"><a href="#2-字节字符的转换" class="headerlink" title="2. 字节字符的转换"></a>2. 字节字符的转换</h1><p>低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。<br>而字符转字节一般直接用new String(byte[])。<br>注意：字符字节的转换在开发中一定要显示指明编码。<br>在OutputStreamWriter的官方注释中，错误的理解为从字符到字节，其实应该理解成字符与字节之间的桥梁。</p>
+<h1 id="3-访问文件的几种方式"><a href="#3-访问文件的几种方式" class="headerlink" title="3. 访问文件的几种方式"></a>3. 访问文件的几种方式</h1><p>前言：读取和写入都是调用操作系统的提供的接口，而操作系统调用就会存在内核空间地址和用户空间地址切换的问题，一般的IO都是数据从<br>磁盘复制到内核空间，然后再从内核空间复制到用户空间，操作系统为了加速IO访问，在内核空间使用了缓存，即如果是第二次访问同一段<br>的磁盘地址，直接从内核缓存中取出。  </p>
+<ol>
+<li>标准访问文件的方式<br>读取：调用操作系统的Read接口，操作系统先检查内核的高速缓存，如果有缓存则直接返回，如果没有则从磁盘中读取，缓存，返回。<br>写入：调用操作系统的Writer接口，写入到高速缓存中，则通知应用程序完成，什么时候写入磁盘由操作系统决定。当然你可以使用sync强制刷新<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/1.png?raw=true" alt="">  </li>
+<li>直接I/O的方式<br>即应用程序直接访问磁盘数据，减少一次从内核缓冲区到用户空间的数据复制，例如数据库管理系统，数据库明确的知道哪些数据需要缓存<br>哪些不需要，以及哪些数据需要先放到内存中预热，但是不好的地方在于，你接管了数据缓存，如果你没有命中，则每次都是IO磁盘，比较<br>耗时，通常结合直接IO与异步IO。</li>
+<li>同步访问文件的方式<br>与标准访问文件不同点在于，写入了磁盘，操作系统才会应用程序返回成功的标志，用于安全性高的场景。  </li>
+<li>异步访问文件的方式<br>访问文件的请求线程发出后，不会阻塞等待，继续做别的事，完成文件访问后回调某个方法，提高应用程序的效率而不是访问文件的效率。  </li>
+<li>内存映射的方式<br>操作系统将内存中的某一块区域与磁盘中的文件关联，理解为快捷方式。这样中间加了一层地址映射，空间换时间，在实际开发中，多台业务<br>服务器对一个统一的路径下进行共享，方便数据的存储。例如A服务器下的data和B服务器下的data进行共享，便于文件的统一上传下载路径管理。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/2.png?raw=true" alt=""></li>
+</ol>
+<h1 id="4-访问磁盘文件"><a href="#4-访问磁盘文件" class="headerlink" title="4. 访问磁盘文件"></a>4. 访问磁盘文件</h1><p>前面介绍了操作数据，接着这里介绍数据写向何处，例如持久化到物理磁盘。<br>FileInputStream对象是操作一个文件的接口，创建的同时会创建该文件的描述对象FileDescriptor。操作文件对象的时候可以通过getFD()<br>方法获取真正与底层操作系统相关联的文件描述。例如调用FileDescriptor.sync()方法将操作系统缓存中的数据强制刷新到物理磁盘中。<br>byte-&gt;char是解码过程，因此读取文件都是需要StreamDecoder类帮助。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/3.png?raw=true" alt=""></p>
+<h2 id="1-Java序列化技术"><a href="#1-Java序列化技术" class="headerlink" title="1. Java序列化技术"></a>1. Java序列化技术</h2><p>将对象转化成一串二进制表示的字符数组，反序列化时需要原始类作为模板，原因在于序列化之后的文件不保存类的完整结构信息。建议保存为<br>通用的json/xml格式，比较耗的序列化工具：protobuf。序列化以及反序列需要注意一些常见的问题，例如serialVersionUID被修改，序列化<br>对象中有属性为对象但是该属性对象没有实现Serializable等。</p>
+<h2 id="2-网络I-O工作机制"><a href="#2-网络I-O工作机制" class="headerlink" title="2. 网络I/O工作机制"></a>2. 网络I/O工作机制</h2>
       
     </div>
     
@@ -314,13 +330,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2017/08/04/hello-world/">Hello World</a></p>
+        <p><span>本文标题:</span><a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">二、深入分析Java IO的工作机制</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">TheOthers</a></p>
-        <p><span>发布时间:</span>2017-08-04, 14:08:13</p>
-        <p><span>最后更新:</span>2017-08-04, 14:08:13</p>
+        <p><span>发布时间:</span>2017-08-04, 15:02:45</p>
+        <p><span>最后更新:</span>2017-08-04, 15:02:45</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2017/08/04/hello-world/" title="Hello World">http://yoursite.com/2017/08/04/hello-world/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2017/08/04/hello-world/　　作者: TheOthers" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" title="二、深入分析Java IO的工作机制">http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/　　作者: TheOthers" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -330,13 +346,24 @@
 
 
 
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/">
+                    一、深入Web请求过程
+                </a>
+            </div>
+        
+        
+    </nav>
+
   
 </article>
 
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Quick-Start"><span class="toc-number">1.</span> <span class="toc-text">Quick Start</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-a-new-post"><span class="toc-number">1.1.</span> <span class="toc-text">Create a new post</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Run-server"><span class="toc-number">1.2.</span> <span class="toc-text">Run server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Generate-static-files"><span class="toc-number">1.3.</span> <span class="toc-text">Generate static files</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deploy-to-remote-sites"><span class="toc-number">1.4.</span> <span class="toc-text">Deploy to remote sites</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-JAVA的I-O类库的基本架构"><span class="toc-number">1.</span> <span class="toc-text">1. JAVA的I/O类库的基本架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-字节字符的转换"><span class="toc-number">2.</span> <span class="toc-text">2. 字节字符的转换</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-访问文件的几种方式"><span class="toc-number">3.</span> <span class="toc-text">3. 访问文件的几种方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-访问磁盘文件"><span class="toc-number">4.</span> <span class="toc-text">4. 访问磁盘文件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Java序列化技术"><span class="toc-number">4.1.</span> <span class="toc-text">1. Java序列化技术</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-网络I-O工作机制"><span class="toc-number">4.2.</span> <span class="toc-text">2. 网络I/O工作机制</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -372,7 +399,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"Hello World　| Hello　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"二、深入分析Java IO的工作机制　| Hello　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -392,7 +419,9 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" title="上一篇: 一、深入Web请求过程">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
@@ -402,7 +431,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/hello-world/">Hello World</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/">一、深入Web请求过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">二、深入分析Java IO的工作机制</a></li></ul>
 
 
 

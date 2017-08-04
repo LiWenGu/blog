@@ -14,17 +14,21 @@
 <meta name="author" content="TheOthers" />
 
 
-    
-    
 
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="Hello">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一、深入Web请求过程">
+<meta property="og:url" content="http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/index.html">
 <meta property="og:site_name" content="Hello">
+<meta property="og:description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png">
+<meta property="og:updated_time" content="2017-08-04T07:07:17.667Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello">
+<meta name="twitter:title" content="一、深入Web请求过程">
+<meta name="twitter:description" content="1. DNS域名解析使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Ro">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -52,13 +56,11 @@
 <link rel="stylesheet" href="/css/style.css">
 
 
-    <style> .article { opacity: 0;} </style>
-
 
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Hello</title>
+<title>一、深入Web请求过程 | Hello</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -67,8 +69,8 @@
     var yiliaConfig = {
         fancybox: true,
         animate: true,
-        isHome: true,
-        isPost: false,
+        isHome: false,
+        isPost: true,
         isArchive: false,
         isTag: false,
         isCategory: false,
@@ -262,9 +264,7 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap">
-  
-    <article id="post-读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" class="article-date">
@@ -282,12 +282,23 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/">一、深入Web请求过程</a>
+    <h1 class="article-title" itemprop="name">
+      一、深入Web请求过程
     </h1>
   
 
       </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/读书笔记-深入分析Java-Web技术/">读书笔记/深入分析Java_Web技术</a>
+    </div>
+
+
+        
+        <div class="clearfix"></div>
+      </div>
       
     
     <div class="article-entry" itemprop="articleBody">
@@ -312,99 +323,85 @@
       
     </div>
     
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/读书笔记-深入分析Java-Web技术/">读书笔记/深入分析Java_Web技术</a>
-    </div>
-
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
   </div>
   
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" class="article-date">
-      <time datetime="2017-08-04T07:02:45.385Z" itemprop="datePublished">2017-08-04</time>
-</a>
-
-
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/">一、深入Web请求过程</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">TheOthers</a></p>
+        <p><span>发布时间:</span>2017-08-04, 15:07:17</p>
+        <p><span>最后更新:</span>2017-08-04, 15:07:17</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" title="一、深入Web请求过程">http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/　　作者: TheOthers" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
     </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+
+
+
+    <nav id="article-nav">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">二、深入分析Java IO的工作机制</a>
-    </h1>
-  
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">
+                    二、深入分析Java IO的工作机制
+                </a>
+            </div>
+        
+    </nav>
 
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h1 id="1-JAVA的I-O类库的基本架构"><a href="#1-JAVA的I-O类库的基本架构" class="headerlink" title="1. JAVA的I/O类库的基本架构"></a>1. JAVA的I/O类库的基本架构</h1><ul>
-<li>基于字节操作的I/O接口：InputStream和OutputStream。</li>
-<li>基于字符操作的I/O操作：Writer和Reader。</li>
-<li>基于磁盘操作的I/O操作：File。</li>
-<li>基于网络操作的I/O操作：Socket。</li>
-</ul>
-<h1 id="2-字节字符的转换"><a href="#2-字节字符的转换" class="headerlink" title="2. 字节字符的转换"></a>2. 字节字符的转换</h1><p>低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。<br>而字符转字节一般直接用new String(byte[])。<br>注意：字符字节的转换在开发中一定要显示指明编码。<br>在OutputStreamWriter的官方注释中，错误的理解为从字符到字节，其实应该理解成字符与字节之间的桥梁。</p>
-<h1 id="3-访问文件的几种方式"><a href="#3-访问文件的几种方式" class="headerlink" title="3. 访问文件的几种方式"></a>3. 访问文件的几种方式</h1><p>前言：读取和写入都是调用操作系统的提供的接口，而操作系统调用就会存在内核空间地址和用户空间地址切换的问题，一般的IO都是数据从<br>磁盘复制到内核空间，然后再从内核空间复制到用户空间，操作系统为了加速IO访问，在内核空间使用了缓存，即如果是第二次访问同一段<br>的磁盘地址，直接从内核缓存中取出。  </p>
-<ol>
-<li>标准访问文件的方式<br>读取：调用操作系统的Read接口，操作系统先检查内核的高速缓存，如果有缓存则直接返回，如果没有则从磁盘中读取，缓存，返回。<br>写入：调用操作系统的Writer接口，写入到高速缓存中，则通知应用程序完成，什么时候写入磁盘由操作系统决定。当然你可以使用sync强制刷新<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/1.png?raw=true" alt="">  </li>
-<li>直接I/O的方式<br>即应用程序直接访问磁盘数据，减少一次从内核缓冲区到用户空间的数据复制，例如数据库管理系统，数据库明确的知道哪些数据需要缓存<br>哪些不需要，以及哪些数据需要先放到内存中预热，但是不好的地方在于，你接管了数据缓存，如果你没有命中，则每次都是IO磁盘，比较<br>耗时，通常结合直接IO与异步IO。</li>
-<li>同步访问文件的方式<br>与标准访问文件不同点在于，写入了磁盘，操作系统才会应用程序返回成功的标志，用于安全性高的场景。  </li>
-<li>异步访问文件的方式<br>访问文件的请求线程发出后，不会阻塞等待，继续做别的事，完成文件访问后回调某个方法，提高应用程序的效率而不是访问文件的效率。  </li>
-<li>内存映射的方式<br>操作系统将内存中的某一块区域与磁盘中的文件关联，理解为快捷方式。这样中间加了一层地址映射，空间换时间，在实际开发中，多台业务<br>服务器对一个统一的路径下进行共享，方便数据的存储。例如A服务器下的data和B服务器下的data进行共享，便于文件的统一上传下载路径管理。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/2.png?raw=true" alt=""></li>
-</ol>
-<h1 id="4-访问磁盘文件"><a href="#4-访问磁盘文件" class="headerlink" title="4. 访问磁盘文件"></a>4. 访问磁盘文件</h1><p>前面介绍了操作数据，接着这里介绍数据写向何处，例如持久化到物理磁盘。<br>FileInputStream对象是操作一个文件的接口，创建的同时会创建该文件的描述对象FileDescriptor。操作文件对象的时候可以通过getFD()<br>方法获取真正与底层操作系统相关联的文件描述。例如调用FileDescriptor.sync()方法将操作系统缓存中的数据强制刷新到物理磁盘中。<br>byte-&gt;char是解码过程，因此读取文件都是需要StreamDecoder类帮助。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/3.png?raw=true" alt=""></p>
-<h2 id="1-Java序列化技术"><a href="#1-Java序列化技术" class="headerlink" title="1. Java序列化技术"></a>1. Java序列化技术</h2><p>将对象转化成一串二进制表示的字符数组，反序列化时需要原始类作为模板，原因在于序列化之后的文件不保存类的完整结构信息。建议保存为<br>通用的json/xml格式，比较耗的序列化工具：protobuf。序列化以及反序列需要注意一些常见的问题，例如serialVersionUID被修改，序列化<br>对象中有属性为对象但是该属性对象没有实现Serializable等。</p>
-<h2 id="2-网络I-O工作机制"><a href="#2-网络I-O工作机制" class="headerlink" title="2. 网络I/O工作机制"></a>2. 网络I/O工作机制</h2>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/读书笔记-深入分析Java-Web技术/">读书笔记/深入分析Java_Web技术</a>
-    </div>
-
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
   
 </article>
 
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-DNS域名解析"><span class="toc-number">1.</span> <span class="toc-text">1. DNS域名解析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-清除缓存的域名"><span class="toc-number">2.</span> <span class="toc-text">2. 清除缓存的域名</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-CDN工作机制"><span class="toc-number">3.</span> <span class="toc-text">3. CDN工作机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-负载均衡"><span class="toc-number">4.</span> <span class="toc-text">4. 负载均衡</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-CDN动态加速"><span class="toc-number">5.</span> <span class="toc-text">5. CDN动态加速</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-总结"><span class="toc-number">6.</span> <span class="toc-text">6. 总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"一、深入Web请求过程　| Hello　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
 
 
 
@@ -412,9 +409,33 @@
 
 
 
+    
 
-  
-  
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" title="下一篇: 二、深入分析Java IO的工作机制">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/">一、深入Web请求过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">二、深入分析Java IO的工作机制</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">
