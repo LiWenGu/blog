@@ -351,7 +351,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-05T01:27:49+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-05T01:59:24+08:00">
                 2017-08-05
               </time>
             
@@ -411,6 +411,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  2,082
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
 
           
 
@@ -458,13 +489,31 @@
 <li>写入：数据-&gt;OutputStream对应的SendQ队列，队列填满时，数据将会转移到另一端的InputStream的RecvQ队列中，如果RecvQ已经满了，那么<br>OuptStream的write方法将会阻塞，直到RecvQ队列可以容纳SendQ队列的数据。因此网络IO还需要一个协调的过程，如果两边同时传输数据则会产生死锁。</li>
 </ul>
 <h1 id="6-NIO的工作方式"><a href="#6-NIO的工作方式" class="headerlink" title="6. NIO的工作方式"></a>6. NIO的工作方式</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端<br>一个处理线程、线程池用来减少线程创建和回收的成本。但是，当需要大量的HTTP长连接，例如Web旺旺，虽然并不是每个连接都一直在传输数据，但是如果要<br>对某个客户端（VIP）提供更高的服务优先，很难通过线程本省的优先级完成，同时访问一些竞争资源时，也会有问题，因此需要同步。因此NIO应运而生。</p>
-<h2 id="2-NIO的工作机制"><a href="#2-NIO的工作机制" class="headerlink" title="2. NIO的工作机制"></a>2. NIO的工作机制</h2>
+<h2 id="2-NIO的工作机制"><a href="#2-NIO的工作机制" class="headerlink" title="2. NIO的工作机制"></a>2. NIO的工作机制</h2><p>通过等待读以及等待写的轮询，在真正进行IO的时候才是使用CPU阻塞，但是由于是memory copy，<a href="https://zhuanlan.zhihu.com/p/23488863" target="_blank" rel="external">在带宽足够大的1GB/s基本可以忽略</a>，</p>
+
+      
+    </div>
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
       
     </div>
     
     
     
 
+    <div>
+      
+        
+
+      
+    </div>
     
 
     
@@ -482,15 +531,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="next" title="一、深入Web请求过程">
-                <i class="fa fa-chevron-left"></i> 一、深入Web请求过程
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/05/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="prev" title="一、深入Web请求过程">
+                一、深入Web请求过程 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -747,6 +796,8 @@
   
 
 
+  
+
 
 
 
@@ -774,6 +825,9 @@
 
   
   <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
 
 
   
