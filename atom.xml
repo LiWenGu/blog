@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-08-06T17:22:20.000Z</updated>
+  <updated>2017-08-07T16:48:21.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,11 +16,52 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>第三章：深入分析Java Web中的中文编码问题</title>
+    <link href="http://yoursite.com/2017/08/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/"/>
+    <id>http://yoursite.com/2017/08/07/读书笔记/深入分析Java_Web技术/第三章：深入分析Java Web中的中文编码问题/</id>
+    <published>2017-08-07T14:56:30.000Z</published>
+    <updated>2017-08-07T16:48:21.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-几种常见的编码格式"><a href="#1-几种常见的编码格式" class="headerlink" title="1. 几种常见的编码格式"></a>1. 几种常见的编码格式</h1><h2 id="1-为什么需要编码？"><a href="#1-为什么需要编码？" class="headerlink" title="1. 为什么需要编码？"></a>1. 为什么需要编码？</h2><ul>
+<li>计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。</li>
+<li>人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。</li>
+</ul>
+<h2 id="2-常见编码"><a href="#2-常见编码" class="headerlink" title="2. 常见编码"></a>2. 常见编码</h2><p>编码即就是人类的字符-&gt;机器的字符的过程。</p>
+<h3 id="1-ASCII码"><a href="#1-ASCII码" class="headerlink" title="1. ASCII码"></a>1. ASCII码</h3><p>总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键盘输入并且能够显示出来。</p>
+<h3 id="2-ISO-8859-1"><a href="#2-ISO-8859-1" class="headerlink" title="2. ISO-8859-1"></a>2. ISO-8859-1</h3><p>128个字符显示是不够的，于是ISO组织在ASCII码基础上又制定了一系列标准来扩展ASCII编码，他们是ISO-8859-1至ISO-8859-15。ISO-8859-1仍然<br>是单字节编码，它总共能表示256个字符。</p>
+<h3 id="3-GB2312"><a href="#3-GB2312" class="headerlink" title="3. GB2312"></a>3. GB2312</h3><p>GB2312全称是《信息技术·中文编码字符集》，总的编码范围是：A1~F7。它是双字节编码。包含了符号以及汉字。</p>
+<h3 id="4-GBK"><a href="#4-GBK" class="headerlink" title="4. GBK"></a>4. GBK</h3><p>GBK全称是《汉字内码扩展规范》，是国家技术监督局为Windows95所制定新的汉字内码规范，它的出现是为了扩展GB2312，并加入更多的汉字。<br>编码范围是8140~FEFE，总共23940，表示21003个汉字，编码是和GB2312兼容，也就是GB2312编码的汉字可以用GBK解码，不会乱码。</p>
+<h3 id="5-GB18030"><a href="#5-GB18030" class="headerlink" title="5. GB18030"></a>5. GB18030</h3><p>应用不广泛，与GB2312兼容</p>
+<h3 id="6-UTF-16"><a href="#6-UTF-16" class="headerlink" title="6. UTF-16"></a>6. UTF-16</h3><p>Unicode（Universal Code统一码），ISO试图创建一个全新的超语言字典，世界上所有的语言都可以通过这个字典来相互翻译。可想而知这个字典是多么<br>复杂。Unicode是Java和XML的基础。<br>UTF-16具体定义了Unicode字符在计算机中的存取方法，UTF-16用两个字节来表示Unicode的转化格式，它采用定长的表示方法，即不论什么字符都可以用<br>两个字节表示。<br>两个字节是16个bit，所以叫UTF-16。UTF-16表示字符非常方便，每两个字节表示一个字符，简化了字符串操作，这也是Java以UTF-16作为内存的字符存储<br>格式的一个重要的原因。</p>
+<h3 id="7-UTF-8"><a href="#7-UTF-8" class="headerlink" title="7. UTF-8"></a>7. UTF-8</h3><p>UTF-16统一采用两个字节表示一个字符，虽然表示上简单方便，但是也有其缺点，很大一部分字符用一个字节就可以表示的现在要用两个字节表示，存储空间<br>放大了一倍。而UTF-8采用了一种变长技术，每个编码区域有不同的字码长度。不同类型的字符可以由1~6个字节组成。</p>
+<ul>
+<li>如果是一个字节。最高为为0，则表示这是一个ASCII字符，可见，所有ASCII编码已经是UTF-8了。</li>
+<li>如果是一个字节，以11开头，则连续的1的个数暗示这个字符的字节数。例如：110xxxxx代表它是双字节UTF-8字符的首字节。</li>
+<li>如果是一个字节，以10开始，表示它不是首字节，需要向前查找才能得到当前字符的首字节。</li>
+</ul>
+<h2 id="2-编码的场景"><a href="#2-编码的场景" class="headerlink" title="2. 编码的场景"></a>2. 编码的场景</h2><h3 id="1-I-O操作"><a href="#1-I-O操作" class="headerlink" title="1. I/O操作"></a>1. I/O操作</h3><p>Reader类和InputStream之间的InputStreamReader，通过StreamDecoder以及StreamEncoder进行字符和字节的转换，在解码过程必须指定编码格式，<br>否则按系统编码。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">String file = <span class="string">"D:\\source\\eclipse\\liwen\\src\\main\\java\\liwen\\com\\io\\data.txt"</span>;</div><div class="line">String charset = <span class="string">"UTF-8"</span>;</div><div class="line">FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(file);</div><div class="line">OutputStreamWriter writer = <span class="keyword">new</span> OutputStreamWriter(fileOutputStream);</div><div class="line">writer.write(<span class="string">"这是要保存的中文字符"</span>);</div><div class="line">writer.close();</div><div class="line"></div><div class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(file);</div><div class="line">InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(fileInputStream, charset);</div><div class="line"></div><div class="line"><span class="keyword">char</span>[] buf = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">1024</span>];</div><div class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</div><div class="line">StringBuffer buffer = <span class="keyword">new</span> StringBuffer();</div><div class="line"><span class="keyword">while</span>((count = reader.read(buf)) != -<span class="number">1</span>) &#123;</div><div class="line">    buffer.append(buf, <span class="number">0</span>, count);</div><div class="line">&#125;</div><div class="line">System.out.print(buffer.toString());</div><div class="line">reader.close();</div></pre></td></tr></table></figure></p>
+<h3 id="2-在内存操作中的编码"><a href="#2-在内存操作中的编码" class="headerlink" title="2. 在内存操作中的编码"></a>2. 在内存操作中的编码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 第一种，通过字符串操作</span></div><div class="line">String s = <span class="string">"中文"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = s.getBytes(<span class="string">"UTF-8"</span>);</div><div class="line">String n = <span class="keyword">new</span> String(b, <span class="string">"UTF-8"</span>);</div><div class="line">System.out.print(n);</div><div class="line"></div><div class="line"><span class="comment">// 第二种，通过nio中的Charset与Buffer实现编码解码。</span></div><div class="line">Charset charset = Charset.forName(<span class="string">"UTF-8"</span>);</div><div class="line">ByteBuffer buffer = charset.encode(s);       <span class="comment">//字符转字节</span></div><div class="line">CharBuffer buffer1 = charset.decode(buffer); <span class="comment">//字节转字符</span></div><div class="line"><span class="keyword">char</span>[] a = buffer1.array();</div><div class="line">System.out.print(a);</div><div class="line"></div><div class="line"><span class="comment">// 第三种，通过将16bit的char拆分为2个8bit的byte，没有编码解码，只是软转化</span></div><div class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">1024</span>);</div><div class="line">ByteBuffer byteBuffer1 = byteBuffer.putChar(<span class="string">'a'</span>);</div></pre></td></tr></table></figure>
+<h1 id="3-在Java中如何编解码"><a href="#3-在Java中如何编解码" class="headerlink" title="3. 在Java中如何编解码"></a>3. 在Java中如何编解码</h1>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-几种常见的编码格式&quot;&gt;&lt;a href=&quot;#1-几种常见的编码格式&quot; class=&quot;headerlink&quot; title=&quot;1. 几种常见的编码格式&quot;&gt;&lt;/a&gt;1. 几种常见的编码格式&lt;/h1&gt;&lt;h2 id=&quot;1-为什么需要编码？&quot;&gt;&lt;a href=&quot;#1-为什么
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>二、课外学习NIO</title>
-    <link href="http://yoursite.com/2017/08/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/"/>
-    <id>http://yoursite.com/2017/08/05/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/</id>
-    <published>2017-08-05T07:08:20.000Z</published>
-    <updated>2017-08-06T17:22:20.000Z</updated>
+    <link href="http://yoursite.com/2017/08/04/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/"/>
+    <id>http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/</id>
+    <published>2017-08-04T14:56:30.000Z</published>
+    <updated>2017-08-07T13:21:30.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-跑个Channel实例"><a href="#1-跑个Channel实例" class="headerlink" title="1.跑个Channel实例"></a>1.跑个Channel实例</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFileChannel</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    <span class="comment">// 源目标，春运的100W人</span></div><div class="line">    RandomAccessFile aFile=<span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>);</div><div class="line">    <span class="comment">// 获得源目标的运载交通工具，例如动车，同时动车的站台也站了100W人。</span></div><div class="line">    FileChannel inChannel=aFile.getChannel();</div><div class="line"></div><div class="line">    <span class="comment">// 分配buffer，这次春运，这辆D8888，每次跑两个字节单位的座位</span></div><div class="line">    ByteBuffer buf=ByteBuffer.allocate(<span class="number">2</span>);</div><div class="line">    <span class="comment">// 把动车的站台人和座位连接在一起，得到一个返回值，即该动车和两个字节单位座位的车票信息。</span></div><div class="line">    <span class="keyword">int</span> bytesRead=inChannel.read(buf);</div><div class="line">    <span class="comment">// 车票如果是-1说明车票没了，载完了，动车就去保养了。</span></div><div class="line">    <span class="keyword">while</span>(bytesRead!=-<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 座位的保险带绑上，人不能下座位或者上座位了，只能被车站人员检查</span></div><div class="line">        buf.flip();</div><div class="line">        <span class="comment">// 车站人员检查座位是否有对应的人的信息</span></div><div class="line">        <span class="keyword">while</span>(buf.hasRemaining())</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 打印出以两个字节为单位的座位的人的信息</span></div><div class="line">            System.out.print((<span class="keyword">char</span>)buf.get());</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 座位保险带放开，人下车，座位就被清空</span></div><div class="line">        buf.clear();</div><div class="line">        <span class="comment">// 动车继续拉两个字节座位的人，又得到了座位的车票信息</span></div><div class="line">        bytesRead=inChannel.read(buf);</div><div class="line">    &#125;</div><div class="line">    aFile.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。<br>当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于<br>发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true" alt="Buffer">  </p>
@@ -94,44 +135,7 @@
     
     <summary type="html">
     
-      这是关于NIO的课外学习，主要用于NIO的基础以及使用实例，代码不敲，API理解不清，浑身难受。
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>一、深入Web请求过程</title>
-    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
-    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
-    <published>2017-08-03T04:08:20.000Z</published>
-    <updated>2017-08-04T08:19:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。<br>所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。<br>如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，<br>家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，<br>它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
-<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
-<blockquote>
-<p><code>ipconfig /flushdns</code></p>
-</blockquote>
-<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
-<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。<br>比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。<br>目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
-<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。<br>通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
-<ul>
-<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
-<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
-<li>操作系统：如设置多队列网卡。</li>
-</ul>
-<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
-<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
+      &lt;h1 id=&quot;1-跑个Channel实例&quot;&gt;&lt;a href=&quot;#1-跑个Channel实例&quot; class=&quot;headerlink&quot; title=&quot;1.跑个Channel实例&quot;&gt;&lt;/a&gt;1.跑个Channel实例&lt;/h1&gt;&lt;figure class=&quot;highlight java
     
     </summary>
     
@@ -227,6 +231,43 @@
     
       &lt;h1 id=&quot;1-JAVA的I-O类库的基本架构&quot;&gt;&lt;a href=&quot;#1-JAVA的I-O类库的基本架构&quot; class=&quot;headerlink&quot; title=&quot;1. JAVA的I/O类库的基本架构&quot;&gt;&lt;/a&gt;1. JAVA的I/O类库的基本架构&lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;基于
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>一、深入Web请求过程</title>
+    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
+    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
+    <published>2017-08-03T04:08:20.000Z</published>
+    <updated>2017-08-04T08:19:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。<br>所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。<br>如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，<br>家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，<br>它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
+<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
+<blockquote>
+<p><code>ipconfig /flushdns</code></p>
+</blockquote>
+<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
+<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。<br>比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。<br>目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
+<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。<br>通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
+<ul>
+<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
+<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
+<li>操作系统：如设置多队列网卡。</li>
+</ul>
+<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
+<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
     
     </summary>
     
