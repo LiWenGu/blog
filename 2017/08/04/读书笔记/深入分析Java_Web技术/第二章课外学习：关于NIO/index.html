@@ -107,7 +107,6 @@
 <meta property="og:site_name" content="Hello">
 <meta property="og:description" content="1.跑个Channel实例12345678910111213141516171819202122232425262728@Test public void testFileChannel() throws Exception &amp;#123;    // 源目标，春运的100W人    RandomAccessFile aFile=new RandomAccessFile(&quot;data.txt&quot;,&quot;rw">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/6.png?raw=true">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/7.png?raw=true">
 <meta property="og:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/8.png?raw=true">
@@ -118,7 +117,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二、课外学习NIO">
 <meta name="twitter:description" content="1.跑个Channel实例12345678910111213141516171819202122232425262728@Test public void testFileChannel() throws Exception &amp;#123;    // 源目标，春运的100W人    RandomAccessFile aFile=new RandomAccessFile(&quot;data.txt&quot;,&quot;rw">
-<meta name="twitter:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true">
+<meta name="twitter:image" content="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/6.png?raw=true">
 
 
 
@@ -470,7 +469,7 @@
 
       
         <h1 id="1-跑个Channel实例"><a href="#1-跑个Channel实例" class="headerlink" title="1.跑个Channel实例"></a>1.跑个Channel实例</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFileChannel</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    <span class="comment">// 源目标，春运的100W人</span></div><div class="line">    RandomAccessFile aFile=<span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>);</div><div class="line">    <span class="comment">// 获得源目标的运载交通工具，例如动车，同时动车的站台也站了100W人。</span></div><div class="line">    FileChannel inChannel=aFile.getChannel();</div><div class="line"></div><div class="line">    <span class="comment">// 分配buffer，这次春运，这辆D8888，每次跑两个字节单位的座位</span></div><div class="line">    ByteBuffer buf=ByteBuffer.allocate(<span class="number">2</span>);</div><div class="line">    <span class="comment">// 把动车的站台人和座位连接在一起，得到一个返回值，即该动车和两个字节单位座位的车票信息。</span></div><div class="line">    <span class="keyword">int</span> bytesRead=inChannel.read(buf);</div><div class="line">    <span class="comment">// 车票如果是-1说明车票没了，载完了，动车就去保养了。</span></div><div class="line">    <span class="keyword">while</span>(bytesRead!=-<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 座位的保险带绑上，人不能下座位或者上座位了，只能被车站人员检查</span></div><div class="line">        buf.flip();</div><div class="line">        <span class="comment">// 车站人员检查座位是否有对应的人的信息</span></div><div class="line">        <span class="keyword">while</span>(buf.hasRemaining())</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 打印出以两个字节为单位的座位的人的信息</span></div><div class="line">            System.out.print((<span class="keyword">char</span>)buf.get());</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 座位保险带放开，人下车，座位就被清空</span></div><div class="line">        buf.clear();</div><div class="line">        <span class="comment">// 动车继续拉两个字节座位的人，又得到了座位的车票信息</span></div><div class="line">        bytesRead=inChannel.read(buf);</div><div class="line">    &#125;</div><div class="line">    aFile.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。<br>当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于<br>发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true" alt="Buffer">  </p>
+<p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。<br>当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于<br>发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。</p>
 <h2 id="1-写模式"><a href="#1-写模式" class="headerlink" title="1. 写模式"></a>1. 写模式</h2><ul>
 <li>capacity：固定的大小。</li>
 <li>position：初始值为0，写一单位数据就移动下一个可插入数据的单位，最大为capacity-1。</li>
@@ -609,8 +608,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" rel="next" title="二、深入分析Java IO的工作机制">
-                <i class="fa fa-chevron-left"></i> 二、深入分析Java IO的工作机制
+              <a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="next" title="一、深入Web请求过程">
+                <i class="fa fa-chevron-left"></i> 一、深入Web请求过程
               </a>
             
           </div>

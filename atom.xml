@@ -251,7 +251,7 @@
     <updated>2017-08-07T13:21:30.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-跑个Channel实例"><a href="#1-跑个Channel实例" class="headerlink" title="1.跑个Channel实例"></a>1.跑个Channel实例</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFileChannel</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    <span class="comment">// 源目标，春运的100W人</span></div><div class="line">    RandomAccessFile aFile=<span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>);</div><div class="line">    <span class="comment">// 获得源目标的运载交通工具，例如动车，同时动车的站台也站了100W人。</span></div><div class="line">    FileChannel inChannel=aFile.getChannel();</div><div class="line"></div><div class="line">    <span class="comment">// 分配buffer，这次春运，这辆D8888，每次跑两个字节单位的座位</span></div><div class="line">    ByteBuffer buf=ByteBuffer.allocate(<span class="number">2</span>);</div><div class="line">    <span class="comment">// 把动车的站台人和座位连接在一起，得到一个返回值，即该动车和两个字节单位座位的车票信息。</span></div><div class="line">    <span class="keyword">int</span> bytesRead=inChannel.read(buf);</div><div class="line">    <span class="comment">// 车票如果是-1说明车票没了，载完了，动车就去保养了。</span></div><div class="line">    <span class="keyword">while</span>(bytesRead!=-<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 座位的保险带绑上，人不能下座位或者上座位了，只能被车站人员检查</span></div><div class="line">        buf.flip();</div><div class="line">        <span class="comment">// 车站人员检查座位是否有对应的人的信息</span></div><div class="line">        <span class="keyword">while</span>(buf.hasRemaining())</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 打印出以两个字节为单位的座位的人的信息</span></div><div class="line">            System.out.print((<span class="keyword">char</span>)buf.get());</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 座位保险带放开，人下车，座位就被清空</span></div><div class="line">        buf.clear();</div><div class="line">        <span class="comment">// 动车继续拉两个字节座位的人，又得到了座位的车票信息</span></div><div class="line">        bytesRead=inChannel.read(buf);</div><div class="line">    &#125;</div><div class="line">    aFile.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。<br>当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于<br>发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0/5.png?raw=true" alt="Buffer">  </p>
+<p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。<br>当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于<br>发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。</p>
 <h2 id="1-写模式"><a href="#1-写模式" class="headerlink" title="1. 写模式"></a>1. 写模式</h2><ul>
 <li>capacity：固定的大小。</li>
 <li>position：初始值为0，写一单位数据就移动下一个可插入数据的单位，最大为capacity-1。</li>
@@ -323,6 +323,43 @@
     <summary type="html">
     
       &lt;h1 id=&quot;1-跑个Channel实例&quot;&gt;&lt;a href=&quot;#1-跑个Channel实例&quot; class=&quot;headerlink&quot; title=&quot;1.跑个Channel实例&quot;&gt;&lt;/a&gt;1.跑个Channel实例&lt;/h1&gt;&lt;figure class=&quot;highlight java
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>一、深入Web请求过程</title>
+    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
+    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
+    <published>2017-08-03T04:08:20.000Z</published>
+    <updated>2017-08-04T08:19:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。<br>所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。<br>如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，<br>家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，<br>它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
+<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
+<blockquote>
+<p><code>ipconfig /flushdns</code></p>
+</blockquote>
+<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
+<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。<br>比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。<br>目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
+<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。<br>通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
+<ul>
+<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
+<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
+<li>操作系统：如设置多队列网卡。</li>
+</ul>
+<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
+<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
     
     </summary>
     
@@ -418,43 +455,6 @@
     
       &lt;h1 id=&quot;1-JAVA的I-O类库的基本架构&quot;&gt;&lt;a href=&quot;#1-JAVA的I-O类库的基本架构&quot; class=&quot;headerlink&quot; title=&quot;1. JAVA的I/O类库的基本架构&quot;&gt;&lt;/a&gt;1. JAVA的I/O类库的基本架构&lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;基于
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>一、深入Web请求过程</title>
-    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
-    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
-    <published>2017-08-03T04:08:20.000Z</published>
-    <updated>2017-08-04T08:19:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。<br>所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。<br>如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，<br>家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，<br>它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
-<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
-<blockquote>
-<p><code>ipconfig /flushdns</code></p>
-</blockquote>
-<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
-<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。<br>比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。<br>目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
-<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。<br>通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
-<ul>
-<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
-<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。<br><img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
-<li>操作系统：如设置多队列网卡。</li>
-</ul>
-<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
-<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
     
     </summary>
     
