@@ -4,9 +4,9 @@
   <subtitle>严律己，宽待人</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2017-08-12T09:57:12.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://www.liwenguang.website/"/>
+  <updated>2017-08-13T15:58:23.000Z</updated>
+  <id>http://www.liwenguang.website/</id>
   
   <author>
     <name>TheOthers</name>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>七、JVM体系结构与工作方式</title>
-    <link href="http://yoursite.com/2017/08/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0%EF%BC%9AJVM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F/"/>
-    <id>http://yoursite.com/2017/08/12/读书笔记/深入分析Java_Web技术/第七章：JVM体系结构与工作方式/</id>
+    <link href="http://www.liwenguang.website/2017/08/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0%EF%BC%9AJVM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F/"/>
+    <id>http://www.liwenguang.website/2017/08/12/读书笔记/深入分析Java_Web技术/第七章：JVM体系结构与工作方式/</id>
     <published>2017-08-12T09:57:12.000Z</published>
-    <updated>2017-08-12T09:57:12.000Z</updated>
+    <updated>2017-08-13T15:58:23.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-JVM体系结构"><a href="#1-JVM体系结构" class="headerlink" title="1. JVM体系结构"></a>1. JVM体系结构</h1><p>前言：<br>JVM能够跨计算机体系结构来执行Java字节码，主要是由于JVM屏蔽了与各个计算机平台相关的软件或者硬件之间的差异，
 使得与平台相关的耦合统一由JVM提供者来实现。</p>
@@ -58,7 +58,7 @@ MIPS架构的指令集(RISC)，因为目前有直接支持MIPS架构的操作系
 <li>类加载器，在JVM启动时或者在类运行时将需要的class加载到JVM中。</li>
 <li>执行引擎，执行引擎的任务是负责执行class文件中包含的字节码指令，相当于实际机器上的CPU。</li>
 <li>内存区，将内存划分成若干个区以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者PC指针的记录器等。</li>
-<li>本地方法调用，调用C或C++实现的本地方法的代码返回结果。<br><img src="1-1.png" alt="JVM体系结构"></li>
+<li>本地方法调用，调用C或C++实现的本地方法的代码返回结果。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-1.png?raw=true" alt="JVM体系结构"></li>
 </ul>
 <h3 id="1-类加载器"><a href="#1-类加载器" class="headerlink" title="1. 类加载器"></a>1. 类加载器</h3><p>在深入分析ClassLoader时我们详细分析了ClassLoader的工作机制，这里需要说明的是，每个被JVM装载的类型都有一个对应的java.lang.Class类的实例
 来表示该类型，该实例可以唯一标识被JVM装载的class类，要求这个实例和其他类的实例一样都存放在Java的堆中。</p>
@@ -101,7 +101,35 @@ configure、make、make install、make clean这4个步骤来完成。</p>
 方式又将指令划分为：一地址指令、二地址指令、三地址指令和零地址指令等n地址指令。相应的指令集会有对应的架构实现，如基于寄存器
 的架构实现或基于栈的架构实现，这里的基于寄存器或者栈都是指在一个指令中的操作数是如何存取的。</p>
 <h2 id="2-JVM为何选择基于栈的架构"><a href="#2-JVM为何选择基于栈的架构" class="headerlink" title="2. JVM为何选择基于栈的架构"></a>2. JVM为何选择基于栈的架构</h2><p>JVM执行字节码指令是基于栈的架构，也就是所有的操作数必须先入栈，然后根据指令中的操作码选择从栈顶弹出若干个元素进行计算后再将结果压入栈中。
-在JVM中操作数可以存放在每一个</p>
+在JVM中操作数可以存放在每一个栈帧中国的一个本地变量集中，即在每个方法调用时就会给这个方法分配一个本地变量集，这个本地变量集在编译时就已经
+确定，所以操作数入栈可以直接是常量入栈或者从本地变量集中取一个变量压入栈中。这和一般的基于寄存器的操作有所不同，一个操作需要频繁的入栈和出栈，
+如进行一个加法运算，如果啷个操作数都在本地变量中，那么一个加法操作就要有5次栈操作，分别是将两个操作数从本地变量入栈（2次入栈操作），再将
+两个操作数出栈用于加法运算（2次出栈），再将加法结果压入栈顶（1次入栈）。如果是基于寄存器的话，一般只需要将两个操作数存入寄存器进行加法运算后
+再将结果存入其中一个寄存器即可，不需要这么多的数据移动的操作。那么为什么JVM还要基于栈来设计呢？<br>JVM为何要基于栈来设计有几个理由。一个是JVM要设计成与平台无关的。而平台无关性就是要保证在没有或者有很少的寄存器的机器上也要同样能正确的执行
+Java代码。例如，在80x86的机器上寄存器就是没有规律的，很难针对某一款机器设计通用的基于寄存器的指令，所以基于寄存器的架构很难做到通用。在
+手机操作系统方面，Google的Android平台上的Dalvik VM就是基于特定芯片（ARM）设计的基于寄存器的架构，这样在特定芯片上实现基于寄存器的架构
+可能更多考虑性能，但是也牺牲了跨平台的移植性，当然在当前的手机上这个需求还不是最迫切的。<br>还有一个理由是为了指令的紧凑性，因为Java的字节码可能在网络上传输，所以class文件的大小也是设计JVM字节码指令的一个重要因素，如在class文件
+中字节码除了处理两个表示跳转的指令外，其他都是字节对齐的，操作码可以只占一个字节大小，这都是为了尽量让编译后的class文件更加紧凑。为了提高
+字节码在网络上的传输效率。Sun设计了一个Jar包的压缩工具Pack2000，它可以将多个class文件中的重复的常量池的信息进行合并，如一般在每个calss文件
+中都含有“Ljava/lang/String;”，那么多个class文件中的常量就可以共用，从而起到减少数据量的作用。  </p>
+<h2 id="3-执行引擎的架构设计"><a href="#3-执行引擎的架构设计" class="headerlink" title="3. 执行引擎的架构设计"></a>3. 执行引擎的架构设计</h2><p>每当创建一个新的线程时，JVM会为这个线程创建一个Java栈，同时会为线程分配一个PC寄存器，并且这个PC寄存器会指向这个线程的第一行可执行代码。
+每当调用一个新方法时会在这个栈上创建一个新的栈帧数据结构，这个栈帧会保留这个方法的一些元信息，如在这个方法中定义的局部变量、
+一些用来支持常量池的解析、正常方法返回及异常处理机制等。<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-2.png?raw=true" alt="Java执行部件"><br>JVM在调用某些指令时可能需要使用到常量池中的一些常量，或者是获取常量代表的数据或者这个数据指向的实例化对象，而这些信息都存储在所有线程共享
+的方法区和Java堆中。</p>
+<h2 id="4-执行引擎的执行过程"><a href="#4-执行引擎的执行过程" class="headerlink" title="4. 执行引擎的执行过程"></a>4. 执行引擎的执行过程</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Math</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> a = <span class="number">1</span>;</div><div class="line">        <span class="keyword">int</span> b = <span class="number">2</span>;</div><div class="line">        <span class="keyword">int</span> c = (a+b) * <span class="number">10</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其中main的字节码指令如下：<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-3.png?raw=true" alt="字节码指令"><br>对应到执行引擎的各执行部件如下所示：（注意：原书图的标记有问题，这里仍然使用错误的标记易于理解）<br><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-4.png?raw=true" alt="初始化"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-5.png?raw=true" alt="前四条指令，入栈，出栈存储；入栈，出栈存储"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-6.png?raw=true" alt="第4、5条指令执行之后，顺序入栈"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-7.png?raw=true" alt="第6条指令执行之后，栈顶放入3"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-8.png?raw=true" alt="第7条指令执行之后"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-9.png?raw=true" alt="第10条指令执行之后，30将进入局部变量"><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-10.png?raw=true" alt="第11条执行之后"></p>
+<h2 id="5-JVM方法调用栈"><a href="#5-JVM方法调用栈" class="headerlink" title="5. JVM方法调用栈"></a>5. JVM方法调用栈</h2><p>JVM的方法调用分两种：一种是Java方法调用，另一种是本地方法调用。本地方法调用由于各个虚拟机的实现不太相同(因为跨平台)，所以这里主要介绍Java的方法调用情况。
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Math</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> a = <span class="number">1</span>;</div><div class="line">        <span class="keyword">int</span> b = <span class="number">2</span>;</div><div class="line">        <span class="keyword">int</span> c = math(a, b) / <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">math</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> (a + b) * <span class="number">10</span>;</div><div class="line">    &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-11.png?raw=true" alt=""><img src="https://github.com/LiWenGu/static_resource/blob/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0/1-12.png?raw=true" alt=""><br>调用细节就不贴图了，记住一点，任何的数据都要入栈，进入存储到变量区时，都要出栈。PC寄存器存储的是下一条指令的指针。</p>
+<h1 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h1><ul>
+<li>计算机的体系结构：指令集（机器语言）、计算单元（控制指令）、寻址方式（地址的位数，寻址范围）、寄存器、存储单元（存储操作数和保存操作结构）。</li>
+<li>class(通过ClassLoader类加载器后)-&gt;执行引擎(内存、方法区、堆、栈、PC寄存器)-&gt;调用本地方法接口(native)</li>
+<li>JVM和DVM（Dalvik）的核心区别在于，一个基于栈一个基于寄存器，为什么Sun和Google设计的不一样？后者相对来说，执行效率更高，但是前者真正实现
+了跨平台，后者是每个APP都是一个VM，就相当于一个操作系统里面运行了多个DVM，而Sun是，一个操作系统运行一个JVM里面运行多个java程序。（相对
+而言，Dalvik是可以预加载（Zygote）的，更叼一点，只不过Dalvik为了增加效率（毕竟运行在手机中），在运行时，不同应用是共享相同的类（打开QQ相机，
+你再打开微信相机试试？），而JVM里面的程序，打包之后，运行之后，是真正的独立的程序，即便在包里使用了相同的类，运行都是独立加载的。
+<a href="https://www.zhihu.com/question/20207106" target="_blank" rel="external">这里有更加详细的解答，博主也是抽出的简单精华。</a>）</li>
+</ul>
 ]]></content>
     
     <summary type="html">
@@ -110,17 +138,17 @@ configure、make、make install、make clean这4个步骤来完成。</p>
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>六、深入分析ClassLoader工作机制</title>
-    <link href="http://yoursite.com/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%85%AD%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90ClassLoader%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
-    <id>http://yoursite.com/2017/08/10/读书笔记/深入分析Java_Web技术/第六章：深入分析ClassLoader工作机制/</id>
+    <link href="http://www.liwenguang.website/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%85%AD%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90ClassLoader%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
+    <id>http://www.liwenguang.website/2017/08/10/读书笔记/深入分析Java_Web技术/第六章：深入分析ClassLoader工作机制/</id>
     <published>2017-08-10T15:19:20.000Z</published>
     <updated>2017-08-11T17:46:20.000Z</updated>
     
@@ -227,17 +255,17 @@ loadClass()将会导致类冲突。但是JVM标示一个类是否是同一个类
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>五、深入class文件结构</title>
-    <link href="http://yoursite.com/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%94%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"/>
-    <id>http://yoursite.com/2017/08/10/读书笔记/深入分析Java_Web技术/第五章：深入class文件结构/</id>
+    <link href="http://www.liwenguang.website/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%94%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"/>
+    <id>http://www.liwenguang.website/2017/08/10/读书笔记/深入分析Java_Web技术/第五章：深入class文件结构/</id>
     <published>2017-08-10T14:06:20.000Z</published>
     <updated>2017-08-10T15:18:10.000Z</updated>
     
@@ -255,17 +283,17 @@ loadClass()将会导致类冲突。但是JVM标示一个类是否是同一个类
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>四、Javac编译原理</title>
-    <link href="http://yoursite.com/2017/08/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%9B%9B%E7%AB%A0%EF%BC%9AJavac%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
-    <id>http://yoursite.com/2017/08/08/读书笔记/深入分析Java_Web技术/第四章：Javac编译原理/</id>
+    <link href="http://www.liwenguang.website/2017/08/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%9B%9B%E7%AB%A0%EF%BC%9AJavac%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
+    <id>http://www.liwenguang.website/2017/08/08/读书笔记/深入分析Java_Web技术/第四章：Javac编译原理/</id>
     <published>2017-08-08T02:21:21.000Z</published>
     <updated>2017-08-10T14:03:20.000Z</updated>
     
@@ -320,17 +348,17 @@ IDENTIFIEDR的名称呢?</li>
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>三、深入分析Java Web中的中文编码问题</title>
-    <link href="http://yoursite.com/2017/08/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/"/>
-    <id>http://yoursite.com/2017/08/07/读书笔记/深入分析Java_Web技术/第三章：深入分析Java Web中的中文编码问题/</id>
+    <link href="http://www.liwenguang.website/2017/08/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/"/>
+    <id>http://www.liwenguang.website/2017/08/07/读书笔记/深入分析Java_Web技术/第三章：深入分析Java Web中的中文编码问题/</id>
     <published>2017-08-07T14:56:30.000Z</published>
     <updated>2017-08-08T17:31:21.000Z</updated>
     
@@ -416,17 +444,17 @@ UTF-8，而Java用GBK去解码显然不对。<br>解决方式是encodeURICompone
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>二、课外学习NIO</title>
-    <link href="http://yoursite.com/2017/08/04/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/"/>
-    <id>http://yoursite.com/2017/08/04/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/</id>
+    <link href="http://www.liwenguang.website/2017/08/04/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/"/>
+    <id>http://www.liwenguang.website/2017/08/04/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/</id>
     <published>2017-08-04T14:56:30.000Z</published>
     <updated>2017-08-07T13:21:30.000Z</updated>
     
@@ -529,17 +557,17 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>一、深入Web请求过程</title>
-    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
-    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
+    <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
+    <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
     <published>2017-08-03T04:08:20.000Z</published>
     <updated>2017-08-04T08:19:00.000Z</updated>
     
@@ -575,17 +603,17 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>
   
   <entry>
     <title>二、深入分析Java IO的工作机制</title>
-    <link href="http://yoursite.com/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20IO%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
-    <id>http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</id>
+    <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20IO%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
+    <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</id>
     <published>2017-08-03T04:08:20.000Z</published>
     <updated>2017-08-07T14:15:21.000Z</updated>
     
@@ -643,7 +671,7 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
 <li>写入：数据-&gt;OutputStream对应的SendQ队列，队列填满时，数据将会转移到另一端的InputStream的RecvQ队列中，如果RecvQ已经满了，那么
 OuptStream的write方法将会阻塞，直到RecvQ队列可以容纳SendQ队列的数据。因此网络IO还需要一个协调的过程，如果两边同时传输数据则会产生死锁。</li>
 </ul>
-<h1 id="6-NIO的工作方式-建议先阅读课外学习：关于NIO"><a href="#6-NIO的工作方式-建议先阅读课外学习：关于NIO" class="headerlink" title="6. NIO的工作方式(建议先阅读课外学习：关于NIO)"></a>6. NIO的工作方式(建议先阅读<a href="http://www.liwenguang.website/2017/08/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/" target="_blank" rel="external">课外学习：关于NIO</a>)</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端
+<h1 id="6-NIO的工作方式-建议先阅读课外学习：关于NIO"><a href="#6-NIO的工作方式-建议先阅读课外学习：关于NIO" class="headerlink" title="6. NIO的工作方式(建议先阅读课外学习：关于NIO)"></a>6. NIO的工作方式(建议先阅读<a href="http://www.liwenguang.website/2017/08/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/">课外学习：关于NIO</a>)</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端
 一个处理线程、线程池用来减少线程创建和回收的成本。但是，当需要大量的HTTP长连接，例如Web旺旺，虽然并不是每个连接都一直在传输数据，但是如果要
 对某个客户端（VIP）提供更高的服务优先，很难通过线程本省的优先级完成，同时访问一些竞争资源时，也会有问题，因此需要同步。因此NIO应运而生。</p>
 <h2 id="2-NIO的工作机制"><a href="#2-NIO的工作机制" class="headerlink" title="2. NIO的工作机制"></a>2. NIO的工作机制</h2><p>通过等待读以及等待写的轮询，在真正进行IO的时候才是使用CPU阻塞，但是由于是memory copy，<a href="https://zhuanlan.zhihu.com/p/23488863" target="_blank" rel="external">在带宽足够大的1GB/s基本可以忽略</a>。</p>
@@ -711,9 +739,9 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
     
     </summary>
     
-      <category term="读书笔记" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://yoursite.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
     
     
   </entry>

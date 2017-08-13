@@ -103,7 +103,7 @@
 <meta name="description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。 而字符转字节一般直接用ne">
 <meta property="og:type" content="article">
 <meta property="og:title" content="二、深入分析Java IO的工作机制">
-<meta property="og:url" content="http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/index.html">
+<meta property="og:url" content="http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/index.html">
 <meta property="og:site_name" content="Hello">
 <meta property="og:description" content="1. JAVA的I/O类库的基本架构 基于字节操作的I/O接口：InputStream和OutputStream。 基于字符操作的I/O操作：Writer和Reader。 基于磁盘操作的I/O操作：File。 基于网络操作的I/O操作：Socket。  2. 字节字符的转换低级的字节转字符，有InputStreamReader，以及OutputStreamWriter。 而字符转字节一般直接用ne">
 <meta property="og:locale" content="zh-Hans">
@@ -149,7 +149,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"/>
+  <link rel="canonical" href="http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"/>
 
 
 
@@ -335,7 +335,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">
+    <link itemprop="mainEntityOfPage" href="http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="TheOthers">
@@ -525,7 +525,7 @@
 <li>写入：数据-&gt;OutputStream对应的SendQ队列，队列填满时，数据将会转移到另一端的InputStream的RecvQ队列中，如果RecvQ已经满了，那么
 OuptStream的write方法将会阻塞，直到RecvQ队列可以容纳SendQ队列的数据。因此网络IO还需要一个协调的过程，如果两边同时传输数据则会产生死锁。</li>
 </ul>
-<h1 id="6-NIO的工作方式-建议先阅读课外学习：关于NIO"><a href="#6-NIO的工作方式-建议先阅读课外学习：关于NIO" class="headerlink" title="6. NIO的工作方式(建议先阅读课外学习：关于NIO)"></a>6. NIO的工作方式(建议先阅读<a href="http://www.liwenguang.website/2017/08/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/" target="_blank" rel="external">课外学习：关于NIO</a>)</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端
+<h1 id="6-NIO的工作方式-建议先阅读课外学习：关于NIO"><a href="#6-NIO的工作方式-建议先阅读课外学习：关于NIO" class="headerlink" title="6. NIO的工作方式(建议先阅读课外学习：关于NIO)"></a>6. NIO的工作方式(建议先阅读<a href="http://www.liwenguang.website/2017/08/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/">课外学习：关于NIO</a>)</h1><h2 id="1-BIO的缺点"><a href="#1-BIO的缺点" class="headerlink" title="1. BIO的缺点"></a>1. BIO的缺点</h2><p>阻塞IO，即BIO，在读取和写入时（InputStream、OutputStream）都有可能堵塞，一旦有堵塞，线程将会失去CPU的使用权，一些方法，例如：一个客户端
 一个处理线程、线程池用来减少线程创建和回收的成本。但是，当需要大量的HTTP长连接，例如Web旺旺，虽然并不是每个连接都一直在传输数据，但是如果要
 对某个客户端（VIP）提供更高的服务优先，很难通过线程本省的优先级完成，同时访问一些竞争资源时，也会有问题，因此需要同步。因此NIO应运而生。</p>
 <h2 id="2-NIO的工作机制"><a href="#2-NIO的工作机制" class="headerlink" title="2. NIO的工作机制"></a>2. NIO的工作机制</h2><p>通过等待读以及等待写的轮询，在真正进行IO的时候才是使用CPU阻塞，但是由于是memory copy，<a href="https://zhuanlan.zhihu.com/p/23488863" target="_blank" rel="external">在带宽足够大的1GB/s基本可以忽略</a>。</p>
@@ -616,8 +616,8 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月03日 - 12:08</p>
   <p><span>最后更新:</span>2017年08月07日 - 22:08</p>
-  <p><span>原始链接:</span><a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" title="二、深入分析Java IO的工作机制">http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://yoursite.com/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"  aria-label="复制成功！"></i></span>
+  <p><span>原始链接:</span><a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/" title="二、深入分析Java IO的工作机制">http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
 </div>
@@ -816,6 +816,20 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
         
 
         
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ifeve.com/" title="并发编程网" target="_blank">并发编程网</a>
+                </li>
+              
+            </ul>
+          </div>
         
 
         
