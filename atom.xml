@@ -22,11 +22,28 @@
     <published>2017-08-14T15:14:12.000Z</published>
     <updated>2017-08-13T15:58:23.000Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="1-物理内存与虚拟内存"><a href="#1-物理内存与虚拟内存" class="headerlink" title="1. 物理内存与虚拟内存"></a>1. 物理内存与虚拟内存</h1>]]></content>
+    <content type="html"><![CDATA[<h1 id="1-物理内存与虚拟内存"><a href="#1-物理内存与虚拟内存" class="headerlink" title="1. 物理内存与虚拟内存"></a>1. 物理内存与虚拟内存</h1><p>所谓物理内存就是RAM（随机存储器）。在计算机中，还有一个存储单元叫寄存器，它用于存储计算单元执行指令（如浮点、整数等运算时）的中间结果。
+寄存器的大小决定了一次计算可使用的最大数值。<br>连接处理器和RAM或者处理器和寄存器的是地址总线，这个地址总线的宽度影响了物理地址的索引范围，因为总线的宽度决定了处理器一次可以从寄存器
+或者内存中获取多少个bit。同时也决定了处理器最大可以寻址的地址空间，如32位地址总线可以寻址的范围为0x0000 0000~0xffff ffff。这个范围
+是2^32=4294967296个内存位置，每个地址会引用一个字节，所以32位总线宽度可以有4GB的内存空间。<br>通常情况下，地址总线和寄存器或者RAM有相同的位数，因为这样更容易传输数据。<br>不管是什么系统，我们要运行程序，都要向操作系统先申请内存地址。通常操作系统管理内存的申请空间是按照进程来管理的，每个进程拥有一段独立的
+地址空间，每个进程之间不会相互重合，操作系统也会保证每个进程只能访问自己的内存空间。这主要从程序的安全性来考虑，也便于操作系统来管理物理内存。<br>其实上面所说的进程的内存空间的独立主要是指逻辑上独立，也就是这个独立是由操作系统来保证的，但是真正的物理空间是不是只能由一个进程来使用就
+不一定了。因为随着程序越来越庞大和设计的多任务性，物理内存无法满足程序的需求，在这种情况下就有了<strong>虚拟内存</strong>的出现。<br>虚拟内存的出现使得多个进程在同时运行时可以共享物理内存，这里的共享只是空间上共享，在逻辑上它们仍然是不能相互访问的。虚拟地址不但可以让进程
+共享物理内存、提高内存利用率，而且还能够扩展内存的地址空间，如一个虚拟地址可能被映射到一段物理内存、文件或者其他可以寻址的存储上。<br>一个进程在不活动的情况下，操作系统将这个物理内存中的数据移到一个磁盘文件中（也就是通常Windows系统上的页面文件，或者Linux系统上的交换分区），
+而真正高效的物理内存留给正在活动的程序使用。在这种情况下，在我们重新唤醒一个很长时间没有使用的程序时，磁盘会吱吱作响，并且会有一个短暂的
+停顿得到印证，这时操作系统又会把磁盘上的数据重新交互到物理内存中。但是我们必须要避免这种情况的经常出现，如果操作系统频繁地交互物理内存的
+数据和磁盘数据，则效率将会非常低，尤其在Linux服务器上，我们要关注Linux中swap的分区的活跃度。如果swap分区被频繁使用，系统将会非常缓慢，
+很可能意味着物理内存已经验证不足或者某些程序没有及时释放内存（物理内存可以理解为内存条大小）。</p>
+<h1 id="2-内核空间与用户空间"><a href="#2-内核空间与用户空间" class="headerlink" title="2. 内核空间与用户空间"></a>2. 内核空间与用户空间</h1><p>一个计算机通常有一定大小的内存空间，如使用的计算机是4GB的地址空间，但是程序并不能完全使用这些地址空间，因为这些地址空间被划分为内核空间和
+用户空间。程序只能使用用户空间的内存，这里所说的使用是指程序能够申请的内存空间，并不是程序真正访问的地址空间。<br>内核空间主要是指操作系统运行时所使用的用于程序调度、虚拟内存的使用或者连接硬件资源等的程序逻辑。为何需要内存空间和用户空间的划分呢？很显然
+和前面所说的每个进程都独立使用属于自己的内存一样，为了保证安全，访问硬件资源只能由操作系统来发起。用户需要访问硬件资源，如网络连接等，
+需要调用操作系统提供的接口实现，这个调用接口的过程也就是系统调用。每一次系统调用都会存在两个内存空间的切换，通常的网络传输也是一次系统调用，
+通过网络传输的数据先是从内核空间接收到远程主机的数据，然后再从内核空间复制到用户空间，供用户程序使用 。这种从内核空间到用户空间的数据复制
+很费时，以效率换取的安全稳定。<br>内核空间和用户空间的大小如何分配也是一个问题，是更多地分配给用户空间供用户程序使用，还是首先保住内核有足够的空间来运行，这要平衡一下。<br>如果是一台登录服务器，要分配更多的内核空间，因为每个登录用户操作系统都会初始化一个用户进程，这个进程大部分都在内核空间里运行。<br>Window32位操作系统默认内核：用户=1:1，即各有2GB，而在Linux32位则是1:3。</p>
+]]></content>
     
     <summary type="html">
     
-      &lt;h1 id=&quot;1-物理内存与虚拟内存&quot;&gt;&lt;a href=&quot;#1-物理内存与虚拟内存&quot; class=&quot;headerlink&quot; title=&quot;1. 物理内存与虚拟内存&quot;&gt;&lt;/a&gt;1. 物理内存与虚拟内存&lt;/h1&gt;
+      &lt;h1 id=&quot;1-物理内存与虚拟内存&quot;&gt;&lt;a href=&quot;#1-物理内存与虚拟内存&quot; class=&quot;headerlink&quot; title=&quot;1. 物理内存与虚拟内存&quot;&gt;&lt;/a&gt;1. 物理内存与虚拟内存&lt;/h1&gt;&lt;p&gt;所谓物理内存就是RAM（随机存储器）。在计算机中，还有一个存储单
     
     </summary>
     
@@ -46,15 +63,12 @@
     
     <content type="html"><![CDATA[<h1 id="1-虚拟机设置静态IP"><a href="#1-虚拟机设置静态IP" class="headerlink" title="1. 虚拟机设置静态IP"></a>1. 虚拟机设置静态IP</h1><p>使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。<br>详细地址：<a href="http://blog.csdn.net/readiay/article/details/50866709" target="_blank" rel="external">http://blog.csdn.net/readiay/article/details/50866709</a><br>主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。</p>
 <blockquote>
-<p>设置网卡：<code>/etc/sysconfig/network-scripts/ifcfg-xxx</code>,xxx可能不同。
-设置主机名：<code>/etc/sysconfig/network</code>。
-设置DNS：<code>/etc/resolv.conf</code>。
-这步完成，虚拟机可以上网，使用SecureCRT主机可以登录虚拟机。</p>
+<p>设置网卡：<code>/etc/sysconfig/network-scripts/ifcfg-xxx</code>,xxx可能不同。<br>设置主机名：<code>/etc/sysconfig/network</code>。<br>设置DNS：<code>/etc/resolv.conf</code>。<br>这步完成，虚拟机可以上网，使用SecureCRT主机可以登录虚拟机。</p>
 </blockquote>
 <h1 id="2-虚拟机进行拷贝"><a href="#2-虚拟机进行拷贝" class="headerlink" title="2. 虚拟机进行拷贝"></a>2. 虚拟机进行拷贝</h1><p>增加用户hadoop之后。进行拷贝，拷贝出两个虚拟机用作从机，并重新设置网卡以及主机名。并使用<code>ssh localhost</code>命令在虚拟机互相登录。  </p>
 <h1 id="3-使用公钥登录"><a href="#3-使用公钥登录" class="headerlink" title="3. 使用公钥登录"></a>3. 使用公钥登录</h1><p>使用root账号，在第一个机器输入<code>ssh-keygen</code>，生成ssh公钥私钥，然后使用<code>ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.xxx.x</code>
 发送到指定的某个机器，就可以直接使用ssh登录而不用输入密码了，因为有三台，<code>ssh-keygen</code>需要每台输入，而后面的命令需要每台输入两次，用于
-连接两台电脑。详细地址：<a href="http://www.linuxidc.com/Linux/2016-03/129204.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2016-03/129204.htm</a><br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png" alt=""></p>
+连接两台电脑。<br>详细地址：<a href="http://www.linuxidc.com/Linux/2016-03/129204.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2016-03/129204.htm</a><br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png" alt=""></p>
 ]]></content>
     
     <summary type="html">
@@ -620,52 +634,6 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
   </entry>
   
   <entry>
-    <title>一、深入Web请求过程</title>
-    <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
-    <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
-    <published>2017-08-03T04:08:20.000Z</published>
-    <updated>2017-08-04T08:19:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。
-所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。
-如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，
-家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，
-它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
-<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
-<blockquote>
-<p><code>ipconfig /flushdns</code></p>
-</blockquote>
-<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
-<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。
-比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。
-目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。
-<img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
-<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。
-通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
-<ul>
-<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
-<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。
-<img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
-<li>操作系统：如设置多队列网卡。</li>
-</ul>
-<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
-<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
-    
-    
-  </entry>
-  
-  <entry>
     <title>二、深入分析Java IO的工作机制</title>
     <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20IO%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
     <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第二章：深入分析Java IO的工作机制/</id>
@@ -791,6 +759,52 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
     
       &lt;h1 id=&quot;1-JAVA的I-O类库的基本架构&quot;&gt;&lt;a href=&quot;#1-JAVA的I-O类库的基本架构&quot; class=&quot;headerlink&quot; title=&quot;1. JAVA的I/O类库的基本架构&quot;&gt;&lt;/a&gt;1. JAVA的I/O类库的基本架构&lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;基于
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>一、深入Web请求过程</title>
+    <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
+    <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
+    <published>2017-08-03T04:08:20.000Z</published>
+    <updated>2017-08-04T08:19:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。
+所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。
+如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，
+家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，
+它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
+<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
+<blockquote>
+<p><code>ipconfig /flushdns</code></p>
+</blockquote>
+<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
+<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。
+比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。
+目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。
+<img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/1.png" alt="Web请求过程"></p>
+<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。
+通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
+<ul>
+<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
+<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。
+<img src="https://raw.githubusercontent.com/LiWenGu/static_resource/master/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0/2.png" alt="集群负载均衡"></li>
+<li>操作系统：如设置多队列网卡。</li>
+</ul>
+<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
+<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
     
     </summary>
     
