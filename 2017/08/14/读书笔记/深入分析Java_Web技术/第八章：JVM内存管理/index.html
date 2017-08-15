@@ -424,7 +424,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  1,513
+                  1,514
                 </span>
               
 
@@ -478,7 +478,8 @@
 需要调用操作系统提供的接口实现，这个调用接口的过程也就是系统调用。每一次系统调用都会存在两个内存空间的切换，通常的网络传输也是一次系统调用，
 通过网络传输的数据先是从内核空间接收到远程主机的数据，然后再从内核空间复制到用户空间，供用户程序使用 。这种从内核空间到用户空间的数据复制
 很费时，以效率换取的安全稳定。<br>内核空间和用户空间的大小如何分配也是一个问题，是更多地分配给用户空间供用户程序使用，还是首先保住内核有足够的空间来运行，这要平衡一下。<br>如果是一台登录服务器，要分配更多的内核空间，因为每个登录用户操作系统都会初始化一个用户进程，这个进程大部分都在内核空间里运行。<br>Window32位操作系统默认内核：用户=1:1，即各有2GB，而在Linux32位则是1:3。</p>
-<h1 id="3-在Java中哪些组件需要使用内存"><a href="#3-在Java中哪些组件需要使用内存" class="headerlink" title="3. 在Java中哪些组件需要使用内存"></a>3. 在Java中哪些组件需要使用内存</h1><h2 id="1-Java堆"><a href="#1-Java堆" class="headerlink" title="1. Java堆"></a>1. Java堆</h2><h2 id="2-线程"><a href="#2-线程" class="headerlink" title="2. 线程"></a>2. 线程</h2><h2 id="3-类和类加载器"><a href="#3-类和类加载器" class="headerlink" title="3. 类和类加载器"></a>3. 类和类加载器</h2><h2 id="4-NIO"><a href="#4-NIO" class="headerlink" title="4. NIO"></a>4. NIO</h2><h2 id="5-JNI"><a href="#5-JNI" class="headerlink" title="5. JNI"></a>5. JNI</h2>
+<h1 id="3-在Java中哪些组件需要使用内存"><a href="#3-在Java中哪些组件需要使用内存" class="headerlink" title="3. 在Java中哪些组件需要使用内存"></a>3. 在Java中哪些组件需要使用内存</h1><p>x</p>
+<h2 id="1-Java堆"><a href="#1-Java堆" class="headerlink" title="1. Java堆"></a>1. Java堆</h2><h2 id="2-线程"><a href="#2-线程" class="headerlink" title="2. 线程"></a>2. 线程</h2><h2 id="3-类和类加载器"><a href="#3-类和类加载器" class="headerlink" title="3. 类和类加载器"></a>3. 类和类加载器</h2><h2 id="4-NIO"><a href="#4-NIO" class="headerlink" title="4. NIO"></a>4. NIO</h2><h2 id="5-JNI"><a href="#5-JNI" class="headerlink" title="5. JNI"></a>5. JNI</h2>
       
     </div>
 
