@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.website/"/>
-  <updated>2017-08-13T15:58:23.000Z</updated>
+  <updated>2017-08-15T17:22:23.000Z</updated>
   <id>http://www.liwenguang.website/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://www.liwenguang.website/2017/08/14/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%85%AB%E7%AB%A0%EF%BC%9AJVM%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
     <id>http://www.liwenguang.website/2017/08/14/读书笔记/深入分析Java_Web技术/第八章：JVM内存管理/</id>
     <published>2017-08-14T15:14:12.000Z</published>
-    <updated>2017-08-13T15:58:23.000Z</updated>
+    <updated>2017-08-15T17:22:23.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-物理内存与虚拟内存"><a href="#1-物理内存与虚拟内存" class="headerlink" title="1. 物理内存与虚拟内存"></a>1. 物理内存与虚拟内存</h1><p>所谓物理内存就是RAM（随机存储器）。在计算机中，还有一个存储单元叫寄存器，它用于存储计算单元执行指令（如浮点、整数等运算时）的中间结果。
 寄存器的大小决定了一次计算可使用的最大数值。（博主直接理解成内存条，内存条也是RAM的一种）  </p>
