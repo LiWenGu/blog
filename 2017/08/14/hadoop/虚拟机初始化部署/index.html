@@ -108,7 +108,8 @@
 <meta property="og:description" content="1. 虚拟机设置静态IP使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。详细地址：http://blog.csdn.net/readiay/article/details/50866709主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。  设置网卡：/etc/sysconfig/network-scripts/ifcfg-xxx,x">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png">
-<meta property="og:updated_time" content="2017-08-14T15:10:12.000Z">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-2.png">
+<meta property="og:updated_time" content="2017-08-15T04:59:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="虚拟机初始化部署">
 <meta name="twitter:description" content="1. 虚拟机设置静态IP使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。详细地址：http://blog.csdn.net/readiay/article/details/50866709主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。  设置网卡：/etc/sysconfig/network-scripts/ifcfg-xxx,x">
@@ -426,7 +427,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  302
+                  396
                 </span>
               
 
@@ -442,7 +443,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  1
+                  2
                 </span>
               
             </div>
@@ -470,7 +471,11 @@
 <h1 id="2-虚拟机进行拷贝"><a href="#2-虚拟机进行拷贝" class="headerlink" title="2. 虚拟机进行拷贝"></a>2. 虚拟机进行拷贝</h1><p>增加用户hadoop之后。进行拷贝，拷贝出两个虚拟机用作从机，并重新设置网卡以及主机名。并使用<code>ssh localhost</code>命令在虚拟机互相登录。  </p>
 <h1 id="3-使用公钥登录"><a href="#3-使用公钥登录" class="headerlink" title="3. 使用公钥登录"></a>3. 使用公钥登录</h1><p>使用root账号，在第一个机器输入<code>ssh-keygen</code>，生成ssh公钥私钥，然后使用<code>ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.xxx.x</code>
 发送到指定的某个机器，就可以直接使用ssh登录而不用输入密码了，因为有三台，<code>ssh-keygen</code>需要每台输入，而后面的命令需要每台输入两次，用于
-连接两台电脑。<br>详细地址：<a href="http://www.linuxidc.com/Linux/2016-03/129204.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2016-03/129204.htm</a><br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png" alt=""></p>
+连接两台电脑。<br>详细地址：<a href="http://blog.topspeedsnail.com/archives/6985" target="_blank" rel="external">http://blog.topspeedsnail.com/archives/6985</a>
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png" alt=""></p>
+<h1 id="4-配置hosts文件"><a href="#4-配置hosts文件" class="headerlink" title="4. 配置hosts文件"></a>4. 配置hosts文件</h1><p>在第一步设置了主机名之后，接着在每台虚拟机中，设置hosts文件，以后ssh连接直接输入别名，不用输入IP。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-2.png" alt=""></p>
+<h1 id="5-配置Java到环境变量"><a href="#5-配置Java到环境变量" class="headerlink" title="5. 配置Java到环境变量"></a>5. 配置Java到环境变量</h1><p><a href="http://www.jianshu.com/p/cde3083fc42d" target="_blank" rel="external">http://www.jianshu.com/p/cde3083fc42d</a></p>
+<h1 id="6-设置请求转发"><a href="#6-设置请求转发" class="headerlink" title="6. 设置请求转发"></a>6. 设置请求转发</h1><p>我们需要主机去访问虚拟机的服务，详情设置：<a href="http://graybull.is-programmer.com/posts/36941.html" target="_blank" rel="external">http://graybull.is-programmer.com/posts/36941.html</a>  </p>
 
       
     </div>
@@ -502,7 +507,7 @@
   <p><span>本文标题:</span><a href="/2017/08/14/hadoop/虚拟机初始化部署/">虚拟机初始化部署</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月14日 - 22:08</p>
-  <p><span>最后更新:</span>2017年08月14日 - 23:08</p>
+  <p><span>最后更新:</span>2017年08月15日 - 12:08</p>
   <p><span>原始链接:</span><a href="/2017/08/14/hadoop/虚拟机初始化部署/" title="虚拟机初始化部署">http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/"  aria-label="复制成功！"></i></span>
   </p>
@@ -744,7 +749,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-虚拟机设置静态IP"><span class="nav-text">1. 虚拟机设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-虚拟机进行拷贝"><span class="nav-text">2. 虚拟机进行拷贝</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-使用公钥登录"><span class="nav-text">3. 使用公钥登录</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-虚拟机设置静态IP"><span class="nav-text">1. 虚拟机设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-虚拟机进行拷贝"><span class="nav-text">2. 虚拟机进行拷贝</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-使用公钥登录"><span class="nav-text">3. 使用公钥登录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-配置hosts文件"><span class="nav-text">4. 配置hosts文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-配置Java到环境变量"><span class="nav-text">5. 配置Java到环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-设置请求转发"><span class="nav-text">6. 设置请求转发</span></a></li></ol></div>
             
 
           </div>
