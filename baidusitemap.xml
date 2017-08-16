@@ -25,7 +25,7 @@
 
     
   <url>
-    <loc>http://www.liwenguang.website/2017/08/16/SQL/%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0/</loc>
+    <loc>http://www.liwenguang.website/2017/08/16/SQL/MySQL/%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0/</loc>
     <lastmod>2017-08-16T08:37:20.000Z</lastmod>
     <data>
         <display>
@@ -35,10 +35,10 @@
          
            
              
-              <breadCrumb title="读书笔记" url="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+              <breadCrumb title="SQL" url="http://www.liwenguang.website/categories/SQL/"/>
           
              
-              <breadCrumb title="深入分析Java_Web技术" url="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+              <breadCrumb title="MySQL" url="http://www.liwenguang.website/categories/SQL/MySQL/"/>
           
         </display>
     </data>

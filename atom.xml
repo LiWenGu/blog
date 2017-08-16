@@ -17,8 +17,8 @@
   
   <entry>
     <title>内置函数</title>
-    <link href="http://www.liwenguang.website/2017/08/16/SQL/%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0/"/>
-    <id>http://www.liwenguang.website/2017/08/16/SQL/内置函数/</id>
+    <link href="http://www.liwenguang.website/2017/08/16/SQL/MySQL/%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0/"/>
+    <id>http://www.liwenguang.website/2017/08/16/SQL/MySQL/内置函数/</id>
     <published>2017-08-16T08:37:20.000Z</published>
     <updated>2017-08-16T08:37:20.000Z</updated>
     
@@ -30,9 +30,9 @@
     
     </summary>
     
-      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+      <category term="SQL" scheme="http://www.liwenguang.website/categories/SQL/"/>
     
-      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java-Web%E6%8A%80%E6%9C%AF/"/>
+      <category term="MySQL" scheme="http://www.liwenguang.website/categories/SQL/MySQL/"/>
     
     
   </entry>

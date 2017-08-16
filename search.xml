@@ -2,11 +2,11 @@
 <search>
   <entry>
     <title><![CDATA[内置函数]]></title>
-    <url>%2F2017%2F08%2F16%2FSQL%2F%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0%2F</url>
+    <url>%2F2017%2F08%2F16%2FSQL%2FMySQL%2F%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0%2F</url>
     <content type="text"><![CDATA[123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172-- 数字类的函数-------------------------------------------------------------------------------- 返回最小的不小于X的整数select CEIL(1.1)select CEILING(-1.1)-- 进制转换，值N，以from的进制，输出为to进制select CONV('a',16,2)-- 计算出循环冗余校验数字select CRC32('MySQL')-- 返回最大的不大于X的整数select FLOOR(2.5)-- 隔断小数点，技巧：后面如果是'en_US'，则实现的四舍五入select FORMAT(123456987.537,0,'en_US');select FORMAT(123456987.437,0);-- 十六进制，如果是Number则返回该数字的十进制，如果是String，则每个字符转化ASCII的16进制表示-- 数字的相反函数：CONV(HEX(255),16,10)，字符的相反函数：UNHEX(HEX('abc')) select HEX(255)select HEX('abc')select UNHEX(HEX('中国'))-- 获取余数select MOD(18, 5)-- 获取X的Y次方select POW(2, -1)select POWER(2, -1)-- 返回-1、0、1select SIGN(54)-- 获取非负数的平方根select SQRT(5)select SQRT(-5)-- 直接截断小数点select TRUNCATE(-215.211,1)-- 日期和时间类的函数-------------------------------------------------------------------------- 获取当前的年月日select now(), CURDATE()-- 增加时间select ADDDATE(CURDATE(),INTERVAL 10 DAY)-- 时区转换，需要设置时区select CONVERT_TZ('2017-01-02 12:21:30','GMT','MET')-- 比较日期，前面减去后面select DATEDIFF('2017-11-30 12:30','2017-11-29 13')-- INTERVAL，具体参数参见：http://imysql.com/mysql-refman/5.7/functions.html#function_date-addselect '2017-01-01 12:12:12' + INTERVAL 1 SECOND-- 日期格式化，具体参数参见：http://imysql.com/mysql-refman/5.7/functions.html#function_date-formatselect DATE_FORMAT('2017-01-01 22:12:32','%W %M %Y')-- 日期减法select DATE_SUB('2017-01-01',INTERVAL 2 DAY)-- 获取星期select DAYNAME('2007-02-03')select DAYOFWEEK('2017-02-03')-- 获取某个月的最后一天select LAST_DAY('2013-02-05 12:32:21')-- 输入天数，获取年月日select MAKEDATE(2017,45)-- 获取月份差select PERIOD_DIFF(200802,200911)-- 获取季度select QUARTER('2017-02-05')-- 秒转化时间select SEC_TO_TIME(2354)-- 字符串转化时间select STR_TO_DATE('a09:12:30','a%h:%i:%s')-- 配合GROUP BY的函数-------------------------------------------------------------------------- 求平均AVG([DISTINCT] expr)-- 求和COUNT(DISTINCT expr,[expr...])-- 字段连接, with rollup将额外多出一条记录用于汇总SELECT id, event_day, GROUP_CONCAT(dimension_value ORDER BY dimension_value DESC SEPARATOR '`') FROM sqq_report.member_dimension_index_day where tenant_id = '9001' AND event_day = 20170815GROUP BY event_day WITH ROLLUP]]></content>
       <categories>
-        <category>读书笔记</category>
-        <category>深入分析Java_Web技术</category>
+        <category>SQL</category>
+        <category>MySQL</category>
       </categories>
   </entry>
   <entry>
