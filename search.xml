@@ -36,15 +36,6 @@
       </categories>
   </entry>
   <entry>
-    <title><![CDATA[十、深入理解Session与Cookie]]></title>
-    <url>%2F2017%2F08%2F17%2F%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%2F%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF%2F%E7%AC%AC%E5%8D%81%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Session%E4%B8%8ECookie%2F</url>
-    <content type="text"><![CDATA[1. 理解Cookie]]></content>
-      <categories>
-        <category>读书笔记</category>
-        <category>深入分析Java_Web技术</category>
-      </categories>
-  </entry>
-  <entry>
     <title><![CDATA[九、Servlet工作原理解析]]></title>
     <url>%2F2017%2F08%2F17%2F%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%2F%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF%2F%E7%AC%AC%E4%B9%9D%E7%AB%A0%EF%BC%9AServlet%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%2F</url>
     <content type="text"><![CDATA[1. 从Servlet容器说起Servlet和Servlet容器的关系像子弹和枪，枪是为子弹而生的，而子弹又让枪有了杀伤力。为了适应工业化生产，他们是相互独立发展，通过标准化接口来相互协作。 Servlet容器种类多，各有各的优缺点，我们以Tomcat为例介绍Servlet容器是如何管理Servlet的。 在Tomcat的容器等级中，Context容器直接管理Servlet在容器中的包装类Wrapper，所以Context容器如何运作将直接影响Servlet的工作方式。分四个等级，真正管理Servlet的容器是Context容器，一个Context对应一个Web工程，Tomcat中WEB容器配置文件：conf/context.xml中的节点配置 Context容器，你可以配置多个。 2. Servlet容器的启动过程现在很多博客已经把Tomcat解析很清晰了，就不再多累赘编写了。另外由于博主一直使用Jetty，因此以后待研究Tomcat或者Jetty。]]></content>
