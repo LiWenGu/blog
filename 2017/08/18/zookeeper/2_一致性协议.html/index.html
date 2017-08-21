@@ -111,7 +111,7 @@
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-2-2-1.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-2-2-2.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-2-2-3.png">
-<meta property="og:updated_time" content="2017-08-18T19:17:03.000Z">
+<meta property="og:updated_time" content="2017-08-21T16:08:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二、一致性协议">
 <meta name="twitter:description" content="前章提要：上章我们讲到分布式往往会在系统可用性和数据一致性之间反复权衡，于是就产生了一系列的一致性协议（为什么没有可用性协议？博主认为，数据才是王道）。 1. 2PC和3PC在分布式系统总，每一个机器节点虽然都能够明确地知道自己在进行事务操作过程中的结果是成功或失败，但却无法直接获取到其他分布式节点的操作结果。 因此，当一个事务操作需要跨越多个分布式节点的时候，为了保持事务处理的ACID特性（某个">
@@ -429,7 +429,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  5,093
+                  8,114
                 </span>
               
 
@@ -445,7 +445,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  18
+                  28
                 </span>
               
             </div>
@@ -538,7 +538,7 @@
 </li>
 <li>每个参与者以任意的速度执行，可能会因为出错而停止，也可能会重启。同时，即使一个提案被选定后，所有的参与者也都有可能失败或重启，因此除非
 哪些失败或重启的参与者可以记录某些信息，否则将无法确定最终的值。</li>
-<li>消息在传输过程中可能会出现不可预知的延迟，也可能会重复或丢失，但是消息不会被损坏、<h3 id="2-2-2-提案的选定"><a href="#2-2-2-提案的选定" class="headerlink" title="2.2.2 提案的选定"></a>2.2.2 提案的选定</h3>要选定一个唯一提案的最简单方式莫过于只允许一个Accpetor存在，这样的话，Proposer只能发送提案给该Accpetor，Acceptor会选择它接收到的第一个
+<li>消息在传输过程中可能会出现不可预知的延迟，也可能会重复或丢失，但是消息不会被损坏。<h3 id="2-2-2-提案的选定"><a href="#2-2-2-提案的选定" class="headerlink" title="2.2.2 提案的选定"></a>2.2.2 提案的选定</h3>要选定一个唯一提案的最简单方式莫过于只允许一个Accpetor存在，这样的话，Proposer只能发送提案给该Accpetor，Acceptor会选择它接收到的第一个
 提案作为被选定的提案。这种解决方式尽管实现起来非常简单，但是却很难让人满意，因为一旦这个Accpetor出现问题，那么整个系统就无法工作了。  </li>
 </ul>
 <p>因此，应该寻找一种更好的解决方式，例如可以使用多个Acceptor来避免Accpetor的单点问题。现在我们就来看看，在存在多个Acceptor的情况下，如何
@@ -574,6 +574,84 @@
 <blockquote>
 <p>假设某个提案[M0,V0]已经被选定了，证明任何编号Mn &gt; M0的提案，其Value值都是V0。</p>
 </blockquote>
+<h3 id="2-2-4-数学归纳法证明"><a href="#2-2-4-数学归纳法证明" class="headerlink" title="2.2.4 数学归纳法证明"></a>2.2.4 数学归纳法证明</h3><p>略过。</p>
+<h3 id="2-2-5-Proposer生成提案"><a href="#2-2-5-Proposer生成提案" class="headerlink" title="2.2.5 Proposer生成提案"></a>2.2.5 Proposer生成提案</h3><p>对于一个Proposer来说，获取哪些已经被通过的提案远比预测未来可能会被通过的提案来得简单。因此，Proposer在产生一个编号为Mn的提案时，
+必须要知道当前某一个将要或已经被半数以上Acceptor批准的、编号小于Mn但为最大编号的提案。并且，Proposer会要求所有的Acceptor都不要
+再批准任何编号小于Mn的提案——这就引出了如下的提案生成算法。</p>
+<h4 id="1-Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。"><a href="#1-Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。" class="headerlink" title=".1 Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。"></a>.1 Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。</h4><ul>
+<li>向Proposer承诺，保证不再批准任何编号小于Mn的提案。</li>
+<li>如果Acceptor已经批准过任何提案，那么其就向Proposer反馈当前该Acceptor已经批准的编号小于Mn但为最大编号的那个提案的值。</li>
+</ul>
+<p>我们将该请求称为编号为Mn的提案的Prepare请求。</p>
+<h4 id="2-如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。"><a href="#2-如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。" class="headerlink" title=".2 如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。"></a>.2 如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。</h4><p>当然还存在另一种情况，就是半数以上的Acceptor都没有批准过任何提案，即响应不包含任何的提案，那么此时Vn值就可以
+由Proposer任意选择。</p>
+<p>在确定提案之后，Proposer就会将该提案再次发送给某个Acceptor集合，并期望获得它们的批准，我们称此请求为Accept请求。需要注意的一点是，
+此时接受Accept请求的Acceptor集合不一定是之前响应Prepare请求的Acceptor集合——这点相信读者也能够明白，任意两个半数以上的Acceptor集合，必定
+包含至少一个公共Acceptor。</p>
+<h4 id="3-Acceptor批准提案"><a href="#3-Acceptor批准提案" class="headerlink" title=".3 Acceptor批准提案"></a>.3 Acceptor批准提案</h4><p>在上文中，我们已经讲解了Paxos算法中Proposer的处理逻辑，下面我们来看看Acceptor是如何批准提案的。  </p>
+<p>根据上面的内容，一个Acceptor可能会收到来自Proposer的两种请求，分别是Prepare请求和Accept请求，对这两类请求做出相应的条件分别如下。</p>
+<ul>
+<li>Prepare请求：Acceptor可以在任何时候响应一个Prepare请求。</li>
+<li>Accept请求：在不违背Accept现有承诺的前提下，可以任意响应Accept请求。因此，对Acceptor逻辑处理的约束条件，大体可以定义如下。<blockquote>
+<p>P1a：一个Acceptor只要尚未响应过任何编号大于Mn的prepare请求，那么它就可以接受这个编号为Mn的提案。</p>
+</blockquote>
+</li>
+</ul>
+<p>从上面这个约束条件中，我们可以看出，P1a包含了P1。同时，值得一提的是，Paxos算法允许Acceptor忽略任何请求而不用担心破坏其算法的安全性。</p>
+<h4 id="4-算法优化"><a href="#4-算法优化" class="headerlink" title=".4 算法优化"></a>.4 算法优化</h4><p>在上面的内容中，我们分别从Proposer和Acceptor对提案的生成和批准两方面来讲解了Paxos算法在提案选定过程中的算法细节，同时也在提案的编号全局唯一
+的前提下，获得了一个满足安全性需求的提案选定算法，接下来我们再对这个初步算法做一个小优化。尽可能地忽略Prepare请求：</p>
+<blockquote>
+<p>假设一个Acceptor收到了一个编号为Mn的prepare请求，但此时该Acceptor已经对编号大于Mn的prepare请求做出了响应，因此它肯定不会再批准
+任何新的编号为Mn的提案，那么狠显然，Acceptor就没有必要对这个Prepare请求做出响应，于是Acceptor可以炫册忽略这样的Prepare请求。同时
+Acceptor也可以忽略掉那些它已经批准过的提案的Prepare请求。</p>
+</blockquote>
+<p>通过这个优化，每个Acceptor只需要记住它已经批准的提案的最大编号以及它已经做出Prepare请求响应的提案的最大编号，以便在出现故障或节点重启的情况下，
+也能保证P2c的不变性。而对于Proposer来说，只要它可以保证不会产生具有相同编号的提案，那么就可以丢弃任意的提案以及它所有的运行时状态信息。</p>
+<h4 id="5-算法陈述"><a href="#5-算法陈述" class="headerlink" title=".5 算法陈述"></a>.5 算法陈述</h4><h5 id="5-1-阶段一："><a href="#5-1-阶段一：" class="headerlink" title=".5.1 阶段一："></a>.5.1 阶段一：</h5><ol>
+<li>Proposer选择一个提案编号Mn，然后向Acceptor的某个超过半数的子集成员发送编号为Mn的Prepare请求。</li>
+<li>如果一个Acceptor收到一个编号为Mn的Prepare请求，且编号Mn大于该Acceptor已经响应的所有Prepare请求的编号，那么它就会将它已经批准过的最大编号的提案
+作为响应反馈给Proposer，同时Acceptor会承诺不会再批准任何编号小于Mn的提案。  <blockquote>
+<p>举个例子来说，假定一个Acceptor已经响应过的所有Prepare请求对应的提案编号分别为1、2、…、5和7，那么该Acceptor在接收到一个编号为8的
+Prepare请求后，就会将编号为7的提案作为响应反馈给Proposer。</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="5-2-阶段二："><a href="#5-2-阶段二：" class="headerlink" title=".5.2 阶段二："></a>.5.2 阶段二：</h5><ol>
+<li>如果Proposer收到来自半数以上的Acceptor对于其发出的编号为Mn的Prepare请求的响应，那么它就会发送一个针对[Mn，Vn]提案的Accept请求给Acceptor。
+注意，Vn的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么它就是任意值。</li>
+<li>如果Acceptor收到这个针对[Mn，Vn]提案的Accep请求，只要改Acceptor尚未对编号大于Mn的Prepare请求做出响应，它就可以通过这个提案。</li>
+</ol>
+<p>当然，在实际运行过程中，每一个Proposer都有可能会产生多个提案，但只要每个Proposer都遵循如上所述的算法运行，就一定能够保证算法执行的正确性。
+值得一提的是，每个Proposer都可以在任意时刻丢弃一个提案，哪怕针对该提案的请求和响应在提案被丢弃后会到达，但根据Paxos算法的一系列规约，依然可以保证
+其在提案选定上的正确性，事实上，如果某个Proposer已经在试图 生成编号更大的提案，那么丢弃一些旧的提案未尝不是一个好的选择。
+因此，如果一个Acceptor因为已经收到过更大编号的Prepare请求而忽略某个编号更小的Prepare或者Accept请求，那么它也应当通知其对应的Proposer，
+以便该Proposer也能够将该提案进行丢弃——这和上面“算法优化”部分中提到的提案丢弃是一致的。</p>
+<h4 id="6-提案的获取"><a href="#6-提案的获取" class="headerlink" title=".6 提案的获取"></a>.6 提案的获取</h4><p>在上文中，我们已经介绍了如何来选定一个提案，下面我们再来看看如何让Learner获取提案，大体可以有以下几种方案。</p>
+<h5 id="6-1-方案一："><a href="#6-1-方案一：" class="headerlink" title=".6.1 方案一："></a>.6.1 方案一：</h5><p>Learner获取一个已经被选定的提案的前提是，该提案已经被半数以上的Acceptor批准。因此，最简单的做法就是一旦Acceptor批准了一个提案，就将该
+提案发送给所有的Learner。<br>很显然，这种做法虽然可以让Learner尽快地获取被选定的提案，但是却需要让每个Acceptor与所有的Learner逐个进行一次通信，通信的次数至少为二者个数的乘积。  </p>
+<h5 id="6-2-方案二："><a href="#6-2-方案二：" class="headerlink" title=".6.2 方案二："></a>.6.2 方案二：</h5><p>另一种可行的方案是，我们可以让所有的Acceptor将它们对提案的批准情况，统一发送给一个特定的Learner（下文中我们将这样的Learner称为“主Learner”），
+在不考虑拜占庭奖金问题的前提下，我们假定Learner之间可以通过消息通信来互相感知提案的选定情况。基于这样的前提，当主learner被通知一个提案
+已经被选定时，它会负责通知其它的Learner。  </p>
+<p>在这种方案中，Acceptor首先会将得到批准的提案发送给主Learner，再由其同步给其他Learner，因此较方案一而言，方案二虽然需要多一个步骤才能将
+提案通知到所有的Learner，但其通信次数却大大减少了，通常只是Acceptor和Learner的个数总和。但同时，该方案引入了一个新的不稳定因素：主Learner随时可能出现故障。  </p>
+<h5 id="6-3-方案三："><a href="#6-3-方案三：" class="headerlink" title=".6.3 方案三："></a>.6.3 方案三：</h5><p>在讲解方案二的时候，我们提到，方案二最大的问题在于主Learner存在单点问题，即主Learner随时可能出现故障。因此，对方案二进行改进，可以将主Learner的范围扩大，
+即Acceptor可以将批准的提案发送给一个特定的Learner集合，该集合中的每个Learner都可以在一个提案被选定后通知所有其他的Learner。
+这个Learner集合中的Learner个数越多，可靠性就越好，但同时网络通信的复杂度也就越高。</p>
+<h4 id="6-通过选取主Proposer保证算法的活性"><a href="#6-通过选取主Proposer保证算法的活性" class="headerlink" title=".6 通过选取主Proposer保证算法的活性"></a>.6 通过选取主Proposer保证算法的活性</h4><p>根据前面的内容坚决，我们已经基本了解Paxos算法的核心逻辑，下面我们再来看看Paxos算法在实际运作过程中的一些细节。假设存在这样一种极端情况，
+有两个Proposer依次提出了一系列编号递增的议案，但是最终都无法被选定，具体流程如下：</p>
+<blockquote>
+<p>Proposer P1提出了一个编号为M1的提案，并完成了上述阶段一的流程。但与此同时，另外一个Propoesr P2提出了一个编号为M2的提案，同样也完成了
+阶段一的流程，于是Acceptor已经承诺不再批准编号小于M2的提案了。因此，当P1进入阶段二的时候，其发出的Accept请求将被Acceptor忽略，
+于是P1再次进入阶段一并提出了一个编号为M3的提案，而这又导致P2在第二阶段的Accept请求被忽略，以此类推，提案的选定过程将陷入死循环。</p>
+</blockquote>
+<p>为了保证Paxos算法流程的可持续性，以避免陷入上述提到的“死循环”，就必须选择一个主Proposer，并规定只有主Proposer才能提出议案。这样一来，
+只要主Proposer和过半的Acceptor能够正常进行网络通信，那么但凡主Proposer提出一个编号更高的提案，该提案终将会被批准。当然，如果Proposer发现当前
+算法流程中已经有一个编号更大的提案被提出或正在接受批准，那么它会丢弃当前这个编号较小的提案，并最终能够选出一个编号足够大的提案。因此，
+如果系统中有足够多的组件（包括Propsoer、Acceptor和其他网络通信组件）能够正常工作，那么通过选择一个主Proposer，整套Paxos算法流程就能够保持活性。</p>
+<h1 id="3-小结"><a href="#3-小结" class="headerlink" title="3 小结"></a>3 小结</h1><p>主要从协议设计和原理实现角度详细讲解了二阶段提交协议、三阶段提交协议和Paxos这三种典型的一致性算法。其中二阶段提交协议解决了分布式事务的原子性问题，
+保证了分布式事务的多个参与者要么都执行成功，要么都执行失败。但是，在二阶段解决部分分布式事务问题的同时，依然存在一些难以解决的诸如同步阻塞、
+无限期等待问题。三阶段提交协议则是在二阶段提交协议的基础上，添加了PreCommit过程，从而避免了二阶段提交协议中的无限期等待问题。而Paxos算法支持
+分布式节点角色之间的轮换，这极大地避免了分布式单点的出现，因此Paxos算法既解决了无限期等待问题，是目前来说最优秀的分布式一致性协议之一。<br><a href="http://video.tudou.com/v/XMTc4NjM4Nzc1Mg==.html" target="_blank" rel="external">传送门，视频30分钟讲解paxos的演变</a></p>
 
       
     </div>
@@ -605,7 +683,7 @@
   <p><span>本文标题:</span><a href="/2017/08/18/zookeeper/2_一致性协议.html/">二、一致性协议</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月18日 - 00:08</p>
-  <p><span>最后更新:</span>2017年08月19日 - 03:08</p>
+  <p><span>最后更新:</span>2017年08月22日 - 00:08</p>
   <p><span>原始链接:</span><a href="/2017/08/18/zookeeper/2_一致性协议.html/" title="二、一致性协议">http://www.liwenguang.website/2017/08/18/zookeeper/2_一致性协议.html/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/18/zookeeper/2_一致性协议.html/"  aria-label="复制成功！"></i></span>
   </p>
@@ -655,6 +733,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/22/zookeeper/3_Paxos的工程实践.html/" rel="prev" title="三、Paxos的工程实践">
+                三、Paxos的工程实践 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -733,7 +815,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -843,7 +925,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-2PC和3PC"><span class="nav-text">1. 2PC和3PC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-2PC"><span class="nav-text">1.1 2PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-阶段一：提交事务请求"><span class="nav-text">1.1.1 阶段一：提交事务请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-阶段二：执行事务提交"><span class="nav-text">1.1.2 阶段二：执行事务提交</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-可能一：执行事务提交：假如协调者从所有的参与者的反馈都是Yes响应，那么就会执行事务提交。"><span class="nav-text">.1 可能一：执行事务提交：假如协调者从所有的参与者的反馈都是Yes响应，那么就会执行事务提交。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送提交请求：协调者向所有参与者发出Commit请求。"><span class="nav-text">.1.1 发送提交请求：协调者向所有参与者发出Commit请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务提交：参与者接收到Commit请求后，会正式执行事务提交操作，并在完成提交之后释放整个事务执行期间占用的事务资源。"><span class="nav-text">.1.2 事务提交：参与者接收到Commit请求后，会正式执行事务提交操作，并在完成提交之后释放整个事务执行期间占用的事务资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。"><span class="nav-text">.1.3 反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。"><span class="nav-text">.1.4 完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-可能二：执行事务中断：假如任何一个参与者向协调者反馈了No响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。"><span class="nav-text">.2 可能二：执行事务中断：假如任何一个参与者向协调者反馈了No响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-发送回滚请求：协调者向所有参与者节点发出Rollback请求。"><span class="nav-text">.2.1 发送回滚请求：协调者向所有参与者节点发出Rollback请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-事务回滚：参与者接收到Rollback请求后，会利用其在阶段一记录的Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。"><span class="nav-text">.2.2 事务回滚：参与者接收到Rollback请求后，会利用其在阶段一记录的Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。"><span class="nav-text">.2.3 反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-中断事务：协调者接收到所有参与者反馈的Ack消息后，完成事务中断。"><span class="nav-text">.2.4 中断事务：协调者接收到所有参与者反馈的Ack消息后，完成事务中断。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-优缺点"><span class="nav-text">1.1.3 优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-同步阻塞：在事务的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，也就是说，各个参与者在登台其他参与者响应的过程中，"><span class="nav-text">.1 同步阻塞：在事务的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，也就是说，各个参与者在登台其他参与者响应的过程中，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-单点问题：一旦协调者出现问题，整个二阶段提交流程将无法运转，更为严重的是，如果协调者是在阶段二中出现问题的话，"><span class="nav-text">.2 单点问题：一旦协调者出现问题，整个二阶段提交流程将无法运转，更为严重的是，如果协调者是在阶段二中出现问题的话，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-数据不一致：当协调者向所有参与者发送Commit请求之后，发生了协调者在尚未发送完Commit请求之前自身发生了崩溃，"><span class="nav-text">.3 数据不一致：当协调者向所有参与者发送Commit请求之后，发生了协调者在尚未发送完Commit请求之前自身发生了崩溃，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-太过保守：任何一个节点的失败都会导致整个事务的失败。"><span class="nav-text">.4 太过保守：任何一个节点的失败都会导致整个事务的失败。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-3PC"><span class="nav-text">1.2 3PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-阶段一：CanCommit"><span class="nav-text">1.2.1 阶段一：CanCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-事务询问：协调者向所有的参与者发送一个包含事务内容的CanCommit请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应。"><span class="nav-text">.1 事务询问：协调者向所有的参与者发送一个包含事务内容的CanCommit请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-各参与者向协调者反馈响应：如果自身可以顺序执行事务，反馈Yes响应，并进入预备状态，否则反馈No响应。"><span class="nav-text">.2 各参与者向协调者反馈响应：如果自身可以顺序执行事务，反馈Yes响应，并进入预备状态，否则反馈No响应。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-阶段二：PreCommit"><span class="nav-text">1.2.2 阶段二：PreCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-执行事务预提交：假如协调者从所有参与者获得的反馈都是Yes响应。"><span class="nav-text">.1 执行事务预提交：假如协调者从所有参与者获得的反馈都是Yes响应。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送预提交请求：协调者向所有参与者节点发出PreCommit的请求，并进入Prepared阶段。"><span class="nav-text">.1.1 发送预提交请求：协调者向所有参与者节点发出PreCommit的请求，并进入Prepared阶段。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务预提交：参与者接收到PreCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日志中。"><span class="nav-text">.1.2 事务预提交：参与者接收到PreCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日志中。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-各参与者向协调者反馈事务执行的响应：如果参与者成功执行了事务操作，那么就会反馈给协调者Ack响应，同时等待最终的指令："><span class="nav-text">.1.3 各参与者向协调者反馈事务执行的响应：如果参与者成功执行了事务操作，那么就会反馈给协调者Ack响应，同时等待最终的指令：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-中断事务：假如任何一个参与者向协调者反馈了No响应，或等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。"><span class="nav-text">.2 中断事务：假如任何一个参与者向协调者反馈了No响应，或等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-发送中断请求：协调者向所有参与者节点发出abort请求。"><span class="nav-text">.2.1 发送中断请求：协调者向所有参与者节点发出abort请求。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-中断事务：无论是收到来自协调者的abort请求，或者是在等待协调者请求过程中出现超时时，参与者都会中断事务。"><span class="nav-text">.2.2 中断事务：无论是收到来自协调者的abort请求，或者是在等待协调者请求过程中出现超时时，参与者都会中断事务。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-阶段三：DoCommit"><span class="nav-text">1.2.3 阶段三：DoCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-可能一：执行提交"><span class="nav-text">.1 可能一：执行提交</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送提交请求：协调者从“预提交”状态转换到“提交”状态，并向所有的参与者发送DoCommit请求。"><span class="nav-text">.1.1 发送提交请求：协调者从“预提交”状态转换到“提交”状态，并向所有的参与者发送DoCommit请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务提交：参与者接收到DoCommit请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源。"><span class="nav-text">.1.2 事务提交：参与者接收到DoCommit请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。-1"><span class="nav-text">.1.3 反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。-1"><span class="nav-text">.1.4 完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-可能二：中断事务"><span class="nav-text">.2 可能二：中断事务</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-发送中断请求：协调者向所有参与者节点发送abort请求。"><span class="nav-text">.2.1 发送中断请求：协调者向所有参与者节点发送abort请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-事务回滚：参与者接收到abort请求后，利用Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。"><span class="nav-text">.2.2 事务回滚：参与者接收到abort请求后，利用Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。-1"><span class="nav-text">.2.3 反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-中断事务：协调者接收到所有参与者反馈的Ack消息后，中断事务。"><span class="nav-text">.2.4 中断事务：协调者接收到所有参与者反馈的Ack消息后，中断事务。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-优缺点"><span class="nav-text">1.2.3 优缺点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Paxos算法"><span class="nav-text">2. Paxos算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-追本溯源"><span class="nav-text">2.1 追本溯源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Paxos算法详解"><span class="nav-text">2.2 Paxos算法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-问题描述："><span class="nav-text">2.2.1 问题描述：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-提案的选定"><span class="nav-text">2.2.2 提案的选定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-推导过程"><span class="nav-text">2.2.3 推导过程</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-2PC和3PC"><span class="nav-text">1. 2PC和3PC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-2PC"><span class="nav-text">1.1 2PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-阶段一：提交事务请求"><span class="nav-text">1.1.1 阶段一：提交事务请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-阶段二：执行事务提交"><span class="nav-text">1.1.2 阶段二：执行事务提交</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-可能一：执行事务提交：假如协调者从所有的参与者的反馈都是Yes响应，那么就会执行事务提交。"><span class="nav-text">.1 可能一：执行事务提交：假如协调者从所有的参与者的反馈都是Yes响应，那么就会执行事务提交。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送提交请求：协调者向所有参与者发出Commit请求。"><span class="nav-text">.1.1 发送提交请求：协调者向所有参与者发出Commit请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务提交：参与者接收到Commit请求后，会正式执行事务提交操作，并在完成提交之后释放整个事务执行期间占用的事务资源。"><span class="nav-text">.1.2 事务提交：参与者接收到Commit请求后，会正式执行事务提交操作，并在完成提交之后释放整个事务执行期间占用的事务资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。"><span class="nav-text">.1.3 反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。"><span class="nav-text">.1.4 完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-可能二：执行事务中断：假如任何一个参与者向协调者反馈了No响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。"><span class="nav-text">.2 可能二：执行事务中断：假如任何一个参与者向协调者反馈了No响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-发送回滚请求：协调者向所有参与者节点发出Rollback请求。"><span class="nav-text">.2.1 发送回滚请求：协调者向所有参与者节点发出Rollback请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-事务回滚：参与者接收到Rollback请求后，会利用其在阶段一记录的Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。"><span class="nav-text">.2.2 事务回滚：参与者接收到Rollback请求后，会利用其在阶段一记录的Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。"><span class="nav-text">.2.3 反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-中断事务：协调者接收到所有参与者反馈的Ack消息后，完成事务中断。"><span class="nav-text">.2.4 中断事务：协调者接收到所有参与者反馈的Ack消息后，完成事务中断。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-优缺点"><span class="nav-text">1.1.3 优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-同步阻塞：在事务的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，也就是说，各个参与者在登台其他参与者响应的过程中，"><span class="nav-text">.1 同步阻塞：在事务的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，也就是说，各个参与者在登台其他参与者响应的过程中，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-单点问题：一旦协调者出现问题，整个二阶段提交流程将无法运转，更为严重的是，如果协调者是在阶段二中出现问题的话，"><span class="nav-text">.2 单点问题：一旦协调者出现问题，整个二阶段提交流程将无法运转，更为严重的是，如果协调者是在阶段二中出现问题的话，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-数据不一致：当协调者向所有参与者发送Commit请求之后，发生了协调者在尚未发送完Commit请求之前自身发生了崩溃，"><span class="nav-text">.3 数据不一致：当协调者向所有参与者发送Commit请求之后，发生了协调者在尚未发送完Commit请求之前自身发生了崩溃，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-太过保守：任何一个节点的失败都会导致整个事务的失败。"><span class="nav-text">.4 太过保守：任何一个节点的失败都会导致整个事务的失败。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-3PC"><span class="nav-text">1.2 3PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-阶段一：CanCommit"><span class="nav-text">1.2.1 阶段一：CanCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-事务询问：协调者向所有的参与者发送一个包含事务内容的CanCommit请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应。"><span class="nav-text">.1 事务询问：协调者向所有的参与者发送一个包含事务内容的CanCommit请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-各参与者向协调者反馈响应：如果自身可以顺序执行事务，反馈Yes响应，并进入预备状态，否则反馈No响应。"><span class="nav-text">.2 各参与者向协调者反馈响应：如果自身可以顺序执行事务，反馈Yes响应，并进入预备状态，否则反馈No响应。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-阶段二：PreCommit"><span class="nav-text">1.2.2 阶段二：PreCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-执行事务预提交：假如协调者从所有参与者获得的反馈都是Yes响应。"><span class="nav-text">.1 执行事务预提交：假如协调者从所有参与者获得的反馈都是Yes响应。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送预提交请求：协调者向所有参与者节点发出PreCommit的请求，并进入Prepared阶段。"><span class="nav-text">.1.1 发送预提交请求：协调者向所有参与者节点发出PreCommit的请求，并进入Prepared阶段。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务预提交：参与者接收到PreCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日志中。"><span class="nav-text">.1.2 事务预提交：参与者接收到PreCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日志中。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-各参与者向协调者反馈事务执行的响应：如果参与者成功执行了事务操作，那么就会反馈给协调者Ack响应，同时等待最终的指令："><span class="nav-text">.1.3 各参与者向协调者反馈事务执行的响应：如果参与者成功执行了事务操作，那么就会反馈给协调者Ack响应，同时等待最终的指令：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-中断事务：假如任何一个参与者向协调者反馈了No响应，或等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。"><span class="nav-text">.2 中断事务：假如任何一个参与者向协调者反馈了No响应，或等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-发送中断请求：协调者向所有参与者节点发出abort请求。"><span class="nav-text">.2.1 发送中断请求：协调者向所有参与者节点发出abort请求。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-中断事务：无论是收到来自协调者的abort请求，或者是在等待协调者请求过程中出现超时时，参与者都会中断事务。"><span class="nav-text">.2.2 中断事务：无论是收到来自协调者的abort请求，或者是在等待协调者请求过程中出现超时时，参与者都会中断事务。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-阶段三：DoCommit"><span class="nav-text">1.2.3 阶段三：DoCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-可能一：执行提交"><span class="nav-text">.1 可能一：执行提交</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-发送提交请求：协调者从“预提交”状态转换到“提交”状态，并向所有的参与者发送DoCommit请求。"><span class="nav-text">.1.1 发送提交请求：协调者从“预提交”状态转换到“提交”状态，并向所有的参与者发送DoCommit请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-事务提交：参与者接收到DoCommit请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源。"><span class="nav-text">.1.2 事务提交：参与者接收到DoCommit请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。-1"><span class="nav-text">.1.3 反馈事务提交结果：参与者在完成事务提交之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。-1"><span class="nav-text">.1.4 完成事务：协调者接收到所有参与者反馈的Ack消息后，完成事务。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-可能二：中断事务"><span class="nav-text">.2 可能二：中断事务</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-发送中断请求：协调者向所有参与者节点发送abort请求。"><span class="nav-text">.2.1 发送中断请求：协调者向所有参与者节点发送abort请求。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-事务回滚：参与者接收到abort请求后，利用Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。"><span class="nav-text">.2.2 事务回滚：参与者接收到abort请求后，利用Undo信息来执行事务回滚操作，并在完成回滚之后释放在整个事务执行期间占用的资源。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。-1"><span class="nav-text">.2.3 反馈事务回滚结果：参与者在完成事务回滚之后，向协调者发送Ack消息。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-中断事务：协调者接收到所有参与者反馈的Ack消息后，中断事务。"><span class="nav-text">.2.4 中断事务：协调者接收到所有参与者反馈的Ack消息后，中断事务。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-优缺点"><span class="nav-text">1.2.3 优缺点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Paxos算法"><span class="nav-text">2. Paxos算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-追本溯源"><span class="nav-text">2.1 追本溯源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Paxos算法详解"><span class="nav-text">2.2 Paxos算法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-问题描述："><span class="nav-text">2.2.1 问题描述：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-提案的选定"><span class="nav-text">2.2.2 提案的选定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-推导过程"><span class="nav-text">2.2.3 推导过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-4-数学归纳法证明"><span class="nav-text">2.2.4 数学归纳法证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-5-Proposer生成提案"><span class="nav-text">2.2.5 Proposer生成提案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。"><span class="nav-text">.1 Proposer选择一个新的提案编号Mn，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。"><span class="nav-text">.2 如果Proposer收到了来自半数以上的Acceptor的响应结果，那么它就可以产生编号为Mn、Value值的Vn的提案，这里的Vn是所有响应中编号最大的提案的Value值。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Acceptor批准提案"><span class="nav-text">.3 Acceptor批准提案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-算法优化"><span class="nav-text">.4 算法优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-算法陈述"><span class="nav-text">.5 算法陈述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-阶段一："><span class="nav-text">.5.1 阶段一：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-阶段二："><span class="nav-text">.5.2 阶段二：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-提案的获取"><span class="nav-text">.6 提案的获取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#6-1-方案一："><span class="nav-text">.6.1 方案一：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-2-方案二："><span class="nav-text">.6.2 方案二：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-3-方案三："><span class="nav-text">.6.3 方案三：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-通过选取主Proposer保证算法的活性"><span class="nav-text">.6 通过选取主Proposer保证算法的活性</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-小结"><span class="nav-text">3 小结</span></a></li></ol></div>
             
 
           </div>
