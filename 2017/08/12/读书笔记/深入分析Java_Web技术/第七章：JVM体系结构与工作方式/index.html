@@ -890,12 +890,34 @@ Java代码。例如，在80x86的机器上寄存器就是没有规律的，很�
   由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
 </div>
 
-<div class="theme-info">
+<div class="powered-by">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
     NexT.Mist
   </a>
 </div>
+
+<div class="theme-info" id=show>
+</div>
+
+
+<script>
+  window.onload = function() {
+  var show = document.getElementById("show");
+  setInterval(function() {
+  var time = new Date();
+  // 程序计时的月从0开始取值后+1
+  var m = time.getMonth() - 7;
+  var d = time.getDate() - 13;
+  //根据自己博客的创建时间更改数值
+  var t = "已经运行了 - "+(time.getFullYear()-2017) + "年" + m + "月"
+  + d + "天 " + time.getHours() + "时"
+  + time.getMinutes() + "分" + time.getSeconds() + "秒";
+  show.innerHTML = t;
+  }, 1000);
+  };
+</script>
+
 
 
         

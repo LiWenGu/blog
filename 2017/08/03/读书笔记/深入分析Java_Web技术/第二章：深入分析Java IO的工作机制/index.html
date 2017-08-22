@@ -656,14 +656,18 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="next" title="一、深入Web请求过程">
+                <i class="fa fa-chevron-left"></i> 一、深入Web请求过程
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/" rel="prev" title="一、深入Web请求过程">
-                一、深入Web请求过程 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/08/04/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/" rel="prev" title="二、课外学习NIO">
+                二、课外学习NIO <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -888,12 +892,34 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
   由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
 </div>
 
-<div class="theme-info">
+<div class="powered-by">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
     NexT.Mist
   </a>
 </div>
+
+<div class="theme-info" id=show>
+</div>
+
+
+<script>
+  window.onload = function() {
+  var show = document.getElementById("show");
+  setInterval(function() {
+  var time = new Date();
+  // 程序计时的月从0开始取值后+1
+  var m = time.getMonth() - 7;
+  var d = time.getDate() - 13;
+  //根据自己博客的创建时间更改数值
+  var t = "已经运行了 - "+(time.getFullYear()-2017) + "年" + m + "月"
+  + d + "天 " + time.getHours() + "时"
+  + time.getMinutes() + "分" + time.getSeconds() + "秒";
+  show.innerHTML = t;
+  }, 1000);
+  };
+</script>
+
 
 
         
