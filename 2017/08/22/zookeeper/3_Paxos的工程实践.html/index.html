@@ -108,7 +108,8 @@
 <meta property="og:description" content="前章提要：主要从理论上讲解了Paxos算法，如何在保证数据一致性的情况下兼顾稳定性和性能也是一个巨大的挑战。从本章开始，我们将结合实际工程实际中的Paxos实现， 来讲解如何真正地使用Paxos算法来解决分布式一致性问题。 1. ChubbyGoogle Chubby是一个大名鼎鼎的分布式锁服务，GFS和Big Table等大型系统多用它来解决分布式协作、元数据存储和Master选举等一系列与分布">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-1.png">
-<meta property="og:updated_time" content="2017-08-22T17:10:32.000Z">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-2.png">
+<meta property="og:updated_time" content="2017-08-23T16:01:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="三、Paxos的工程实践">
 <meta name="twitter:description" content="前章提要：主要从理论上讲解了Paxos算法，如何在保证数据一致性的情况下兼顾稳定性和性能也是一个巨大的挑战。从本章开始，我们将结合实际工程实际中的Paxos实现， 来讲解如何真正地使用Paxos算法来解决分布式一致性问题。 1. ChubbyGoogle Chubby是一个大名鼎鼎的分布式锁服务，GFS和Big Table等大型系统多用它来解决分布式协作、元数据存储和Master选举等一系列与分布">
@@ -426,7 +427,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  6,240
+                  8,824
                 </span>
               
 
@@ -442,7 +443,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  22
+                  31
                 </span>
               
             </div>
@@ -582,7 +583,53 @@ BitTable集群中的其他客户端可以通过监视这个Chubby文件的变化
 <h3 id="1-4-6-会话和会话激活（KeepAlive）"><a href="#1-4-6-会话和会话激活（KeepAlive）" class="headerlink" title="1.4.6 会话和会话激活（KeepAlive）"></a>1.4.6 会话和会话激活（KeepAlive）</h3><p>Chubby客户端和服务端之间通过创建一个TCP连接来进行所有的网络通信操作，我们将这一连接称为会话（Session）。会话是有生命周期的，存在一个超时时间，
 在超时时间内，Chubby客户端和服务端之间可以通过心跳检测来保持会话的活性，以使会话周期得到延续，我们将这个过程称为KeepAlive（会话激活）。如果
 能够成功地通过KeepAlive过程将Chubby会话一直延续下去，那么客户端创建的句柄（引用）、锁和缓存数据等都依然有效。</p>
-<h3 id="1-4-7-KeepAlive请求"><a href="#1-4-7-KeepAlive请求" class="headerlink" title="1.4.7 KeepAlive请求"></a>1.4.7 KeepAlive请求</h3>
+<h3 id="1-4-7-KeepAlive请求"><a href="#1-4-7-KeepAlive请求" class="headerlink" title="1.4.7 KeepAlive请求"></a>1.4.7 KeepAlive请求</h3><p>下面我们就重点来看看Chubby Master是如何处理客户端的KeepAlive请求的。Master在接收到客户端的KeepAlive请求时，首先会将该请求阻塞住，并等到
+该客户端的当前会话租期即将过期时，才为其续租该客户端的会话租期，之后再向客户端响应这个KeepAlive请求，并同时将最新的会话租期超时时间反馈给客户端。
+Master对于会话续租时间的设置，默认是12秒，但这不是一个固定的值，Chubby会根据实际的运行情况，自行调节该周期的长短。举个例子来说，
+如果当前Master处于高负载运行状态的话，那么Master会适当地延长会话租期的长度，以减少客户端KeepAlive请求的发送频率。客户端在接收到来自Master的续租
+响应后，会立即发起一个新的KeepAlive请求，再由Master进行阻塞。因此我们可以看出，在正常运行过程中，每一个Chubby客户端总是会有一个KeepAlive
+请求阻塞在Master服务器上。  </p>
+<p>除了为客户端进行会话续租外，Master还将通过KeepAlive响应来传递Chubby事件通知和缓存过期通知给客户端。具体的，如果Master发现服务端已经触发了
+针对该客户端的事件通知或缓存过期通知，那么会提前将KeepAlive响应反馈给客户端。</p>
+<h3 id="1-4-8-会话超时"><a href="#1-4-8-会话超时" class="headerlink" title="1.4.8 会话超时"></a>1.4.8 会话超时</h3><p>谈到会话租期，Chubby的客户端也会维持一个和Master端近似相同的会话租期。为什么是近似相同呢？这是因为客户端必须考虑两方面的因素：一方面，KeepAlive
+响应在网络传输过程中会花费一定的时间；另一方面，Master服务端和Chubby客户端存在时钟不一致性现象。因此在Chubby会话中，存在Master端会话租期和客户端本地
+会话租期。  </p>
+<p>如果Chubby客户端在运行过程中，按照本地的会话租期超时时间，检测到期会话租期已经过期却尚未接收到Master的KeepAlive响应，那么这个时候，它将无法确定Master
+服务端是否已经中止了当前会话，我们称这个时候客户端处于“危险状态”。此时，Chubby客户端会清空其本地缓存，并将其标记为不可用。同时，客户端还会等待一个被
+称作“宽限期”的时间周期，这个宽限期默认是45秒。如果在宽限期到期前，客户端和服务端成功地进行了KeepAlive，那么客户端就会再次开启本地缓存，否则，客户端就会
+认为当前会话已经过期了，从而中止本次会话。  </p>
+<p>我们再着重来看看上面提到的“危险状态”。当客户端进入上述提到的危险状态时，Chubby的客户端库会通过一个“jeopardy”事件来通知上层应用程序。如果
+恢复正常，客户端同样会以一个“safe”事件来通知应用程序可以继续正常运行了。但如果客户端最终没能从危险状态中恢复过来，那么客户端会以一个“expired”
+事件来通知应用程序当前Chubby会话已经超时。Chubby通过这些不同的事件类型通知，能够很好地辅助上层应用程序在不明确Chubby会话状态的情况下，
+根据不同的事件类型来做出不同的处理：等待或重启。有了这样的机制保证之后，对于那些在短时间内Chubby服务不可用的场景下，客户端应用程序可以选择等待，而不是重启，
+这对于那些重启整个应用程序需要花费较大代价的系统来说非常有帮助。</p>
+<h3 id="1-4-9-Chubby-Master故障恢复"><a href="#1-4-9-Chubby-Master故障恢复" class="headerlink" title="1.4.9 Chubby Master故障恢复"></a>1.4.9 Chubby Master故障恢复</h3><p>Chubby的Master服务器上运行着会话租期计时器，用来管理所有会话的生命周期。如果在运行过程中Master出现了故障，那么该计时器会停止，直到新的Master选举
+产生后，计时器才会继续计时，也就是说，从旧的Master崩溃到新的Master选举产生所花费的时间将不计入会话超时的计算中，这等价于延长了客户端的会话租期。
+如果新的Master在短时间内就选举产生了，那么客户端就可以在本地会话租期过期前与其创建连接。而如果Master的选举花费了较长的时间，就会导致客户端只能情况本地的缓存，
+并进入宽限期进行等待。从这里我们可以看出，由于宽限期的存在，使得会话能够很好地在服务端Master转换额过程中得到维持。整个Chubby Master故障恢复过程中
+服务端和客户端的交互情况：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-2.png" alt="" title="Chubby Master故障恢复过程中服务端和客户端交互图"><br>展示了一个完整的Chubby服务端Master故障恢复过程中所触发的所有事件序列。在这整个故障恢复过程中，客户端必须使用宽限期来保证在Master转换过程完成之后，
+其会话依然有效。  </p>
+<p>一开始在旧的Master服务器上维持了会话租期“lease M1”，在客户端上维持了对应的“lease C1”，同时客户端的KeepAlive请求1一直被Master阻塞着。在一段时间之后，
+Master向客户端反馈了KeepAlive响应2，同时开始了新的会话租期“lease M2”，而客户端在接收到该KeepAlive响应之后，立即发送了新的KeepAlive请求3，并
+同时也开始了新的会话租期“lease C2”。至此，客户端和服务吨Master之间的所有交互都是正常的。但是随后，Master发生了故障，从而无法反馈客户端的KeepAlive
+请求3。在这个过程中，客户端检测到会话租期“lease C2”已经过期，它会清空本地缓存，并进入宽限期。在这顿时间内，客户端无法确定Master上的会话周期
+是否也已经过期，因此，它不会销毁它的本地会话，而是将所有应用程序对它的API调用都阻塞主，以避免在这个期间进行的API调用导致数据不一致现象。
+同时，在客户端宽限期开始时，Chubby客户端会向上层应用程序发送一个“jeopardy”事件。一段时间后，CHubby服务端选举产生了新的Master，并为该客户端初始化
+了新的会话租期“lease M3”。当客户端向新的Master发送KeepAlive请求4时，Master检测到该客户端的Master周期号已经过期，因此会在KeepAlive响应5
+中拒绝这个客户端请求，并将最新的Master周期号发送给客户端。之后，客户端会携带上新的Master周期号，再次发送KeepAlive请求6给Master，最终，整个
+客户端和服务端之间的会话就会再次恢复正常。  </p>
+<p>通过上面的详细介绍，不难看出，在Master转换的这段时间内，只要客户端的宽限期是够长的，那么客户端应用程序可以在没有任何察觉的情况下，实现Chubby的故障恢复，
+但如果客户端的宽限期设置得比较短，那么Chubby客户端就会丢弃当前会话，并将这个异常情况通知给上层应用程序。  </p>
+<p>一旦客户端与新的Master建立上连接之后，客户端和Master之间会通过互相配合来实现对故障的平滑恢复。新的Master会设法将上一个Master服务器的内存状态构造出来。
+<strong>具体的，由于本地数据库记录了每个客户端的会话信息，以及其持有的锁和临时文件等信息，因此Chubby会通过读取本地磁盘上的数据来恢复一部分状态。</strong>
+总的来讲，一个新的Chubby Master服务器选举产之后，会进行如下几个主要处理。</p>
+<h4 id="1-确定Master周期"><a href="#1-确定Master周期" class="headerlink" title=".1 确定Master周期"></a>.1 确定Master周期</h4><p>Master周期用来唯一标识一个Chubby集群的Master统治轮次，以便区分不同的Master。一旦新的Master周期确定下来之后，Master就会拒绝所有携带其他Master
+周期编号的客户端请求，同时告知其最新的Master周期编号，例如上述提到的KeepAlive请求4。需要注意的一点是，只要发生Master重新选举，就一定会产生新的
+Master周期，即使是在选举前后Master都是同一台机器的情况下也是如此。</p>
+<h4 id="2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"><a href="#2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。" class="headerlink" title=".2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"></a>.2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。</h4><h4 id="3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"><a href="#3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。" class="headerlink" title=".3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"></a>.3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。</h4><h4 id="4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"><a href="#4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。" class="headerlink" title=".4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"></a>.4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。</h4><h4 id="5-Master会发送一个“Master故障切换”事件给每一个会话。"><a href="#5-Master会发送一个“Master故障切换”事件给每一个会话。" class="headerlink" title=".5 Master会发送一个“Master故障切换”事件给每一个会话。"></a>.5 Master会发送一个“Master故障切换”事件给每一个会话。</h4><p>客户端接收到这个事件后，会清空它的本地缓存，并警告上层应用程序可能已经丢失了别的事件，之后再向Master反馈应答。</p>
+<h4 id="6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"><a href="#6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。" class="headerlink" title=".6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"></a>.6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。</h4><h4 id="7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"><a href="#7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。" class="headerlink" title=".7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"></a>.7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。</h4><h4 id="8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"><a href="#8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。" class="headerlink" title=".8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"></a>.8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。</h4><p>而如果该引用在之前的Master周期中已经被关闭了，那么它聚不能在这个Master周期内再次被重建了————这一机制就确保了即使由于网络原因使得Master接收到那些延迟或重发的网络数据包，
+也不会错误地重建一个已经关闭的引用。</p>
+<h2 id="1-5-Paxos协议实现"><a href="#1-5-Paxos协议实现" class="headerlink" title="1.5 Paxos协议实现"></a>1.5 Paxos协议实现</h2>
       
     </div>
 
@@ -613,7 +660,7 @@ BitTable集群中的其他客户端可以通过监视这个Chubby文件的变化
   <p><span>本文标题:</span><a href="/2017/08/22/zookeeper/3_Paxos的工程实践.html/">三、Paxos的工程实践</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月22日 - 00:08</p>
-  <p><span>最后更新:</span>2017年08月23日 - 01:08</p>
+  <p><span>最后更新:</span>2017年08月24日 - 00:08</p>
   <p><span>原始链接:</span><a href="/2017/08/22/zookeeper/3_Paxos的工程实践.html/" title="三、Paxos的工程实践">http://www.liwenguang.website/2017/08/22/zookeeper/3_Paxos的工程实践.html/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/22/zookeeper/3_Paxos的工程实践.html/"  aria-label="复制成功！"></i></span>
   </p>
@@ -851,7 +898,7 @@ BitTable集群中的其他客户端可以通过监视这个Chubby文件的变化
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Chubby"><span class="nav-text">1. Chubby</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-概述"><span class="nav-text">1.1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-应用场景"><span class="nav-text">1.2 应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-设计目标"><span class="nav-text">1.3 设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-对上层应用程序的侵入性更小"><span class="nav-text">1. 对上层应用程序的侵入性更小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-便于提供数据的发布与订阅"><span class="nav-text">2. 便于提供数据的发布与订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-开发人员对基于锁的接口更为熟悉"><span class="nav-text">3. 开发人员对基于锁的接口更为熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-更便捷地构建更可靠的服务"><span class="nav-text">4. 更便捷地构建更可靠的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库："><span class="nav-text">1. 提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-提供粗粒度的锁服务"><span class="nav-text">2. 提供粗粒度的锁服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在提供锁服务的同时提供对小文件的读写功能"><span class="nav-text">3. 在提供锁服务的同时提供对小文件的读写功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-高可用、高可靠"><span class="nav-text">4. 高可用、高可靠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-提供事件通知机制"><span class="nav-text">5. 提供事件通知机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Chubby技术架构"><span class="nav-text">1.4 Chubby技术架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-1-系统结构"><span class="nav-text">1.4.1 系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-2-目录与文件"><span class="nav-text">1.4.2 目录与文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-3-锁与锁序列器"><span class="nav-text">1.4.3 锁与锁序列器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-锁延迟"><span class="nav-text">.1 锁延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-锁序列器"><span class="nav-text">.2 锁序列器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-4-Chubby中的事件通知机制"><span class="nav-text">1.4.4 Chubby中的事件通知机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-文件内容变更"><span class="nav-text">.1 文件内容变更</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-节点删除"><span class="nav-text">.2 节点删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-子节点新增、删除"><span class="nav-text">.3 子节点新增、删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master服务器转移"><span class="nav-text">.4 Master服务器转移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-5-Chubby中的缓存"><span class="nav-text">1.4.5 Chubby中的缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-6-会话和会话激活（KeepAlive）"><span class="nav-text">1.4.6 会话和会话激活（KeepAlive）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-7-KeepAlive请求"><span class="nav-text">1.4.7 KeepAlive请求</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Chubby"><span class="nav-text">1. Chubby</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-概述"><span class="nav-text">1.1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-应用场景"><span class="nav-text">1.2 应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-设计目标"><span class="nav-text">1.3 设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-对上层应用程序的侵入性更小"><span class="nav-text">1. 对上层应用程序的侵入性更小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-便于提供数据的发布与订阅"><span class="nav-text">2. 便于提供数据的发布与订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-开发人员对基于锁的接口更为熟悉"><span class="nav-text">3. 开发人员对基于锁的接口更为熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-更便捷地构建更可靠的服务"><span class="nav-text">4. 更便捷地构建更可靠的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库："><span class="nav-text">1. 提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-提供粗粒度的锁服务"><span class="nav-text">2. 提供粗粒度的锁服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在提供锁服务的同时提供对小文件的读写功能"><span class="nav-text">3. 在提供锁服务的同时提供对小文件的读写功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-高可用、高可靠"><span class="nav-text">4. 高可用、高可靠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-提供事件通知机制"><span class="nav-text">5. 提供事件通知机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Chubby技术架构"><span class="nav-text">1.4 Chubby技术架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-1-系统结构"><span class="nav-text">1.4.1 系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-2-目录与文件"><span class="nav-text">1.4.2 目录与文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-3-锁与锁序列器"><span class="nav-text">1.4.3 锁与锁序列器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-锁延迟"><span class="nav-text">.1 锁延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-锁序列器"><span class="nav-text">.2 锁序列器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-4-Chubby中的事件通知机制"><span class="nav-text">1.4.4 Chubby中的事件通知机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-文件内容变更"><span class="nav-text">.1 文件内容变更</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-节点删除"><span class="nav-text">.2 节点删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-子节点新增、删除"><span class="nav-text">.3 子节点新增、删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master服务器转移"><span class="nav-text">.4 Master服务器转移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-5-Chubby中的缓存"><span class="nav-text">1.4.5 Chubby中的缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-6-会话和会话激活（KeepAlive）"><span class="nav-text">1.4.6 会话和会话激活（KeepAlive）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-7-KeepAlive请求"><span class="nav-text">1.4.7 KeepAlive请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-8-会话超时"><span class="nav-text">1.4.8 会话超时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-9-Chubby-Master故障恢复"><span class="nav-text">1.4.9 Chubby Master故障恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-确定Master周期"><span class="nav-text">.1 确定Master周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"><span class="nav-text">.2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"><span class="nav-text">.3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"><span class="nav-text">.4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Master会发送一个“Master故障切换”事件给每一个会话。"><span class="nav-text">.5 Master会发送一个“Master故障切换”事件给每一个会话。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"><span class="nav-text">.6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"><span class="nav-text">.7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"><span class="nav-text">.8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-Paxos协议实现"><span class="nav-text">1.5 Paxos协议实现</span></a></li></ol></li></ol></div>
             
 
           </div>
