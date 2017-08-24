@@ -109,6 +109,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-1.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-2.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-3.png">
 <meta property="og:updated_time" content="2017-08-23T16:01:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="三、Paxos的工程实践">
@@ -427,7 +428,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  8,824
+                  10,765
                 </span>
               
 
@@ -443,7 +444,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  31
+                  37
                 </span>
               
             </div>
@@ -629,7 +630,53 @@ Master周期，即使是在选举前后Master都是同一台机器的情况下�
 <h4 id="2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"><a href="#2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。" class="headerlink" title=".2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"></a>.2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。</h4><h4 id="3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"><a href="#3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。" class="headerlink" title=".3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"></a>.3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。</h4><h4 id="4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"><a href="#4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。" class="headerlink" title=".4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"></a>.4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。</h4><h4 id="5-Master会发送一个“Master故障切换”事件给每一个会话。"><a href="#5-Master会发送一个“Master故障切换”事件给每一个会话。" class="headerlink" title=".5 Master会发送一个“Master故障切换”事件给每一个会话。"></a>.5 Master会发送一个“Master故障切换”事件给每一个会话。</h4><p>客户端接收到这个事件后，会清空它的本地缓存，并警告上层应用程序可能已经丢失了别的事件，之后再向Master反馈应答。</p>
 <h4 id="6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"><a href="#6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。" class="headerlink" title=".6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"></a>.6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。</h4><h4 id="7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"><a href="#7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。" class="headerlink" title=".7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"></a>.7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。</h4><h4 id="8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"><a href="#8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。" class="headerlink" title=".8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"></a>.8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。</h4><p>而如果该引用在之前的Master周期中已经被关闭了，那么它聚不能在这个Master周期内再次被重建了————这一机制就确保了即使由于网络原因使得Master接收到那些延迟或重发的网络数据包，
 也不会错误地重建一个已经关闭的引用。</p>
-<h2 id="1-5-Paxos协议实现"><a href="#1-5-Paxos协议实现" class="headerlink" title="1.5 Paxos协议实现"></a>1.5 Paxos协议实现</h2>
+<h2 id="1-5-Paxos协议实现"><a href="#1-5-Paxos协议实现" class="headerlink" title="1.5 Paxos协议实现"></a>1.5 Paxos协议实现</h2><p>Chubby服务端的基本架构大致分为三层：</p>
+<ul>
+<li>最底层是容错日志系统（Fault-Tolerant Log），通过Paxos算法能够保证集群中所有机器上的日志完全一致，同时具有较好的容错性。</li>
+<li>日志层之上是Key-value类型的容错数据库（Fault-Tolerant DB），其通过下层的日志来保证一致性和容错性。</li>
+<li>存储层之上就是Chubby对外提供的分布式锁服务和小文件存储服务。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-3-1-3.png" alt="" title="Chubby单机整体架构图"><br>Paxos算法的作用就在于保证集群内各个副本节点的日志能够保持一致。Chubby事务日志中的每一个Value对应Paxos算法中的一个Instance，由于Chubby需要对外提供
+不间断的服务，因此事务日志无限增长，于是在整个Chubby巡行过程中，会存在多个Paxos Instance。同时，Chubby会为每一个Paxos Instance都按序分配一个全局唯一
+的Instance编号，并将其顺序写入到事务日志中去。  </li>
+</ul>
+<p>在多Paxos Instance的模式下，为了提升算法执行的性能，就必须选举出一个副本节点作为Paxos算法的主节点，以避免因为每一个Paxos Instance都提出提案而陷入多个Paxos Round
+并存的情况。同时，Paxos会保证在Master重启或出现故障而进行切换的时候，允许出现短暂的多个Master共存却不影响副本之间的一致性。  </p>
+<p>在Paxos中，每一个Paxos Instance都需要进行一轮或多轮“Prepare-&gt;Promise-&gt;Propose-&gt;Accept”这样完整的二阶段请求过程来完成对一个提案值的选定，
+而多个Instance之间是完全独立的，每个Instance可以自己决定每一个Round的序号，仅仅只需要保证在Instance内部不会出现序号重复即可。为了在保证正确性的前提下尽可能
+地的提高算法运行性能，可以让多个Instance共用一套序号分配机制，并将“Prepare-&gt;Promise”合并为一个阶段，具体做法如下。</p>
+<ul>
+<li>当某个副本节点通过选举成为Master后，就会使用新分配的编号N来广播一个Prepare消息，该Prepare消息会被所有未达成一致的Instance和目前还未开始的Instance共用。</li>
+<li><p>当Acceptor接收到Prepare消息后，必须对多个Instance同时做出回应，这通常可以通过将反馈信息封装在一个数据包中来实现。假设最多允许K个Instance同时进行提案值的选定，那么：</p>
+<blockquote>
+<p>当前至多存在K个未达成一致的Instance，将这些未决的Instance各自最后接收的提案值（若该提案尚未接收任何值。则使用null来代替）封装进一个数据包，并作为Promise消息返回。
+同时，判断N是否大于当前Acceptor的highestPromisedNum值（当前已经接受的最大提案编号值），如果大于该值的话，那么就标记这些未决Instance和
+所有未来的Instance的highestPromisedNum值为N————这样，这些未决Instance和所有未来Instance都不能再接受任何编号小于N的提案。</p>
+</blockquote>
+</li>
+<li><p>然后Master就可以对所有未决Instance和所有未来Instance分别执行“Propose-&gt;Accept”阶段的处理。值得注意的是，如果当前Master能够一直稳定运行的话，
+那么在接下来的算法运行过程中，就不再需要进行“Prepare-&gt;Promise”的处理了。但是，一但Master发现Acceptor返回了一个Reject消息，说明集群中存在另一个Master，
+并且试图使用更大的编号发送了Prepare消息。碰到这种情况，当前Master就需要重新分配新的提案编号，并再次进行“Prepare-&gt;Promise”阶段的逻辑处理。</p>
+</li>
+</ul>
+<p>利用上述改进的Paxos算法，在Master稳定运行的情况下，只需要使用同一个编号来依次执行每一个Instance的“Promise-&gt;Accept”阶段逻辑处理。在每个Instance
+的运行过程中，一旦接收到多数派的Accept反馈后，就可以将对应的提案值写入本地事务日志并广播COMMIT消息给集群中的其他副本节点，其他副本节点在接收到这个COMMIT消息之后也会
+将提案值写入到事务日志中。如果某个副本节点因为宕机或者网络原因没有接收到COMMIT消息，可以主动向集群中的其他副本节点进行查询。因此，我们可以看到，在Chubby的Paxos
+算法的实现中，只要维持集群中存在多数派的机器能够正常运行，即使其他机器在任意时刻发生宕机，也能保证已经提交的提案的安全性。  </p>
+<p>至此，我们已经实现了一套满足一致性的日志副本，在此基础上就可以在上层实现一个一致的状态机副本，即容错数据库层。初期，使用Berkeley DB作为容错数据库，
+这个数据库底层实现了B树数据结构，即存储大量数据的HashMap，将每一个数据节点的节点路径名作为键，同时按照节点路径名进行排序，这就能够使得兄弟节点在排序顺序中相邻，
+方便对数据节点的检索。  </p>
+<p>后来，Chubby自己实现了一套更为简单的、基于日志预写和数据快照技术的底层数据复制组件。  </p>
+<p><strong>数据快照和事务日志回放机制：集群中的某台机器在宕机重启以后，为了恢复状态机的状态，最简单的方法就是将已经记录的所有事务日志重新执行一遍。但这
+会有一个明显的问题，就是如果机器上的事务日志已经积累了很多，那么恢复的时间就会非常长，因此需要定期对状态机数据做一个数据快照并将其存入磁盘，
+然后就可以将数据快照点之前的事务日志清除。</strong>  </p>
+<p>通常副本节点在进行宕机后的恢复过程中，会出现磁盘未损坏和损坏两种情况。前者最为常见，一般通过磁盘上保存的数据库快照和事务日志就可以恢复到之前某个时间点的状态，
+之后再向集群中其他正常运行的副本节点索取宕机后缺失的部分数据变更记录，这样即可实现宕机后的数据恢复。另外一种则是磁盘损坏，无法直接从本地数据恢复的情况，
+需要从其它副本节点索取全部的状态数据。  </p>
+<p>副本节点在完成宕机重启之后，为了安全起见，不会立即参与Paxos Instance流程，而是需要等待检测到K个Paxos Instance流程陈宫完成之后才能开始参与————这样就能够保证
+新分配的提案编号不会和自己以前发过的重复。  </p>
+<p>最后，为了提高整个集群的性能，还有一个改进之处在于：得益于Paxos算法的容错机制，只要任意时刻保证多数派的机器能够正常运行，那么在宕机瞬间未能真正写入到
+磁盘上（只有当真正调用操作系统Flush接口后，数据才能被真正写入物理磁盘中）的那一小部分事务日志也可以通过从其它正常运行的副本上复制来进行获取，因此
+不需要实时地进行事务日志的Flush操作，这可以极大地提高事务写入的效率。</p>
+<h2 id="1-2-Hypertable"><a href="#1-2-Hypertable" class="headerlink" title="1.2 Hypertable"></a>1.2 Hypertable</h2>
       
     </div>
 
@@ -780,7 +827,7 @@ Master周期，即使是在选举前后Master都是同一台机器的情况下�
                alt="TheOthers" />
           <p class="site-author-name" itemprop="name">TheOthers</p>
            
-              <p class="site-description motion-element" itemprop="description">与其诗和远方，不如眼前的苟且</p>
+              <p class="site-description motion-element" itemprop="description">最怕一生碌碌无为，还安慰自己平凡可贵</p>
           
         </div>
         <nav class="site-state motion-element">
@@ -898,7 +945,7 @@ Master周期，即使是在选举前后Master都是同一台机器的情况下�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Chubby"><span class="nav-text">1. Chubby</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-概述"><span class="nav-text">1.1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-应用场景"><span class="nav-text">1.2 应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-设计目标"><span class="nav-text">1.3 设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-对上层应用程序的侵入性更小"><span class="nav-text">1. 对上层应用程序的侵入性更小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-便于提供数据的发布与订阅"><span class="nav-text">2. 便于提供数据的发布与订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-开发人员对基于锁的接口更为熟悉"><span class="nav-text">3. 开发人员对基于锁的接口更为熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-更便捷地构建更可靠的服务"><span class="nav-text">4. 更便捷地构建更可靠的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库："><span class="nav-text">1. 提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-提供粗粒度的锁服务"><span class="nav-text">2. 提供粗粒度的锁服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在提供锁服务的同时提供对小文件的读写功能"><span class="nav-text">3. 在提供锁服务的同时提供对小文件的读写功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-高可用、高可靠"><span class="nav-text">4. 高可用、高可靠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-提供事件通知机制"><span class="nav-text">5. 提供事件通知机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Chubby技术架构"><span class="nav-text">1.4 Chubby技术架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-1-系统结构"><span class="nav-text">1.4.1 系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-2-目录与文件"><span class="nav-text">1.4.2 目录与文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-3-锁与锁序列器"><span class="nav-text">1.4.3 锁与锁序列器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-锁延迟"><span class="nav-text">.1 锁延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-锁序列器"><span class="nav-text">.2 锁序列器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-4-Chubby中的事件通知机制"><span class="nav-text">1.4.4 Chubby中的事件通知机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-文件内容变更"><span class="nav-text">.1 文件内容变更</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-节点删除"><span class="nav-text">.2 节点删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-子节点新增、删除"><span class="nav-text">.3 子节点新增、删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master服务器转移"><span class="nav-text">.4 Master服务器转移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-5-Chubby中的缓存"><span class="nav-text">1.4.5 Chubby中的缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-6-会话和会话激活（KeepAlive）"><span class="nav-text">1.4.6 会话和会话激活（KeepAlive）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-7-KeepAlive请求"><span class="nav-text">1.4.7 KeepAlive请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-8-会话超时"><span class="nav-text">1.4.8 会话超时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-9-Chubby-Master故障恢复"><span class="nav-text">1.4.9 Chubby Master故障恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-确定Master周期"><span class="nav-text">.1 确定Master周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"><span class="nav-text">.2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"><span class="nav-text">.3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"><span class="nav-text">.4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Master会发送一个“Master故障切换”事件给每一个会话。"><span class="nav-text">.5 Master会发送一个“Master故障切换”事件给每一个会话。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"><span class="nav-text">.6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"><span class="nav-text">.7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"><span class="nav-text">.8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-Paxos协议实现"><span class="nav-text">1.5 Paxos协议实现</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Chubby"><span class="nav-text">1. Chubby</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-概述"><span class="nav-text">1.1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-应用场景"><span class="nav-text">1.2 应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-设计目标"><span class="nav-text">1.3 设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-对上层应用程序的侵入性更小"><span class="nav-text">1. 对上层应用程序的侵入性更小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-便于提供数据的发布与订阅"><span class="nav-text">2. 便于提供数据的发布与订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-开发人员对基于锁的接口更为熟悉"><span class="nav-text">3. 开发人员对基于锁的接口更为熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-更便捷地构建更可靠的服务"><span class="nav-text">4. 更便捷地构建更可靠的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库："><span class="nav-text">1. 提供一个完整的、独立的分布式锁服务，而非仅仅是一个一致性协议的客户端库：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-提供粗粒度的锁服务"><span class="nav-text">2. 提供粗粒度的锁服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在提供锁服务的同时提供对小文件的读写功能"><span class="nav-text">3. 在提供锁服务的同时提供对小文件的读写功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-高可用、高可靠"><span class="nav-text">4. 高可用、高可靠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-提供事件通知机制"><span class="nav-text">5. 提供事件通知机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Chubby技术架构"><span class="nav-text">1.4 Chubby技术架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-1-系统结构"><span class="nav-text">1.4.1 系统结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-2-目录与文件"><span class="nav-text">1.4.2 目录与文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-3-锁与锁序列器"><span class="nav-text">1.4.3 锁与锁序列器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-锁延迟"><span class="nav-text">.1 锁延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-锁序列器"><span class="nav-text">.2 锁序列器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-4-Chubby中的事件通知机制"><span class="nav-text">1.4.4 Chubby中的事件通知机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-文件内容变更"><span class="nav-text">.1 文件内容变更</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-节点删除"><span class="nav-text">.2 节点删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-子节点新增、删除"><span class="nav-text">.3 子节点新增、删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master服务器转移"><span class="nav-text">.4 Master服务器转移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-5-Chubby中的缓存"><span class="nav-text">1.4.5 Chubby中的缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-6-会话和会话激活（KeepAlive）"><span class="nav-text">1.4.6 会话和会话激活（KeepAlive）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-7-KeepAlive请求"><span class="nav-text">1.4.7 KeepAlive请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-8-会话超时"><span class="nav-text">1.4.8 会话超时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-9-Chubby-Master故障恢复"><span class="nav-text">1.4.9 Chubby Master故障恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-确定Master周期"><span class="nav-text">.1 确定Master周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。"><span class="nav-text">.2 新Master能够立即对客户端的Master寻址请求进行响应，但是不会立即开始处理客户端会话相关的请求操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。"><span class="nav-text">.3 Master根据本地数据库中存储的会话和锁信息，来构建服务器的内存状态。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。"><span class="nav-text">.4 到现在为止，Master已经能够处理客户端的KeepAlive请求了，但依然无法处理其他会话相关的操作。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Master会发送一个“Master故障切换”事件给每一个会话。"><span class="nav-text">.5 Master会发送一个“Master故障切换”事件给每一个会话。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。"><span class="nav-text">.6 此时，Master会一直等待客户端的应答，知道每一个会话都应答了这个切换事件。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。"><span class="nav-text">.7 在Master接收到了所有客户端的应答之后，就能够开始处理所有的请求操作了。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。"><span class="nav-text">.8 如果客户端使用了一个在故障切换之前创建的引用，Master会重新为其创建这个引用的内存对象，并执行调用。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-Paxos协议实现"><span class="nav-text">1.5 Paxos协议实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Hypertable"><span class="nav-text">1.2 Hypertable</span></a></li></ol></li></ol></div>
             
 
           </div>
