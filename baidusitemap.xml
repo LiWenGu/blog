@@ -4,6 +4,27 @@
 
     
   <url>
+    <loc>http://www.liwenguang.website/2017/08/25/zookeeper/4_Zookeeper%E4%B8%8EPaxos.html/</loc>
+    <lastmod>2017-08-25T17:32:12.000Z</lastmod>
+    <data>
+        <display>
+        <title>四、Zookeeper与Paxos</title>
+        <pubTime>2017-08-25T13:15:30.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.liwenguang.website/categories/readNote/"/>
+          
+             
+              <breadCrumb title="从Paxos到Zookeeper分布式一致性原理与实践" url="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.liwenguang.website/2017/08/22/zookeeper/3_Paxos%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5.html/</loc>
     <lastmod>2017-08-25T13:13:20.000Z</lastmod>
     <data>
