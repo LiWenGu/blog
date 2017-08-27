@@ -429,7 +429,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  8,119
+                  8,306
                 </span>
               
 
@@ -445,7 +445,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  28
+                  29
                 </span>
               
             </div>
@@ -648,7 +648,8 @@ Prepare请求后，就会将编号为7的提案作为响应反馈给Proposer。<
 只要主Proposer和过半的Acceptor能够正常进行网络通信，那么但凡主Proposer提出一个编号更高的提案，该提案终将会被批准。当然，如果Proposer发现当前
 算法流程中已经有一个编号更大的提案被提出或正在接受批准，那么它会丢弃当前这个编号较小的提案，并最终能够选出一个编号足够大的提案。因此，
 如果系统中有足够多的组件（包括Propsoer、Acceptor和其他网络通信组件）能够正常工作，那么通过选择一个主Proposer，整套Paxos算法流程就能够保持活性。</p>
-<h1 id="3-小结"><a href="#3-小结" class="headerlink" title="3 小结"></a>3 小结</h1><p>主要从协议设计和原理实现角度详细讲解了二阶段提交协议、三阶段提交协议和Paxos这三种典型的一致性算法。其中二阶段提交协议解决了分布式事务的原子性问题，
+<h1 id="3-小结"><a href="#3-小结" class="headerlink" title="3 小结"></a>3 小结</h1><p>2PC和3PC：1.牧师分别问新郎和新娘：你是否愿意……不管生老病死……（投票阶段）。<br>2.当新郎和新娘都回答愿意后（锁定一生的资源，只要有一个没有反应，这场结婚就失败）。（投票阶段）<br>3.牧师就会说：我宣布你们……（执行阶段）。<br>存在的问题：1.阻塞问题：如果新郎回答原意，新娘没反应，则整个结婚就阻塞。（投票阶段之后增加眼神交流阶段（3PC的额外阶段），之后才真正承诺一生一世不分离即锁定资源）。<br>2.单点问题：如果牧师没反应，整个结婚就失败。（3PC的超时机制，给牧师5秒反应时间）  </p>
+<p>主要从协议设计和原理实现角度详细讲解了二阶段提交协议、三阶段提交协议和Paxos这三种典型的一致性算法。其中二阶段提交协议解决了分布式事务的原子性问题，
 保证了分布式事务的多个参与者要么都执行成功，要么都执行失败。但是，在二阶段解决部分分布式事务问题的同时，依然存在一些难以解决的诸如同步阻塞、
 无限期等待问题。三阶段提交协议则是在二阶段提交协议的基础上，添加了PreCommit过程，从而避免了二阶段提交协议中的无限期等待问题。而Paxos算法支持
 分布式节点角色之间的轮换，这极大地避免了分布式单点的出现，因此Paxos算法既解决了无限期等待问题，是目前来说最优秀的分布式一致性协议之一。<br><a href="http://video.tudou.com/v/XMTc4NjM4Nzc1Mg==.html" target="_blank" rel="external">传送门，视频30分钟讲解paxos的演变</a></p>
@@ -815,7 +816,7 @@ Prepare请求后，就会将编号为7的提案作为响应反馈给Proposer。<
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

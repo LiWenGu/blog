@@ -4,8 +4,71 @@
 
     
   <url>
+    <loc>http://www.liwenguang.website/2017/08/28/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/</loc>
+    <lastmod>2017-08-27T17:19:20.000Z</lastmod>
+    <data>
+        <display>
+        <title>六、Zookeeper的典型应用场景</title>
+        <pubTime>2017-08-27T17:12:20.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.liwenguang.website/categories/readNote/"/>
+          
+             
+              <breadCrumb title="从Paxos到Zookeeper分布式一致性原理与实践" url="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.liwenguang.website/2017/08/28/zookeeper/5_Curator%E6%93%8D%E4%BD%9C.html/</loc>
+    <lastmod>2017-08-27T17:17:30.000Z</lastmod>
+    <data>
+        <display>
+        <title>五、Curator操作</title>
+        <pubTime>2017-08-27T17:15:20.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.liwenguang.website/categories/readNote/"/>
+          
+             
+              <breadCrumb title="从Paxos到Zookeeper分布式一致性原理与实践" url="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.liwenguang.website/2017/08/28/zookeeper/5_%E4%BD%BF%E7%94%A8Zookeeper.html/</loc>
+    <lastmod>2017-08-27T17:10:20.000Z</lastmod>
+    <data>
+        <display>
+        <title>五、使用Zookeeper</title>
+        <pubTime>2017-08-27T16:46:23.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.liwenguang.website/categories/readNote/"/>
+          
+             
+              <breadCrumb title="从Paxos到Zookeeper分布式一致性原理与实践" url="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.liwenguang.website/2017/08/25/zookeeper/4_Zookeeper%E4%B8%8EPaxos.html/</loc>
-    <lastmod>2017-08-25T17:32:12.000Z</lastmod>
+    <lastmod>2017-08-27T16:44:32.000Z</lastmod>
     <data>
         <display>
         <title>四、Zookeeper与Paxos</title>

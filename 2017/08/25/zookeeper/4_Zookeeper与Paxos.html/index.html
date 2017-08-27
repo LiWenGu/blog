@@ -108,7 +108,7 @@
 <meta property="og:description" content="本章概要：首先对ZooKeeper进行一个整体上的介绍，包括ZooKeeper的设计目标、由来以及它的基本概念，然后将会重点介绍ZAB这一ZooKeeper中非常重要的一致性协议。 1. 初识ZooKeeper1.1 ZooKeeper介绍ZooKeeper由雅虎创建，是Chubby的开源实现。设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-4-1-1.png">
-<meta property="og:updated_time" content="2017-08-25T17:32:12.000Z">
+<meta property="og:updated_time" content="2017-08-27T16:44:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="四、Zookeeper与Paxos">
 <meta name="twitter:description" content="本章概要：首先对ZooKeeper进行一个整体上的介绍，包括ZooKeeper的设计目标、由来以及它的基本概念，然后将会重点介绍ZAB这一ZooKeeper中非常重要的一致性协议。 1. 初识ZooKeeper1.1 ZooKeeper介绍ZooKeeper由雅虎创建，是Chubby的开源实现。设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的">
@@ -426,7 +426,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  6,994
+                  7,485
                 </span>
               
 
@@ -442,7 +442,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  24
+                  26
                 </span>
               
             </div>
@@ -615,7 +615,19 @@ Follower角色连接上Leader服务器之后，Leader服务器会根据自己服
 <li>Leader进程都会等待超过半数的Follower做出正确的反馈后，才会将一个提案进行提交。</li>
 <li>在ZAB协议中，每个Proposal中都包含了一个epoch值，用来代表当前的Leader周期，在Paxos算法中，同样存在这样的一个标识，只是名字变成了Ballot。</li>
 </ul>
-<p>在</p>
+<p>在Paxos算法中，一个新选举产生的主进程会进行两个阶段的工作。第一阶段被称为读阶段，在这个阶段中，这个新的主进程会通过和所有其它进程进程通信的方式来收集上一个主进程提出
+的提案，并将它们提交。第二阶段被称为写阶段，在这个阶段，当前主进程开始提出它自己的提案。在Paxos算法设计的基础上，ZAB协议额外添加了一个同步阶段。
+在同步阶段之前，ZAB协议也存在一个和Paxos算法中的读阶段非常类似的过程，称为发现（Discovery）阶段。在同步阶段中，新的Leader会确保存在
+过半的Follower已经提交了之前Leader周期中的所有事务Proposal。这一同步阶段的引入，能够有效地保证Leader在新的周期中提出事务Proposal之前，所有的
+进程都已经完成了对之前所有事务Proposal的提交。一旦完成同步阶段后，那么ZAB就会执行和Paxos算法类似的写阶段。  </p>
+<p>总的来说，ZAB协议和Paxos算法的本质区别在于，两者的设计目标不太一样。ZAB协议主要用于构建一个高可用的分布式数据主备系统，例如ZooKeeper，
+而Paxos算法则是用于构建一个分布式的一致性状态机系统。</p>
+<h1 id="3-小结"><a href="#3-小结" class="headerlink" title="3 小结"></a>3 小结</h1><p>ZooKeeper的设计目标、由来以及基本概念。另外还有它的一致性协议————ZAB，并将其与Paxos算法进行了比对。  </p>
+<p>ZooKeeper为了保证状态的一致性，提出了两个安全属性：</p>
+<ul>
+<li>全序（消息a和消息b发送的顺序Client和Server看的都是一样的），通过TCP协议的FIFO队列特性实现。</li>
+<li>因果顺序（消息a先于消息b发送，则消息a先于消息b执行）。通过Leader消息先到先执行。</li>
+</ul>
 
       
     </div>
@@ -647,7 +659,7 @@ Follower角色连接上Leader服务器之后，Leader服务器会根据自己服
   <p><span>本文标题:</span><a href="/2017/08/25/zookeeper/4_Zookeeper与Paxos.html/">四、Zookeeper与Paxos</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月25日 - 21:08</p>
-  <p><span>最后更新:</span>2017年08月26日 - 01:08</p>
+  <p><span>最后更新:</span>2017年08月28日 - 00:08</p>
   <p><span>原始链接:</span><a href="/2017/08/25/zookeeper/4_Zookeeper与Paxos.html/" title="四、Zookeeper与Paxos">http://www.liwenguang.website/2017/08/25/zookeeper/4_Zookeeper与Paxos.html/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/25/zookeeper/4_Zookeeper与Paxos.html/"  aria-label="复制成功！"></i></span>
   </p>
@@ -697,6 +709,10 @@ Follower角色连接上Leader服务器之后，Leader服务器会根据自己服
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/28/zookeeper/5_使用Zookeeper.html/" rel="prev" title="五、使用Zookeeper">
+                五、使用Zookeeper <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -775,7 +791,7 @@ Follower角色连接上Leader服务器之后，Leader服务器会根据自己服
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -885,7 +901,7 @@ Follower角色连接上Leader服务器之后，Leader服务器会根据自己服
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-初识ZooKeeper"><span class="nav-text">1. 初识ZooKeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-ZooKeeper介绍"><span class="nav-text">1.1 ZooKeeper介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-ZooKeeper是什么"><span class="nav-text">1.1.1 ZooKeeper是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-顺序一致性"><span class="nav-text">.1 顺序一致性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-原子性"><span class="nav-text">.2 原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-单一视图（Single-System-Image）"><span class="nav-text">.3 单一视图（Single System Image）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-可靠性"><span class="nav-text">.4 可靠性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-实时性"><span class="nav-text">.5 实时性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-ZooKeeper的设计目标"><span class="nav-text">1.1.2 ZooKeeper的设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-目标一：简单的数据模型"><span class="nav-text">.1 目标一：简单的数据模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-目标二：可以构建集群"><span class="nav-text">.2 目标二：可以构建集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-顺序访问"><span class="nav-text">.3 顺序访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-高性能"><span class="nav-text">.4 高性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-ZooKeeper从何而来"><span class="nav-text">1.2 ZooKeeper从何而来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-ZooKeeper的基本概念"><span class="nav-text">1.3 ZooKeeper的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-1-集群角色"><span class="nav-text">1.3.1 集群角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-2-会话（Session）"><span class="nav-text">1.3.2 会话（Session）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-3-数据节点（Znode）"><span class="nav-text">1.3.3 数据节点（Znode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-4-版本"><span class="nav-text">1.3.4 版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-5-Watcher"><span class="nav-text">1.3.5 Watcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-6-ACL"><span class="nav-text">1.3.6 ACL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-为什么选择ZooKeeper"><span class="nav-text">1.4 为什么选择ZooKeeper</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ZooKeeper的ZAB协议"><span class="nav-text">2 ZooKeeper的ZAB协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-ZAB协议"><span class="nav-text">2.1 ZAB协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-协议介绍"><span class="nav-text">2.2 协议介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-消息广播"><span class="nav-text">2.2.1 消息广播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-崩溃恢复"><span class="nav-text">2.2.2 崩溃恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-基本特性"><span class="nav-text">.1 基本特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-数据同步"><span class="nav-text">.2 数据同步</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-ZAB与Paxos算法的联系"><span class="nav-text">2.3 ZAB与Paxos算法的联系</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-初识ZooKeeper"><span class="nav-text">1. 初识ZooKeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-ZooKeeper介绍"><span class="nav-text">1.1 ZooKeeper介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-ZooKeeper是什么"><span class="nav-text">1.1.1 ZooKeeper是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-顺序一致性"><span class="nav-text">.1 顺序一致性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-原子性"><span class="nav-text">.2 原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-单一视图（Single-System-Image）"><span class="nav-text">.3 单一视图（Single System Image）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-可靠性"><span class="nav-text">.4 可靠性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-实时性"><span class="nav-text">.5 实时性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-ZooKeeper的设计目标"><span class="nav-text">1.1.2 ZooKeeper的设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-目标一：简单的数据模型"><span class="nav-text">.1 目标一：简单的数据模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-目标二：可以构建集群"><span class="nav-text">.2 目标二：可以构建集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-顺序访问"><span class="nav-text">.3 顺序访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-高性能"><span class="nav-text">.4 高性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-ZooKeeper从何而来"><span class="nav-text">1.2 ZooKeeper从何而来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-ZooKeeper的基本概念"><span class="nav-text">1.3 ZooKeeper的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-1-集群角色"><span class="nav-text">1.3.1 集群角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-2-会话（Session）"><span class="nav-text">1.3.2 会话（Session）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-3-数据节点（Znode）"><span class="nav-text">1.3.3 数据节点（Znode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-4-版本"><span class="nav-text">1.3.4 版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-5-Watcher"><span class="nav-text">1.3.5 Watcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-6-ACL"><span class="nav-text">1.3.6 ACL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-为什么选择ZooKeeper"><span class="nav-text">1.4 为什么选择ZooKeeper</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ZooKeeper的ZAB协议"><span class="nav-text">2 ZooKeeper的ZAB协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-ZAB协议"><span class="nav-text">2.1 ZAB协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-协议介绍"><span class="nav-text">2.2 协议介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-消息广播"><span class="nav-text">2.2.1 消息广播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-崩溃恢复"><span class="nav-text">2.2.2 崩溃恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-基本特性"><span class="nav-text">.1 基本特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-数据同步"><span class="nav-text">.2 数据同步</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-ZAB与Paxos算法的联系"><span class="nav-text">2.3 ZAB与Paxos算法的联系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-小结"><span class="nav-text">3 小结</span></a></li></ol></div>
             
 
           </div>
