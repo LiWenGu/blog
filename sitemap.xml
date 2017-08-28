@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Session%E4%B8%8ECookie.html/</loc>
+    
+    <lastmod>2017-08-28T17:39:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.liwenguang.website/2017/08/28/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/</loc>
     
     <lastmod>2017-08-27T17:19:20.000Z</lastmod>
@@ -33,13 +40,6 @@
     <loc>http://www.liwenguang.website/2017/08/22/zookeeper/3_Paxos%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5.html/</loc>
     
     <lastmod>2017-08-25T13:13:20.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Session%E4%B8%8ECookie.html/</loc>
-    
-    <lastmod>2017-08-21T17:08:21.000Z</lastmod>
     
   </url>
   

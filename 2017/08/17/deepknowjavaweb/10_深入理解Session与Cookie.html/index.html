@@ -113,7 +113,7 @@
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-4.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-5.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png">
-<meta property="og:updated_time" content="2017-08-21T17:08:21.000Z">
+<meta property="og:updated_time" content="2017-08-28T17:39:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="十、深入理解Session与Cookie">
 <meta name="twitter:description" content="本章概要：当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应 如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用Cookie来传递信息时，随着Cookie个数的增多和访问量的 增加，它占用的网络带宽也很大，试想假如Cookie占用200个字节，如果">
@@ -431,7 +431,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  4,086
+                  4,095
                 </span>
               
 
@@ -610,8 +610,8 @@ StandardSession永远都会存在，即使与这个客户端关联的Session对�
 InnerHttpSession对象了，我们可以拦截response的addCookies设置的Cookie。  </p>
 <p>在时序图中，应用创建的所有Session对象都会保存在InnerHttpSession对象中，当用户的这次访问请求完成时，Session框架将会把这个InnerHttpSession
 的所有内容再更新到分布式缓存中，以便于这个用户通过其它服务器再次访问这个应用系统。另外，为了保证一些应用对Session稳定性的特殊要求，可以将一些
-非常关键的Session再存储到Cookie中，如当分布式缓存存在问题时，可以将部分Session存储到Cookie中，这样即使分布式缓存出现问题也不会影响关键业务的正常运行。  </p>
-<p>还有一个非常重要的问题就是如何处理跨域名来共享Cookie的问题。我们知道Cookie是有域名限制的，也就是在一个域名下的Cookie不能被另一个域名访问，
+非常关键的Session再存储到Cookie中，如当分布式缓存存在问题时，可以将部分Session存储到Cookie中，这样即使分布式缓存出现问题也不会影响关键业务的正常运行。</p>
+<h2 id="4-4-增加Session跨域实现"><a href="#4-4-增加Session跨域实现" class="headerlink" title="4.4 增加Session跨域实现"></a>4.4 增加Session跨域实现</h2><p>还有一个非常重要的问题就是如何处理跨域名来共享Cookie的问题。我们知道Cookie是有域名限制的，也就是在一个域名下的Cookie不能被另一个域名访问，
 所以如果在一个域名下已经登录成功，如何访问到另外一个域名的应用且保证登录状态仍然有效，对这个问题大型网站应该经常会遇到。如何解决这个问题呢？
 下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则跳转到中转服务器C，服务器C进行302重定向到服务器A获得了
 session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。</p>
@@ -646,7 +646,7 @@ session后，则再进行302重定向到A服务器，写入session，从而完�
   <p><span>本文标题:</span><a href="/2017/08/17/deepknowjavaweb/10_深入理解Session与Cookie.html/">十、深入理解Session与Cookie</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年08月17日 - 00:08</p>
-  <p><span>最后更新:</span>2017年08月22日 - 01:08</p>
+  <p><span>最后更新:</span>2017年08月29日 - 01:08</p>
   <p><span>原始链接:</span><a href="/2017/08/17/deepknowjavaweb/10_深入理解Session与Cookie.html/" title="十、深入理解Session与Cookie">http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_深入理解Session与Cookie.html/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_深入理解Session与Cookie.html/"  aria-label="复制成功！"></i></span>
   </p>
@@ -888,7 +888,7 @@ session后，则再进行302重定向到A服务器，写入session，从而完�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-理解Cookie"><span class="nav-text">1. 理解Cookie</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Cookie属性项"><span class="nav-text">1.1 Cookie属性项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Cookie如何工作"><span class="nav-text">1.2 Cookie如何工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-使用Cookie的限制"><span class="nav-text">1.3 使用Cookie的限制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-理解Session"><span class="nav-text">2 理解Session</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Session与Cookie"><span class="nav-text">2.1 Session与Cookie</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Session如何工作"><span class="nav-text">2.2 Session如何工作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Cookie安全问题"><span class="nav-text">3 Cookie安全问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-分布式Session框架"><span class="nav-text">4 分布式Session框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Cookie存在哪些问题"><span class="nav-text">4.1 Cookie存在哪些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Cookie-Session可以解决哪些问题"><span class="nav-text">4.2 Cookie+Session可以解决哪些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-总体实现思路"><span class="nav-text">4.3 总体实现思路</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Cookie压缩"><span class="nav-text">5 Cookie压缩</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-表单重复提交问题"><span class="nav-text">6 表单重复提交问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-多终端Session统一"><span class="nav-text">7 多终端Session统一</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-总结"><span class="nav-text">8 总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-理解Cookie"><span class="nav-text">1. 理解Cookie</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Cookie属性项"><span class="nav-text">1.1 Cookie属性项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Cookie如何工作"><span class="nav-text">1.2 Cookie如何工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-使用Cookie的限制"><span class="nav-text">1.3 使用Cookie的限制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-理解Session"><span class="nav-text">2 理解Session</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Session与Cookie"><span class="nav-text">2.1 Session与Cookie</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Session如何工作"><span class="nav-text">2.2 Session如何工作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Cookie安全问题"><span class="nav-text">3 Cookie安全问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-分布式Session框架"><span class="nav-text">4 分布式Session框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Cookie存在哪些问题"><span class="nav-text">4.1 Cookie存在哪些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Cookie-Session可以解决哪些问题"><span class="nav-text">4.2 Cookie+Session可以解决哪些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-总体实现思路"><span class="nav-text">4.3 总体实现思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-增加Session跨域实现"><span class="nav-text">4.4 增加Session跨域实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Cookie压缩"><span class="nav-text">5 Cookie压缩</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-表单重复提交问题"><span class="nav-text">6 表单重复提交问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-多终端Session统一"><span class="nav-text">7 多终端Session统一</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-总结"><span class="nav-text">8 总结</span></a></li></ol></div>
             
 
           </div>
