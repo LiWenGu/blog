@@ -431,7 +431,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  4,095
+                  4,141
                 </span>
               
 
@@ -613,8 +613,9 @@ InnerHttpSession对象了，我们可以拦截response的addCookies设置的Cook
 非常关键的Session再存储到Cookie中，如当分布式缓存存在问题时，可以将部分Session存储到Cookie中，这样即使分布式缓存出现问题也不会影响关键业务的正常运行。</p>
 <h2 id="4-4-增加Session跨域实现"><a href="#4-4-增加Session跨域实现" class="headerlink" title="4.4 增加Session跨域实现"></a>4.4 增加Session跨域实现</h2><p>还有一个非常重要的问题就是如何处理跨域名来共享Cookie的问题。我们知道Cookie是有域名限制的，也就是在一个域名下的Cookie不能被另一个域名访问，
 所以如果在一个域名下已经登录成功，如何访问到另外一个域名的应用且保证登录状态仍然有效，对这个问题大型网站应该经常会遇到。如何解决这个问题呢？
-下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则跳转到中转服务器C，服务器C进行302重定向到服务器A获得了
-session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。</p>
+下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则302重定向跳转到中转服务器C（C你可以理解成专门取Session的
+域），服务器C获得了session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。（如今，大部分都是实现的单点登录SSO，来解决
+子系统间的跨域问题，让子系统共享顶级域名的Session、Cookie等）。</p>
 <h1 id="5-Cookie压缩"><a href="#5-Cookie压缩" class="headerlink" title="5 Cookie压缩"></a>5 Cookie压缩</h1><h1 id="6-表单重复提交问题"><a href="#6-表单重复提交问题" class="headerlink" title="6 表单重复提交问题"></a>6 表单重复提交问题</h1><h1 id="7-多终端Session统一"><a href="#7-多终端Session统一" class="headerlink" title="7 多终端Session统一"></a>7 多终端Session统一</h1><h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8 总结"></a>8 总结</h1>
       
     </div>
