@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.website/"/>
-  <updated>2017-08-27T17:17:30.000Z</updated>
+  <updated>2017-08-29T16:15:20.000Z</updated>
   <id>http://www.liwenguang.website/</id>
   
   <author>
@@ -14,6 +14,79 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>内置函数</title>
+    <link href="http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN%E4%B8%AD%E7%9A%84ON%E5%92%8CWHERE/"/>
+    <id>http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/</id>
+    <published>2017-08-29T15:50:12.000Z</published>
+    <updated>2017-08-29T16:15:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。  </p>
+<p>缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询），
+而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后
+再次查询数据库，最后使用拼接，输出csv文件。而现在那个页面要导出的数据变多了，大概是20W条，导致导出直接等很久，而且不支持6.5W以上的导出（EXCEL特性），
+因此对接我的报表中心，其实报表中心比较简单，通过ZK实现调度，执行业务客户端的业务方法，这里主要说关于JOIN中ON和WHERE的问题。下面是最终使用的SQL:
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">SELECT</div><div class="line">	base.mobile,</div><div class="line">	base.card_no,</div><div class="line">	base.real_name,</div><div class="line">	base.nick_name,</div><div class="line">	grade.`name` AS grade_name,</div><div class="line">	base.sex,</div><div class="line">	base.id_card_no,</div><div class="line">	base.point,</div><div class="line">	base.source,</div><div class="line">	wx.open_id,</div><div class="line">	wx.subscribe,</div><div class="line">	mac.mac,</div><div class="line">    base.birthday,</div><div class="line">    base.bind_time,</div><div class="line">	invite.mobile AS inviter_mobile,</div><div class="line">	GROUP_CONCAT(tag_name.tag_code_name) AS tags</div><div class="line">FROM</div><div class="line">	member_base_info base</div><div class="line">LEFT JOIN  grade ON    (base.grade_code = grade.`code` AND grade.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  wx ON       (base.member_id = wx.member_id  AND wx.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  mac ON  	   (base.member_id = wx.member_id  AND mac.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  invite ON   (base.invite_mid = invite.member_id  AND invite.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  tag_code ON (base.member_id = tag_code.member_id AND tag_code.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  tag_name ON (tag_code.tag_code = tag_name.tag_code AND tag_name.tenant_id = &apos;xx&apos;)</div><div class="line">WHERE</div><div class="line">	base.tenant_id = &apos;xx&apos;</div><div class="line">GROUP BY base.id</div></pre></td></tr></table></figure></p>
+<p>上面的代码在于，我在表的关联查询中，ON中的限定语句只是筛选了右边表，而左边的限定条件放在了最后的WHERE语句中，这是通过摸索三小时最后得出的结论，
+<code>JOIN ON (A) WHERE B</code>，以<code>LEFT JOIN</code>为例，当A中的筛选条件有对左边的表过滤时，这个筛选条件是不起作用的。</p>
+<p>以下两个表为测试表：<br>A表结构：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+</tr>
+</tbody>
+</table>
+<p>B表结构：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">select * from a LEFT JOIN b on a.id = b.id AND a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div><div class="line">-- | 2  |     |</div><div class="line">-- | 3  |     |</div><div class="line">select * from a LEFT JOIN b on a.id = b.id where a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div></pre></td></tr></table></figure>
+<p>结论：</p>
+<blockquote>
+<p><strong><code>JOIN ON (A) WHERE B</code></strong> 中，A使用副表的过滤条件，B写主表的过滤条件。这样才能达到你的业务效果，原因在于生成中间表过程中使用的A
+  条件，但是不会过滤，最后中间表生成结果会使用B条件过滤。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。  &lt;/p&gt;
+&lt;p&gt;缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询），
+而且主
+    
+    </summary>
+    
+      <category term="SQL" scheme="http://www.liwenguang.website/categories/SQL/"/>
+    
+      <category term="MySQL" scheme="http://www.liwenguang.website/categories/SQL/MySQL/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>五、课外学习Curator操作</title>
@@ -858,7 +931,7 @@ Prepare请求后，就会将编号为7的提案作为响应反馈给Proposer。<
     <link href="http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_Deep_Know_SessionAndCookie.html/"/>
     <id>http://www.liwenguang.website/2017/08/17/deepknowjavaweb/10_Deep_Know_SessionAndCookie.html/</id>
     <published>2017-08-16T16:37:45.000Z</published>
-    <updated>2017-08-28T17:39:00.000Z</updated>
+    <updated>2017-08-29T15:12:21.000Z</updated>
     
     <content type="html"><![CDATA[<p>本章概要：<br>当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应
 如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用Cookie来传递信息时，随着Cookie个数的增多和访问量的
@@ -1905,52 +1978,6 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
     <summary type="html">
     
       &lt;h1 id=&quot;1-跑个Channel实例&quot;&gt;&lt;a href=&quot;#1-跑个Channel实例&quot; class=&quot;headerlink&quot; title=&quot;1.跑个Channel实例&quot;&gt;&lt;/a&gt;1.跑个Channel实例&lt;/h1&gt;&lt;figure class=&quot;highlight java
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/readNote/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.website/categories/readNote/deepJavaWeb/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>一、深入Web请求过程</title>
-    <link href="http://www.liwenguang.website/2017/08/03/deepknowjavaweb/1_%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B.html/"/>
-    <id>http://www.liwenguang.website/2017/08/03/deepknowjavaweb/1_深入Web请求过程.html/</id>
-    <published>2017-08-03T04:08:20.000Z</published>
-    <updated>2017-08-04T08:19:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-DNS域名解析"><a href="#1-DNS域名解析" class="headerlink" title="1. DNS域名解析"></a>1. DNS域名解析</h1><p>使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作系统，即host文件。
-所以很多墙外比较慢的网址，可以手动编写host文件对应的IP地址以及对应的网址，可以加快访问速度。
-如果实在没有就发送给LDNS，这个LDNS在不同的情况是不一样的，在学校，大部分都是学校的DNS服务器，
-家庭的一般都是联通或者电信的DNS服务器，最最最后实在解析不出来，就抛给Root Server域名服务器，
-它会返回给本地域名服务器的主域名服务器的地址，即域名空间提供商的域名解析服务器，就像阿里域名解析加速。</p>
-<h1 id="2-清除缓存的域名"><a href="#2-清除缓存的域名" class="headerlink" title="2. 清除缓存的域名"></a>2. 清除缓存的域名</h1><p>主要在两个地方缓存：Local DNS Server, 另一个是用户的本机，当然，重启也是更好的方法。</p>
-<blockquote>
-<p><code>ipconfig /flushdns</code></p>
-</blockquote>
-<p>在java中，JVM也会缓存DNS的解析结果，分两种，即正确的解析结果，以及错误的解析结果，<code>InetAddress</code>，实际中<code>InetAddress</code>使用必须是单例模式，因为每次创建<code>InetAddress</code>实例都要进行一次完整的域名解析。</p>
-<h1 id="3-CDN工作机制"><a href="#3-CDN工作机制" class="headerlink" title="3. CDN工作机制"></a>3. CDN工作机制</h1><p>CDN也就是内容分布网络(Content Delivery Network)。通过在现有的Internet中增加一层新的网络架构，比镜像更智能。
-比喻：CDN=镜像Mirror+缓存Cache+整体负载均衡GSLB。
-目前CDN都以缓存网站中的静态数据为主，如CSS、JS、图片和静态页面等，用户在从主站服务器请求到动态内容后，再从CDN上下载这些静态数据。
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-1-1-1.png" alt="" title="Web请求过程"></p>
-<h1 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h1><p>负载均衡(Load Balance)就是对工作任务进行平衡、分摊到多个操作单元上执行，如图片服务器、应用服务器等，提高服务器响应速度，实现地理位置无关性。
-通常有三种负载均衡架构：链路负载均衡、集群负载均衡、操作系统负载均衡。</p>
-<ul>
-<li>链路：用户最终访问哪个Web Server是由DNS Server来控制的，优点在于用户直接访问目标服务器，不需要经过其它的代理服务器，通常访问速度更快，缺点在于DNS在用户本地和LDNS都有缓存，一旦某台Web Server挂掉，就难及时更新用户的域名解析结构。</li>
-<li>集群：硬件负载以及软件负载均衡，前者需要贵的硬件作为中心，而软件则是成本低，但是需要多次代理服务器转发，从而增加了网络延时。
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-1-1-2.png" alt="" title="集群负载均衡"></li>
-<li>操作系统：如设置多队列网卡。</li>
-</ul>
-<h1 id="5-CDN动态加速"><a href="#5-CDN动态加速" class="headerlink" title="5. CDN动态加速"></a>5. CDN动态加速</h1><p>原理在于CDN的DNS解析中通过动态的链路探测来寻找回源最好的一条路径，通过DNS的调度将所有请求到选定的路径上回源，一个简单的原则就是在每个CDN节点上从源站下载一个一定大小文件，看哪个链路的总耗时最短，这样可以构成一个链路列表，然后绑定到DNS解析上，更新到CDN的Local DNS。以及网络成本等。</p>
-<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>主要介绍域名的请求，哪些处理，对CDN以及负载均衡有了解。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-DNS域名解析&quot;&gt;&lt;a href=&quot;#1-DNS域名解析&quot; class=&quot;headerlink&quot; title=&quot;1. DNS域名解析&quot;&gt;&lt;/a&gt;1. DNS域名解析&lt;/h1&gt;&lt;p&gt;使用浏览器输入网址后，浏览器会检查缓存对应的IP地址，如果没有，浏览器会查找操作
     
     </summary>
     

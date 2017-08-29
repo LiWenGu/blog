@@ -100,16 +100,17 @@
 
 
 
-<meta name="description" content="最怕一生碌碌无为，还安慰自己平凡可贵">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Hello">
-<meta property="og:url" content="http://www.liwenguang.website/categories/readNote/deepJavaWeb/index.html">
+<meta name="description" content="今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。   缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询）， 而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内置函数">
+<meta property="og:url" content="http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/index.html">
 <meta property="og:site_name" content="Hello">
-<meta property="og:description" content="最怕一生碌碌无为，还安慰自己平凡可贵">
+<meta property="og:description" content="今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。   缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询）， 而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-29T16:15:20.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello">
-<meta name="twitter:description" content="最怕一生碌碌无为，还安慰自己平凡可贵">
+<meta name="twitter:title" content="内置函数">
+<meta name="twitter:description" content="今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。   缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询）， 而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后">
 
 
 
@@ -138,7 +139,7 @@
 
 
 
-  <link rel="canonical" href="http://www.liwenguang.website/categories/readNote/deepJavaWeb/"/>
+  <link rel="canonical" href="http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/"/>
 
 
 
@@ -147,7 +148,7 @@
 
 
 
-  <title>分类: 深入分析Java_Web技术 | Hello</title>
+  <title>内置函数 | Hello</title>
   
 
 
@@ -182,7 +183,7 @@
     
   
 
-  <div class="container sidebar-position-left  ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -310,311 +311,306 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block category">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>深入分析Java_Web技术<small>分类</small>
-        </h1>
-      </div>
-
-      
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="TheOthers">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2017/08/17/deepknowjavaweb/10_Deep_Know_SessionAndCookie.html/" itemprop="url">
-              
-                <span itemprop="name">十、深入理解Session与Cookie</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">内置函数</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-17T00:37:45+08:00"
-              content="2017-08-17 00:37" >
-          08-17
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-29T23:50:12+08:00">
+                2017-08-29 23:50
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SQL/" itemprop="url" rel="index">
+                    <span itemprop="name">SQL</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SQL/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  678
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/17/deepknowjavaweb/9_Servlet工作原理解析.html/" itemprop="url">
-              
-                <span itemprop="name">九、Servlet工作原理解析</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-17T00:12:30+08:00"
-              content="2017-08-17 00:12" >
-          08-17
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/14/deepknowjavaweb/8_JVM内存管理.html/" itemprop="url">
-              
-                <span itemprop="name">八、JVM内存管理</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-14T23:14:12+08:00"
-              content="2017-08-14 23:14" >
-          08-14
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/12/deepknowjavaweb/7_JVM体系结构与工作方式.html/" itemprop="url">
-              
-                <span itemprop="name">七、JVM体系结构与工作方式</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-12T17:57:12+08:00"
-              content="2017-08-12 17:57" >
-          08-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/" itemprop="url">
-              
-                <span itemprop="name">六、深入分析ClassLoader工作机制</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-10T23:19:20+08:00"
-              content="2017-08-10 23:19" >
-          08-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/10/deepknowjavaweb/5_深入class文件结构.html/" itemprop="url">
-              
-                <span itemprop="name">五、深入class文件结构</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-10T22:06:20+08:00"
-              content="2017-08-10 22:06" >
-          08-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/08/deepknowjavaweb/4_Javac编译原理.html/" itemprop="url">
-              
-                <span itemprop="name">四、Javac编译原理</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-08T10:21:21+08:00"
-              content="2017-08-08 10:21" >
-          08-08
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/" itemprop="url">
-              
-                <span itemprop="name">三、深入分析Java Web中的中文编码问题</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-07T22:56:30+08:00"
-              content="2017-08-07 22:56" >
-          08-07
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/04/deepknowjavaweb/2_课外学习NIO.html/" itemprop="url">
-              
-                <span itemprop="name">二、课外学习NIO</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-04T22:56:30+08:00"
-              content="2017-08-04 22:56" >
-          08-04
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/08/03/deepknowjavaweb/1_深入Web请求过程.html/" itemprop="url">
-              
-                <span itemprop="name">一、深入Web请求过程</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-08-03T12:08:20+08:00"
-              content="2017-08-03 12:08" >
-          08-03
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+        <p>今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。  </p>
+<p>缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询），
+而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后
+再次查询数据库，最后使用拼接，输出csv文件。而现在那个页面要导出的数据变多了，大概是20W条，导致导出直接等很久，而且不支持6.5W以上的导出（EXCEL特性），
+因此对接我的报表中心，其实报表中心比较简单，通过ZK实现调度，执行业务客户端的业务方法，这里主要说关于JOIN中ON和WHERE的问题。下面是最终使用的SQL:
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">SELECT</div><div class="line">	base.mobile,</div><div class="line">	base.card_no,</div><div class="line">	base.real_name,</div><div class="line">	base.nick_name,</div><div class="line">	grade.`name` AS grade_name,</div><div class="line">	base.sex,</div><div class="line">	base.id_card_no,</div><div class="line">	base.point,</div><div class="line">	base.source,</div><div class="line">	wx.open_id,</div><div class="line">	wx.subscribe,</div><div class="line">	mac.mac,</div><div class="line">    base.birthday,</div><div class="line">    base.bind_time,</div><div class="line">	invite.mobile AS inviter_mobile,</div><div class="line">	GROUP_CONCAT(tag_name.tag_code_name) AS tags</div><div class="line">FROM</div><div class="line">	member_base_info base</div><div class="line">LEFT JOIN  grade ON    (base.grade_code = grade.`code` AND grade.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  wx ON       (base.member_id = wx.member_id  AND wx.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  mac ON  	   (base.member_id = wx.member_id  AND mac.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  invite ON   (base.invite_mid = invite.member_id  AND invite.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  tag_code ON (base.member_id = tag_code.member_id AND tag_code.tenant_id = &apos;xx&apos;)</div><div class="line">LEFT JOIN  tag_name ON (tag_code.tag_code = tag_name.tag_code AND tag_name.tenant_id = &apos;xx&apos;)</div><div class="line">WHERE</div><div class="line">	base.tenant_id = &apos;xx&apos;</div><div class="line">GROUP BY base.id</div></pre></td></tr></table></figure></p>
+<p>上面的代码在于，我在表的关联查询中，ON中的限定语句只是筛选了右边表，而左边的限定条件放在了最后的WHERE语句中，这是通过摸索三小时最后得出的结论，
+<code>JOIN ON (A) WHERE B</code>，以<code>LEFT JOIN</code>为例，当A中的筛选条件有对左边的表过滤时，这个筛选条件是不起作用的。</p>
+<p>以下两个表为测试表：<br>A表结构：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+</tr>
+</tbody>
+</table>
+<p>B表结构：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">select * from a LEFT JOIN b on a.id = b.id AND a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div><div class="line">-- | 2  |     |</div><div class="line">-- | 3  |     |</div><div class="line">select * from a LEFT JOIN b on a.id = b.id where a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div></pre></td></tr></table></figure>
+<p>结论：</p>
+<blockquote>
+<p><strong><code>JOIN ON (A) WHERE B</code></strong> 中，A使用副表的过滤条件，B写主表的过滤条件。这样才能达到你的业务效果，原因在于生成中间表过程中使用的A
+  条件，但是不会过滤，最后中间表生成结果会使用B条件过滤。</p>
+</blockquote>
 
       
     </div>
 
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/">内置函数</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
+  <p><span>发布时间:</span>2017年08月29日 - 23:08</p>
+  <p><span>最后更新:</span>2017年08月30日 - 00:08</p>
+  <p><span>原始链接:</span><a href="/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/" title="内置函数">http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/29/SQL/MySQL/JOIN中的ON和WHERE/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          html: false,
+          timer: 500,
+          showConfirmButton: false
+        });
+      });
+    }));
+</script>
+
+
+      
+    </div>
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/28/zookeeper/5_课外学习Curator操作.html/" rel="next" title="五、课外学习Curator操作">
+                <i class="fa fa-chevron-left"></i> 五、课外学习Curator操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/categories/readNote/deepJavaWeb/page/2/">2</a><a class="extend next" rel="next" href="/categories/readNote/deepJavaWeb/page/2/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+  </article>
 
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -622,6 +618,12 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMDEzNi82Njkx"></div>
+    
+  </div>
+
 
         </div>
         
@@ -913,10 +915,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-  
+
 
   
 
@@ -945,6 +947,17 @@
 
 
 
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
   
 
 
