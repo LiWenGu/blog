@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[内置函数]]></title>
+    <title><![CDATA[JOIN中的ON与WHERE]]></title>
     <url>%2F2017%2F08%2F29%2FSQL%2FMySQL%2FJOIN%E4%B8%AD%E7%9A%84ON%E5%92%8CWHERE%2F</url>
     <content type="text"><![CDATA[今天在给公司的CRM系统某个报表导出对接调度系统报表导出的时候出现了一个小问题，这里记录一下。 缘由是这样的：因为要对接的报表导出代码历史悠久，导出的DAO层对sql的查询以及业务处理很是复杂繁琐，而且性能特别低，由于业务的复杂性（6表联合查询）， 而且主表有个字段要通过主表本身查询才能得出结果，因此实际上是7表联合查询，原来的业务逻辑上，大概需要5s，原因在于多次查询数据库对数据进行改造后 再次查询数据库，最后使用拼接，输出csv文件。而现在那个页面要导出的数据变多了，大概是20W条，导致导出直接等很久，而且不支持6.5W以上的导出（EXCEL特性）， 因此对接我的报表中心，其实报表中心比较简单，通过ZK实现调度，执行业务客户端的业务方法，这里主要说关于JOIN中ON和WHERE的问题。下面是最终使用的SQL: 12345678910111213141516171819202122232425262728SELECT base.mobile, base.card_no, base.real_name, base.nick_name, grade.`name` AS grade_name, base.sex, base.id_card_no, base.point, base.source, wx.open_id, wx.subscribe, mac.mac, base.birthday, base.bind_time, invite.mobile AS inviter_mobile, GROUP_CONCAT(tag_name.tag_code_name) AS tagsFROM member_base_info baseLEFT JOIN grade ON (base.grade_code = grade.`code` AND grade.tenant_id = &apos;xx&apos;)LEFT JOIN wx ON (base.member_id = wx.member_id AND wx.tenant_id = &apos;xx&apos;)LEFT JOIN mac ON (base.member_id = wx.member_id AND mac.tenant_id = &apos;xx&apos;)LEFT JOIN invite ON (base.invite_mid = invite.member_id AND invite.tenant_id = &apos;xx&apos;)LEFT JOIN tag_code ON (base.member_id = tag_code.member_id AND tag_code.tenant_id = &apos;xx&apos;)LEFT JOIN tag_name ON (tag_code.tag_code = tag_name.tag_code AND tag_name.tenant_id = &apos;xx&apos;)WHERE base.tenant_id = &apos;xx&apos;GROUP BY base.id 上面的代码在于，我在表的关联查询中，ON中的限定语句只是筛选了右边表，而左边的限定条件放在了最后的WHERE语句中，这是通过摸索三小时最后得出的结论， JOIN ON (A) WHERE B，以LEFT JOIN为例，当A中的筛选条件有对左边的表过滤时，这个筛选条件是不起作用的。 以下两个表为测试表：A表结构： id 1 2 3 B表结构： id 1 2 12345678910select * from a LEFT JOIN b on a.id = b.id AND a.id = 1-- 上面代码的结果为：-- | id | id1 |-- | 1 | 1 |-- | 2 | |-- | 3 | |select * from a LEFT JOIN b on a.id = b.id where a.id = 1-- 上面代码的结果为：-- | id | id1 |-- | 1 | 1 | 结论： JOIN ON (A) WHERE B 中，A使用副表的过滤条件，B写主表的过滤条件。这样才能达到你的业务效果，原因在于生成中间表过程中使用的A 条件，但是不会过滤，最后中间表生成结果会使用B条件过滤。]]></content>
       <categories>
@@ -21,7 +21,7 @@
   <entry>
     <title><![CDATA[六、Zookeeper的典型应用场景]]></title>
     <url>%2F2017%2F08%2F28%2Fzookeeper%2F6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html%2F</url>
-    <content type="text"><![CDATA[1 典型应用场景及实现]]></content>
+    <content type="text"><![CDATA[1 典型应用场景及实现1.1 数据发布/订阅]]></content>
       <categories>
         <category>读书笔记</category>
         <category>从Paxos到Zookeeper分布式一致性原理与实践</category>
