@@ -504,7 +504,7 @@
 </tr>
 </tbody>
 </table>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">select * from a LEFT JOIN b on a.id = b.id AND a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div><div class="line">-- | 2  |     |</div><div class="line">-- | 3  |     |</div><div class="line">select * from a LEFT JOIN b on a.id = b.id where a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> b <span class="keyword">on</span> a.id = b.id <span class="keyword">AND</span> a.id = <span class="number">1</span></div><div class="line"><span class="comment">-- 上面代码的结果为：</span></div><div class="line"><span class="comment">-- | id | id1 |</span></div><div class="line"><span class="comment">-- | 1  |  1  |</span></div><div class="line"><span class="comment">-- | 2  |     |</span></div><div class="line"><span class="comment">-- | 3  |     |</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> b <span class="keyword">on</span> a.id = b.id <span class="keyword">where</span> a.id = <span class="number">1</span></div><div class="line"><span class="comment">-- 上面代码的结果为：</span></div><div class="line"><span class="comment">-- | id | id1 |</span></div><div class="line"><span class="comment">-- | 1  |  1  |</span></div></pre></td></tr></table></figure>
 <p>结论：</p>
 <blockquote>
 <p><strong><code>JOIN ON (A) WHERE B</code></strong> 中，A使用副表的过滤条件，B写主表的过滤条件。这样才能达到你的业务效果，原因在于生成中间表过程中使用的A
@@ -591,6 +591,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/30/zookeeper/6_Zookeeper的典型应用场景.html/" rel="prev" title="六、Zookeeper的典型应用场景">
+                六、Zookeeper的典型应用场景 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>

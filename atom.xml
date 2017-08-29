@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.website/"/>
-  <updated>2017-08-29T16:15:20.000Z</updated>
+  <updated>2017-08-29T17:19:20.000Z</updated>
   <id>http://www.liwenguang.website/</id>
   
   <author>
@@ -14,6 +14,56 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>六、Zookeeper的典型应用场景</title>
+    <link href="http://www.liwenguang.website/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/"/>
+    <id>http://www.liwenguang.website/2017/08/30/zookeeper/6_Zookeeper的典型应用场景.html/</id>
+    <published>2017-08-29T16:30:20.000Z</published>
+    <updated>2017-08-29T17:19:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-典型应用场景及实现"><a href="#1-典型应用场景及实现" class="headerlink" title="1 典型应用场景及实现"></a>1 典型应用场景及实现</h1><h2 id="1-1-数据发布-订阅"><a href="#1-1-数据发布-订阅" class="headerlink" title="1.1 数据发布/订阅"></a>1.1 数据发布/订阅</h2><p>数据发布/订阅（Pulish/Subscribe）系统，即所谓的配置中心，顾名思义就是发布者将数据发布到ZooKeeper的一个或一系列节点上，供订阅者进行数据订阅，
+进而达到动态获取数据的目的，实现配置信息的集中式管理和数据的动态更新。  </p>
+<p>发布/订阅系统一般有两种设计模式，分别是推（Push）模式和拉（Pull）模式。在推模式中，服务端主动将数据更新发送给所有订阅的客户端；而拉模式则是由
+客户端主动发起请求获取最新数据，通常客户端都采用定时进行轮询拉取的方式。ZooKeeper采用的是推拉结合的方式：客户端向服务端注册自己需要关注的
+节点，一旦该节点的数据发生变更，那么服务端就会向相应的客户端发送Watcher事件通知，客户端接收到这个消息通知之后，需要主动到服务端获取最新的数据。  </p>
+<p>如果将配置信息存放到ZooKeeper上进行集中管理，那么通常情况下，应用在启动的时候都会主动到ZooKeeper服务端上进行一次配置信息的获取，同时，
+在指定节点上注册一个Watcher监听，这样一来，但凡配置信息发生变更，服务端都会实时通知到所有订阅的客户端，从而达到实时获取最新配置信息的目的。  </p>
+<p>实例：在我们平常的应用系统开发中，经常会碰到这样的需求：系统中需要使用一些通用的配置信息，例如机器列表信息、运行时的开关配置、数据库配置信息等。
+这些全局配置信息通畅具备以下3个特性：</p>
+<ul>
+<li>数据量通常比较小。</li>
+<li>数据内容在运行时会发生动态变化。</li>
+<li>集群中各机器共享，配置一致。</li>
+</ul>
+<p>对于这类配置信息，一般的做法通常可以选择将其存储在本地配置文件或是内存变量中。本地配置可以采用JMX方式来实时对系统运行时内存变量的更新。  </p>
+<p>但是一旦机器规模变大，且配置信息变更频繁后，就需要寻找一种更为分布式化的解决方案。  </p>
+<p>下面以“数据库切换”的应用场景展开，看看如何使用ZooKeeper实现配置管理。</p>
+<h3 id="1-1-1-配置存储"><a href="#1-1-1-配置存储" class="headerlink" title="1.1.1 配置存储"></a>1.1.1 配置存储</h3><p>进行配置之前，首先初始化配置存储到ZooKeeper上去，例如<code>/app1/databse_config/</code>（以下简称“配置节点”），写入数据节点中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">dbcp.driverClassName=com.mysql.jdbc.Driver</div><div class="line">dbcp.dbJDBCUrl=jdbc:mysql://localhost:3306/taokeeper</div><div class="line">dbcp.characterEncoding=GBK</div><div class="line">dbcp.username=admin</div><div class="line">dbcp.password=root</div><div class="line">dbcp.maxActive=30</div><div class="line">dbcp.maxIdle=10</div><div class="line">dbcp.maxWait=10000</div></pre></td></tr></table></figure></p>
+<h3 id="1-1-2-配置获取"><a href="#1-1-2-配置获取" class="headerlink" title="1.1.2 配置获取"></a>1.1.2 配置获取</h3><p>集群中每台机器在启动初始化阶段，首先会从上面提到的ZooKeeper配置节点上读取数据库信息，同时，客户端还需要在该配置节点上注册一个数据变更的
+Water监听，一旦发生节点数据变更，所有订阅的客户端都能够获取到数据变更通知。</p>
+<h3 id="1-1-3-配置变更"><a href="#1-1-3-配置变更" class="headerlink" title="1.1.3 配置变更"></a>1.1.3 配置变更</h3><p>在系统运行过程中，可能会出现需要机型数据库切换的情况，借助ZooKeeper的Watcher机制，帮我们将数据变更的通知发送到各个客户端，每个客户端在
+接收到这个变更通知后，就可以重新进行最新数据的获取。</p>
+<h2 id="1-2-负载均衡"><a href="#1-2-负载均衡" class="headerlink" title="1.2 负载均衡"></a>1.2 负载均衡</h2><p>根据维基百科上的定义，负载均衡（Load Balance）是一种相当常见的计算机网络技术，用来对多个计算机（计算机集群）、网络连接、CPU、磁盘驱动器或是
+其它资源进行分配负载，以达到优化资源使用、最大化吞吐率、最小化响应时间和避免过载的目的。通常负载均衡可以分为硬件和软件负载均衡两种，本节
+主要探讨的是ZooKeeper在“软”负载均衡中的应用场景。  </p>
+<p>在分布式系统中，负载均衡更是一种普遍的技术，基本上每一个分布式系统都需要使用负载均衡。在本书第一章讲解分布式系统特征的时候，我们提到，分布式系统具有
+对等性，为了保证系统的高可用性，通常采用副本的方式来对数据和服务进行部署。而对于消费者而言，则需要在这些对等的服务提供方中选择一个来执行相关的业务
+逻辑，其中比较典型的就是DNS服务。在本节中，我们将详细介绍如何使用ZooKeeper来解决负载均衡问题（<a href="../../../03/deepknowjavaweb/1_深入Web请求过程.html">请看深入分析Java_Web技术的第一章</a>）。</p>
+<h3 id="1-2-1-一种动态的DNS服务"><a href="#1-2-1-一种动态的DNS服务" class="headerlink" title="1.2.1 一种动态的DNS服务"></a>1.2.1 一种动态的DNS服务</h3><h3 id="1-2-2-域名配置"><a href="#1-2-2-域名配置" class="headerlink" title="1.2.2 域名配置"></a>1.2.2 域名配置</h3><h3 id="1-2-3-域名解析"><a href="#1-2-3-域名解析" class="headerlink" title="1.2.3 域名解析"></a>1.2.3 域名解析</h3><h3 id="1-2-4-域名变更"><a href="#1-2-4-域名变更" class="headerlink" title="1.2.4 域名变更"></a>1.2.4 域名变更</h3><h3 id="1-2-5-自动化的DNS服务"><a href="#1-2-5-自动化的DNS服务" class="headerlink" title="1.2.5 自动化的DNS服务"></a>1.2.5 自动化的DNS服务</h3><h3 id="1-2-6-域名注册"><a href="#1-2-6-域名注册" class="headerlink" title="1.2.6 域名注册"></a>1.2.6 域名注册</h3><h3 id="1-2-7-域名解析"><a href="#1-2-7-域名解析" class="headerlink" title="1.2.7 域名解析"></a>1.2.7 域名解析</h3><h3 id="1-2-8-域名探测"><a href="#1-2-8-域名探测" class="headerlink" title="1.2.8 域名探测"></a>1.2.8 域名探测</h3>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-典型应用场景及实现&quot;&gt;&lt;a href=&quot;#1-典型应用场景及实现&quot; class=&quot;headerlink&quot; title=&quot;1 典型应用场景及实现&quot;&gt;&lt;/a&gt;1 典型应用场景及实现&lt;/h1&gt;&lt;h2 id=&quot;1-1-数据发布-订阅&quot;&gt;&lt;a href=&quot;#1-1-数据
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/readNote/"/>
+    
+      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>JOIN中的ON与WHERE</title>
@@ -65,7 +115,7 @@
 </tr>
 </tbody>
 </table>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">select * from a LEFT JOIN b on a.id = b.id AND a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div><div class="line">-- | 2  |     |</div><div class="line">-- | 3  |     |</div><div class="line">select * from a LEFT JOIN b on a.id = b.id where a.id = 1</div><div class="line">-- 上面代码的结果为：</div><div class="line">-- | id | id1 |</div><div class="line">-- | 1  |  1  |</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> b <span class="keyword">on</span> a.id = b.id <span class="keyword">AND</span> a.id = <span class="number">1</span></div><div class="line"><span class="comment">-- 上面代码的结果为：</span></div><div class="line"><span class="comment">-- | id | id1 |</span></div><div class="line"><span class="comment">-- | 1  |  1  |</span></div><div class="line"><span class="comment">-- | 2  |     |</span></div><div class="line"><span class="comment">-- | 3  |     |</span></div><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> b <span class="keyword">on</span> a.id = b.id <span class="keyword">where</span> a.id = <span class="number">1</span></div><div class="line"><span class="comment">-- 上面代码的结果为：</span></div><div class="line"><span class="comment">-- | id | id1 |</span></div><div class="line"><span class="comment">-- | 1  |  1  |</span></div></pre></td></tr></table></figure>
 <p>结论：</p>
 <blockquote>
 <p><strong><code>JOIN ON (A) WHERE B</code></strong> 中，A使用副表的过滤条件，B写主表的过滤条件。这样才能达到你的业务效果，原因在于生成中间表过程中使用的A
@@ -96,28 +146,6 @@
     <updated>2017-08-27T17:17:30.000Z</updated>
     
     <summary type="html">
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.website/categories/readNote/"/>
-    
-      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.website/categories/readNote/zookeeper/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>六、Zookeeper的典型应用场景</title>
-    <link href="http://www.liwenguang.website/2017/08/28/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/"/>
-    <id>http://www.liwenguang.website/2017/08/28/zookeeper/6_Zookeeper的典型应用场景.html/</id>
-    <published>2017-08-27T17:12:20.000Z</published>
-    <updated>2017-08-27T17:19:20.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-典型应用场景及实现"><a href="#1-典型应用场景及实现" class="headerlink" title="1 典型应用场景及实现"></a>1 典型应用场景及实现</h1><h2 id="1-1-数据发布-订阅"><a href="#1-1-数据发布-订阅" class="headerlink" title="1.1 数据发布/订阅"></a>1.1 数据发布/订阅</h2>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-典型应用场景及实现&quot;&gt;&lt;a href=&quot;#1-典型应用场景及实现&quot; class=&quot;headerlink&quot; title=&quot;1 典型应用场景及实现&quot;&gt;&lt;/a&gt;1 典型应用场景及实现&lt;/h1&gt;&lt;h2 id=&quot;1-1-数据发布-订阅&quot;&gt;&lt;a href=&quot;#1-1-数据
     
     </summary>
     
