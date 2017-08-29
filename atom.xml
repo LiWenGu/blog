@@ -1061,7 +1061,7 @@ PC二维码客户端类似Watch了某个ZK的节点进行监听，这样避免�
     
     <content type="html"><![CDATA[<h1 id="1-从Servlet容器说起"><a href="#1-从Servlet容器说起" class="headerlink" title="1. 从Servlet容器说起"></a>1. 从Servlet容器说起</h1><p>Servlet和Servlet容器的关系像子弹和枪，枪是为子弹而生的，而子弹又让枪有了杀伤力。为了适应工业化生产，他们是相互独立发展，通过标准化接口来相互协作。  </p>
 <p>Servlet容器种类多，各有各的优缺点，我们以Tomcat为例介绍Servlet容器是如何管理Servlet的。  </p>
-<p>在Tomcat的容器等级中，Context容器直接管理Servlet在容器中的包装类Wrapper，所以Context容器如何运作将直接影响Servlet的工作方式。<br><img src="1.1.png" alt="Tomcat容器模型"><br>分四个等级，真正管理Servlet的容器是Context容器，一个Context对应一个Web工程，Tomcat中WEB容器配置文件：conf/context.xml中的<context>节点配置
+<p>在Tomcat的容器等级中，Context容器直接管理Servlet在容器中的包装类Wrapper，所以Context容器如何运作将直接影响Servlet的工作方式。<br>分四个等级，真正管理Servlet的容器是Context容器，一个Context对应一个Web工程，Tomcat中WEB容器配置文件：conf/context.xml中的<context>节点配置
 Context容器，你可以配置多个。</context></p>
 <h1 id="2-Servlet容器的启动过程"><a href="#2-Servlet容器的启动过程" class="headerlink" title="2. Servlet容器的启动过程"></a>2. Servlet容器的启动过程</h1><p>现在很多博客已经把Tomcat解析很清晰了，就不再多累赘编写了。<br>另外由于博主一直使用Jetty，因此以后待研究Tomcat或者Jetty。</p>
 ]]></content>
