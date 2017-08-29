@@ -100,20 +100,27 @@
 
 
 
-<meta name="description" content="1. 虚拟机设置静态IP使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。详细地址：http://blog.csdn.net/readiay/article/details/50866709主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。  设置网卡：/etc/sysconfig/network-scripts/ifcfg-xxx,x">
+<meta name="description" content="1. 几种常见的编码格式1. 为什么需要编码？ 计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。 人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。  2. 常见编码编码即就是人类的字符-&amp;gt;机器的字符的过程。 1. ASCII码总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键">
 <meta property="og:type" content="article">
-<meta property="og:title" content="虚拟机初始化部署">
-<meta property="og:url" content="http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/index.html">
+<meta property="og:title" content="三、深入分析Java Web中的中文编码问题">
+<meta property="og:url" content="http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/index.html">
 <meta property="og:site_name" content="Hello">
-<meta property="og:description" content="1. 虚拟机设置静态IP使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。详细地址：http://blog.csdn.net/readiay/article/details/50866709主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。  设置网卡：/etc/sysconfig/network-scripts/ifcfg-xxx,x">
+<meta property="og:description" content="1. 几种常见的编码格式1. 为什么需要编码？ 计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。 人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。  2. 常见编码编码即就是人类的字符-&amp;gt;机器的字符的过程。 1. ASCII码总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png">
-<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-2.png">
-<meta property="og:updated_time" content="2017-08-15T04:59:20.000Z">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-1.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-2.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-3.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-4.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-5.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-6.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-7.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-8.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-9.png">
+<meta property="og:updated_time" content="2017-08-08T17:31:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="虚拟机初始化部署">
-<meta name="twitter:description" content="1. 虚拟机设置静态IP使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。详细地址：http://blog.csdn.net/readiay/article/details/50866709主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。  设置网卡：/etc/sysconfig/network-scripts/ifcfg-xxx,x">
-<meta name="twitter:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png">
+<meta name="twitter:title" content="三、深入分析Java Web中的中文编码问题">
+<meta name="twitter:description" content="1. 几种常见的编码格式1. 为什么需要编码？ 计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。 人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。  2. 常见编码编码即就是人类的字符-&amp;gt;机器的字符的过程。 1. ASCII码总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键">
+<meta name="twitter:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-1.png">
 
 
 
@@ -142,7 +149,7 @@
 
 
 
-  <link rel="canonical" href="http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/"/>
+  <link rel="canonical" href="http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/"/>
 
 
 
@@ -151,7 +158,7 @@
 
 
 
-  <title>虚拟机初始化部署 | Hello</title>
+  <title>三、深入分析Java Web中的中文编码问题 | Hello</title>
   
 
 
@@ -328,7 +335,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/">
+    <link itemprop="mainEntityOfPage" href="http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="TheOthers">
@@ -345,7 +352,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">虚拟机初始化部署</h1>
+          <h1 class="post-title" itemprop="name headline">三、深入分析Java Web中的中文编码问题</h1>
         
 
         <div class="post-meta">
@@ -357,8 +364,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-14T22:45:23+08:00">
-                2017-08-14 22:45
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-07T22:56:30+08:00">
+                2017-08-07 22:56
               </time>
             
 
@@ -380,8 +387,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
+                  <a href="/categories/readNote/" itemprop="url" rel="index">
+                    <span itemprop="name">读书笔记</span>
                   </a>
                 </span>
 
@@ -391,8 +398,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/hadoop/" itemprop="url" rel="index">
-                    <span itemprop="name">hadoop</span>
+                  <a href="/categories/readNote/deepJavaWeb/" itemprop="url" rel="index">
+                    <span itemprop="name">深入分析Java_Web技术</span>
                   </a>
                 </span>
 
@@ -427,7 +434,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  396
+                  2,755
                 </span>
               
 
@@ -443,7 +450,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  2
+                  11
                 </span>
               
             </div>
@@ -464,18 +471,80 @@
       
 
       
-        <h1 id="1-虚拟机设置静态IP"><a href="#1-虚拟机设置静态IP" class="headerlink" title="1. 虚拟机设置静态IP"></a>1. 虚拟机设置静态IP</h1><p>使用VMware12安装CentOS 64位，安装一台之后，并进行设置好静态IP。<br>详细地址：<a href="http://blog.csdn.net/readiay/article/details/50866709" target="_blank" rel="external">http://blog.csdn.net/readiay/article/details/50866709</a><br>主要通过查看VMware12的网关、网段，并且设置虚拟机的IP、网关、子网掩码。</p>
-<blockquote>
-<p>设置网卡：<code>/etc/sysconfig/network-scripts/ifcfg-xxx</code>,xxx可能不同。<br>设置主机名：<code>/etc/sysconfig/network</code>。<br>设置DNS：<code>/etc/resolv.conf</code>。<br>这步完成，虚拟机可以上网，使用SecureCRT主机可以登录虚拟机。</p>
-</blockquote>
-<h1 id="2-虚拟机进行拷贝"><a href="#2-虚拟机进行拷贝" class="headerlink" title="2. 虚拟机进行拷贝"></a>2. 虚拟机进行拷贝</h1><p>增加用户hadoop之后。进行拷贝，拷贝出两个虚拟机用作从机，并重新设置网卡以及主机名。并使用<code>ssh localhost</code>命令在虚拟机互相登录。  </p>
-<h1 id="3-使用公钥登录"><a href="#3-使用公钥登录" class="headerlink" title="3. 使用公钥登录"></a>3. 使用公钥登录</h1><p>使用root账号，在第一个机器输入<code>ssh-keygen</code>，生成ssh公钥私钥，然后使用<code>ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.xxx.x</code>
-发送到指定的某个机器，就可以直接使用ssh登录而不用输入密码了，因为有三台，<code>ssh-keygen</code>需要每台输入，而后面的命令需要每台输入两次，用于
-连接两台电脑。<br>详细地址：<a href="http://blog.topspeedsnail.com/archives/6985" target="_blank" rel="external">http://blog.topspeedsnail.com/archives/6985</a>
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-1.png" alt=""></p>
-<h1 id="4-配置hosts文件"><a href="#4-配置hosts文件" class="headerlink" title="4. 配置hosts文件"></a>4. 配置hosts文件</h1><p>在第一步设置了主机名之后，接着在每台虚拟机中，设置hosts文件，以后ssh连接直接输入别名，不用输入IP。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/hadoop/hadoop-2.png" alt=""></p>
-<h1 id="5-配置Java到环境变量"><a href="#5-配置Java到环境变量" class="headerlink" title="5. 配置Java到环境变量"></a>5. 配置Java到环境变量</h1><p><a href="http://www.jianshu.com/p/cde3083fc42d" target="_blank" rel="external">http://www.jianshu.com/p/cde3083fc42d</a></p>
-<h1 id="6-设置请求转发"><a href="#6-设置请求转发" class="headerlink" title="6. 设置请求转发"></a>6. 设置请求转发</h1><p>我们需要主机去访问虚拟机的服务，详情设置：<a href="http://graybull.is-programmer.com/posts/36941.html" target="_blank" rel="external">http://graybull.is-programmer.com/posts/36941.html</a>  </p>
+        <h1 id="1-几种常见的编码格式"><a href="#1-几种常见的编码格式" class="headerlink" title="1. 几种常见的编码格式"></a>1. 几种常见的编码格式</h1><h2 id="1-为什么需要编码？"><a href="#1-为什么需要编码？" class="headerlink" title="1. 为什么需要编码？"></a>1. 为什么需要编码？</h2><ul>
+<li>计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。</li>
+<li>人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。</li>
+</ul>
+<h2 id="2-常见编码"><a href="#2-常见编码" class="headerlink" title="2. 常见编码"></a>2. 常见编码</h2><p>编码即就是人类的字符-&gt;机器的字符的过程。</p>
+<h3 id="1-ASCII码"><a href="#1-ASCII码" class="headerlink" title="1. ASCII码"></a>1. ASCII码</h3><p>总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键盘输入并且能够显示出来。</p>
+<h3 id="2-ISO-8859-1"><a href="#2-ISO-8859-1" class="headerlink" title="2. ISO-8859-1"></a>2. ISO-8859-1</h3><p>128个字符显示是不够的，于是ISO组织在ASCII码基础上又制定了一系列标准来扩展ASCII编码，他们是ISO-8859-1至ISO-8859-15。ISO-8859-1仍然
+是单字节编码，它总共能表示256个字符。</p>
+<h3 id="3-GB2312"><a href="#3-GB2312" class="headerlink" title="3. GB2312"></a>3. GB2312</h3><p>GB2312全称是《信息技术·中文编码字符集》，总的编码范围是：A1~F7。它是双字节编码。包含了符号以及汉字。</p>
+<h3 id="4-GBK"><a href="#4-GBK" class="headerlink" title="4. GBK"></a>4. GBK</h3><p>GBK全称是《汉字内码扩展规范》，是国家技术监督局为Windows95所制定新的汉字内码规范，它的出现是为了扩展GB2312，并加入更多的汉字。
+编码范围是8140~FEFE，总共23940，表示21003个汉字，编码是和GB2312兼容，也就是GB2312编码的汉字可以用GBK解码，不会乱码。</p>
+<h3 id="5-GB18030"><a href="#5-GB18030" class="headerlink" title="5. GB18030"></a>5. GB18030</h3><p>应用不广泛，与GB2312兼容</p>
+<h3 id="6-UTF-16"><a href="#6-UTF-16" class="headerlink" title="6. UTF-16"></a>6. UTF-16</h3><p>Unicode（Universal Code统一码），ISO试图创建一个全新的超语言字典，世界上所有的语言都可以通过这个字典来相互翻译。可想而知这个字典是多么
+复杂。Unicode是Java和XML的基础。<br>UTF-16具体定义了Unicode字符在计算机中的存取方法，UTF-16用两个字节来表示Unicode的转化格式，它采用定长的表示方法，即不论什么字符都可以用
+两个字节表示。<br>两个字节是16个bit，所以叫UTF-16。UTF-16表示字符非常方便，每两个字节表示一个字符，简化了字符串操作，这也是Java以UTF-16作为内存的字符存储
+格式的一个重要的原因。</p>
+<h3 id="7-UTF-8"><a href="#7-UTF-8" class="headerlink" title="7. UTF-8"></a>7. UTF-8</h3><p>UTF-16统一采用两个字节表示一个字符，虽然表示上简单方便，但是也有其缺点，很大一部分字符用一个字节就可以表示的现在要用两个字节表示，存储空间
+放大了一倍。而UTF-8采用了一种变长技术，每个编码区域有不同的字码长度。不同类型的字符可以由1~6个字节组成。</p>
+<ul>
+<li>如果是一个字节。最高为为0，则表示这是一个ASCII字符，可见，所有ASCII编码已经是UTF-8了。</li>
+<li>如果是一个字节，以11开头，则连续的1的个数暗示这个字符的字节数。例如：110xxxxx代表它是双字节UTF-8字符的首字节。</li>
+<li>如果是一个字节，以10开始，表示它不是首字节，需要向前查找才能得到当前字符的首字节。</li>
+</ul>
+<h2 id="2-编码的场景"><a href="#2-编码的场景" class="headerlink" title="2. 编码的场景"></a>2. 编码的场景</h2><h3 id="1-I-O操作"><a href="#1-I-O操作" class="headerlink" title="1. I/O操作"></a>1. I/O操作</h3><p>Reader类和InputStream之间的InputStreamReader，通过StreamDecoder以及StreamEncoder进行字符和字节的转换，在解码过程必须指定编码格式，
+否则按系统编码。
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">String file = <span class="string">"D:\\source\\eclipse\\liwen\\src\\main\\java\\liwen\\com\\io\\data.txt"</span>;</div><div class="line">String charset = <span class="string">"UTF-8"</span>;</div><div class="line">FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(file);</div><div class="line">OutputStreamWriter writer = <span class="keyword">new</span> OutputStreamWriter(fileOutputStream);</div><div class="line">writer.write(<span class="string">"这是要保存的中文字符"</span>);</div><div class="line">writer.close();</div><div class="line"></div><div class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(file);</div><div class="line">InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(fileInputStream, charset);</div><div class="line"></div><div class="line"><span class="keyword">char</span>[] buf = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">1024</span>];</div><div class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</div><div class="line">StringBuffer buffer = <span class="keyword">new</span> StringBuffer();</div><div class="line"><span class="keyword">while</span>((count = reader.read(buf)) != -<span class="number">1</span>) &#123;</div><div class="line">    buffer.append(buf, <span class="number">0</span>, count);</div><div class="line">&#125;</div><div class="line">System.out.print(buffer.toString());</div><div class="line">reader.close();</div></pre></td></tr></table></figure></p>
+<h3 id="2-在内存操作中的编码"><a href="#2-在内存操作中的编码" class="headerlink" title="2. 在内存操作中的编码"></a>2. 在内存操作中的编码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 第一种，通过字符串操作</span></div><div class="line">String s = <span class="string">"中文"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = s.getBytes(<span class="string">"UTF-8"</span>);</div><div class="line">String n = <span class="keyword">new</span> String(b, <span class="string">"UTF-8"</span>);</div><div class="line">System.out.print(n);</div><div class="line"></div><div class="line"><span class="comment">// 第二种，通过nio中的Charset与Buffer实现编码解码。</span></div><div class="line">Charset charset = Charset.forName(<span class="string">"UTF-8"</span>);</div><div class="line">ByteBuffer buffer = charset.encode(s);       <span class="comment">//字符转字节</span></div><div class="line">CharBuffer buffer1 = charset.decode(buffer); <span class="comment">//字节转字符</span></div><div class="line"><span class="keyword">char</span>[] a = buffer1.array();</div><div class="line">System.out.print(a);</div><div class="line"></div><div class="line"><span class="comment">// 第三种，通过将16bit的char拆分为2个8bit的byte，没有编码解码，只是软转化</span></div><div class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">1024</span>);</div><div class="line">ByteBuffer byteBuffer1 = byteBuffer.putChar(<span class="string">'a'</span>);</div></pre></td></tr></table></figure>
+<h1 id="3-在Java中如何编解码"><a href="#3-在Java中如何编解码" class="headerlink" title="3. 在Java中如何编解码"></a>3. 在Java中如何编解码</h1><p>UTF_32，GBK等编码都是继承自Charset（查看GB18030类的源码，会让你大吃一惊）。<br>Java内存编码采用的UTF-16编码，编码效率高，虽然用双字节存储，但是不适合网络之间传输，因为网络传输容易损坏字节流，当一个字节损坏，就两个字节没用了，UTF-8更适合网络传输。<br>UTF-8对ASCII字符采用单字节存储，另外单个字符损坏也不会影响后面的其他字符，编码效率上介于GBK和
+UTF-16之间，所以UTF-8在编码效率上和编码安全性上做了平衡，是理想的中文编码方式。</p>
+<h1 id="4-在Java-Web中设计的编解码"><a href="#4-在Java-Web中设计的编解码" class="headerlink" title="4. 在Java Web中设计的编解码"></a>4. 在Java Web中设计的编解码</h1><p>有I/O的地方就会涉及编码。网络传输都是以字节为单位的，所以所有的数据必须能够被序列化，即继承Serializable。<br>一个文本的实际大小应该怎么计算。例如：把整型数字1234567当做字符哎存储，则采用UTF-8编码会占用7个字节，采用UTF-16编码<br>会占用14个字节，但是当把它当成int类型的数字来存储则只需要4个字节。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-1.png" alt="HTTP请求的编码示例"></p>
+<h2 id="1-URL的编码"><a href="#1-URL的编码" class="headerlink" title="1. URL的编码"></a>1. URL的编码</h2><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-2.png" alt="URL"><br>其中浏览器对PathInfo和QueryString是编码不同的，因此服务器分别在不同的地方对其进行解码。<br>例如Tomcat先判断URIEncoding是否有定义，如果没有则默认使用ISO-8859-1解析。<br>而QueryString，无论POST请求还是GET请求，对它们的解码都是在request.getParameters()方法中，当然内部对POST和GET解码是不同的。<br>其中GET请求，是通过HTTP的Header传到服务端的，是通过useBodyEncodingForURL设置。因此在服务器最好设置URIEncoding和useBodyEncoding两个参数。</p>
+<h2 id="2-HTTP-Header的编解码"><a href="#2-HTTP-Header的编解码" class="headerlink" title="2. HTTP Header的编解码"></a>2. HTTP Header的编解码</h2><p>如Cookie等，一些头信息，Tomcat对Header解码是在调用request.getHeader()方法时进行的。如果有非ASCII字符，使用URLEncoder进行编码，网络传输。</p>
+<h2 id="3-POST表单的编解码"><a href="#3-POST表单的编解码" class="headerlink" title="3. POST表单的编解码"></a>3. POST表单的编解码</h2><p>提交时，浏览器先根据ContentType的Charset编码进行参数编码，然后再提交到服务端，服务端同样也用ContentType中的字符集进行解码。服务端可以通过
+request.setCharacterEncoding(charset)来设置。<br>注意：要在第一次调用request.getParameter()方法之前就设置request.setCharacterEncoding(charset)。<br>如果服务端没有设置request.setCharacterEncoding(charset)，那么表单提交的数据将会按照系统的默认编码方式解析。<br>另外，针对multipart/form-data类型的参数，即上传文件，也是通过ContentType定义的字符编码。上传文件是用字节流的方式传输到服务器的本地
+临时目录，这个过程并没有涉及字符编码，而真正编码是在讲文件内容添加到parameters，如果用这个不能编码，则会使用默认的ISO-8859-1编码。</p>
+<h2 id="4-HTTP-BODY的编解码"><a href="#4-HTTP-BODY的编解码" class="headerlink" title="4. HTTP BODY的编解码"></a>4. HTTP BODY的编解码</h2><p>通过Response返回给客户端浏览器。这个过程要经过编码，即response.setCharcterEncoding()来设置，它将会覆盖request.getCharacterEncoding()
+的值，并通过Header的Content-Type返回客户端，浏览器接收到返回的Socket流时将通过Content-Type的charset来解码。如果返回的HTTP Header中Content-Type
+没有设置charset，那么浏览器将根据浏览器的<mete http-equiv="Content-Type" content="text/html; charset=GBK">中的charset来解码，
+如果浏览器中没有定义，则使用默认的编码。<br>连接JDBC也是指定一致的编码：<code>jdbc:mysql://localhost:3306?DB?useUnicode=true&amp;characterEncoding=GBK</code>。</mete></p>
+<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<p>而script.js脚本中，有如下代码：
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.write(<span class="string">"中国"</span>);</div></pre></td></tr></table></figure></p>
+<p>如果引入的时候没有设置charset，浏览器就会以当前页面的默认字符集解析这个JS文件。如果一致那就没问题，但是如果页面和js字符编码不一致，就会变成乱码。</p>
+<h2 id="2-JS的URL编码"><a href="#2-JS的URL编码" class="headerlink" title="2. JS的URL编码"></a>2. JS的URL编码</h2><h3 id="1-escape"><a href="#1-escape" class="headerlink" title="1. escape()"></a>1. escape()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-3.png" alt="escape()与unescape()"><br>这组函数已经从ECMAScript v3标准删除了，URL的编码可以用encodeURI和encodeURIComponent来代替。</p>
+<h3 id="2-encodeURI"><a href="#2-encodeURI" class="headerlink" title="2. encodeURI()"></a>2. encodeURI()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-4.png" alt="encodeURI()和decodeURI()"><br>对某些特殊的字符不进行编码如<code>!</code>、<code>a-z</code>、<code>A-Z</code>、<code>0-9</code>、<code>=</code>、<code>@</code>、<code>?</code>、<code>;</code>、<code>:</code>、<code>-</code>、<code>+</code>、<code>(</code>、<code>)</code>、<code>&amp;</code>、<code>#</code>、<code>.</code>、<code>~</code>、<code>*</code>。</p>
+<h3 id="3-encodeURIComponent"><a href="#3-encodeURIComponent" class="headerlink" title="3. encodeURIComponent()"></a>3. encodeURIComponent()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-5.png" alt="encodeURIComponent()和decodeURIComponent"><br>编码更加彻底，用于整个URL编码，因为它将<code>&amp;</code>也编码了。除了<code>!</code>、<code>a-z</code>、<code>A-Z</code>、<code>0-9</code>、<code>-</code>、、<code>.</code>、<code>~</code>、<code>*</code>。</p>
+<h3 id="4-Java与JS编解码问题"><a href="#4-Java与JS编解码问题" class="headerlink" title="4. Java与JS编解码问题"></a>4. Java与JS编解码问题</h3><p>Java端处理URL编解码有两个类，分别是URLEncoder和URLDecoder。这两个类可以将所有“%”加UTF-8码值用UTF-8解码，从而得到原始的值。<br>对应的前端JS是encodeURIComponent和decodeURLComponent。注意，前端用encodeURIComponent，服务端用URLDecoder解码可能会乱码，
+可能是两个字符编码类型不一致，JS编码默认是UTF-8编码，而服务端中文解码一般都是GBK或者GB2312，所以encodeURIComponent编码后是
+UTF-8，而Java用GBK去解码显然不对。<br>解决方式是encodeURIComponent两次编码，服务端使用request.getParameter()用GBK解码后，再用UTF-8解码。</p>
+<h1 id="6-常见编码问题"><a href="#6-常见编码问题" class="headerlink" title="6. 常见编码问题"></a>6. 常见编码问题</h1><h2 id="1-中文变成看不懂的字符"><a href="#1-中文变成看不懂的字符" class="headerlink" title="1. 中文变成看不懂的字符"></a>1. 中文变成看不懂的字符</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String a = <span class="string">"淘！我喜欢！"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = a.getBytes(<span class="string">"GBK"</span>);  <span class="comment">//可以表示中文，占两个字节</span></div><div class="line">String c = <span class="keyword">new</span> String(b, <span class="string">"ISO-8859-1"</span>);  <span class="comment">//将两个字节分别作为一个单独的字符显示</span></div><div class="line">System.out.println(c); <span class="comment">// output: ÌÔ£¡ÎÒÏ²»¶£¡</span></div></pre></td></tr></table></figure>
+<p>双字节变成单字节<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-6.png" alt="中文变成看不懂的字符"></p>
+<h2 id="2-中文变成一个问号"><a href="#2-中文变成一个问号" class="headerlink" title="2. 中文变成一个问号"></a>2. 中文变成一个问号</h2><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-7.png" alt="中文变成问号">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String a = <span class="string">"淘！我喜欢！"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = a.getBytes(<span class="string">"ISO-8859-1"</span>);    <span class="comment">//找不到对应的字符</span></div><div class="line">String c = <span class="keyword">new</span> String(b, <span class="string">"ISO-8859-1"</span>);</div><div class="line">System.out.println(c); <span class="comment">// ??????</span></div></pre></td></tr></table></figure></p>
+<h2 id="3-中文变成两个问号"><a href="#3-中文变成两个问号" class="headerlink" title="3. 中文变成两个问号"></a>3. 中文变成两个问号</h2><p>经过了多次的编码解码。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-8.png" alt="一个中文变两个问号"></p>
+<h2 id="4-一种不正常的正确编码"><a href="#4-一种不正常的正确编码" class="headerlink" title="4. 一种不正常的正确编码"></a>4. 一种不正常的正确编码</h2><p>直接调用
+<code>String value = request.getParameter(name);</code>会出现乱码。<br>但是
+<code>String value = new String(request.getParameter(name).getBytes(&quot;ISO-8859-1&quot;), &quot;GBK&quot;)</code>会正常，为什么呢？<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-9.png" alt="非正常编码"><br>网络通过GBK编码之后的字节数组进行传输，Tomcat没有配置useBodyEncodingForURI，造成第一次解析通过ISO-8859-1解析，
+这时候我们手动通过<code>ISO-8859-1</code>编码，再通过GBK解码就可以获得正确的值，但是额外增加了一次编解码过程。</p>
+<h1 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a>7. 总结</h1><p>总结了几种常见编码格式的区别：</p>
+<ul>
+<li>ISO-8859-1：单字节编码，最多能表示256个字符。</li>
+<li>GBK、GB2312：双字节编码，前者兼容后者。</li>
+<li>UTF-16：双字节编码，Java内部内存额字符存储格式，操作方便，全部都是两个字节，但是浪费空间。</li>
+<li>UTF-8：动态字节编码。<br>以及IO的编码实现类：StreamEncoder/StreamDecoder，对char和byte的编解码。</li>
+</ul>
+<p>HTTP过程的编码，包括：</p>
+<ul>
+<li>URL、URI的编码。</li>
+<li>Header的编解码。</li>
+<li>POST表单的编解码。Java使用request.getParameter()获取之前，先设置request.setCharacterEncoding(charset)。</li>
+<li>BODY的编解码，即Response的编解码。</li>
+<li>JS的编解码。</li>
+</ul>
+<p>Tomcat编解码源码。以及常见乱码问题的原因。<br>注意<strong>一定要手动设置编码的格式，实现真正的跨平台</strong>。</p>
 
       
     </div>
@@ -504,12 +573,12 @@
   <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
   <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
   <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
-  <p><span>本文标题:</span><a href="/2017/08/14/hadoop/虚拟机初始化部署/">虚拟机初始化部署</a></p>
+  <p><span>本文标题:</span><a href="/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/">三、深入分析Java Web中的中文编码问题</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
-  <p><span>发布时间:</span>2017年08月14日 - 22:08</p>
-  <p><span>最后更新:</span>2017年08月15日 - 12:08</p>
-  <p><span>原始链接:</span><a href="/2017/08/14/hadoop/虚拟机初始化部署/" title="虚拟机初始化部署">http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/14/hadoop/虚拟机初始化部署/"  aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2017年08月07日 - 22:08</p>
+  <p><span>最后更新:</span>2017年08月09日 - 01:08</p>
+  <p><span>原始链接:</span><a href="/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/" title="三、深入分析Java Web中的中文编码问题">http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
 </div>
@@ -548,8 +617,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/08/12/deepknowjavaweb/7_JVM体系结构与工作方式.html/" rel="next" title="七、JVM体系结构与工作方式">
-                <i class="fa fa-chevron-left"></i> 七、JVM体系结构与工作方式
+              <a href="/2017/08/04/deepknowjavaweb/2_课外学习NIO.html/" rel="next" title="二、课外学习NIO">
+                <i class="fa fa-chevron-left"></i> 二、课外学习NIO
               </a>
             
           </div>
@@ -558,8 +627,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/14/deepknowjavaweb/8_JVM内存管理.html/" rel="prev" title="八、JVM内存管理">
-                八、JVM内存管理 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/08/08/deepknowjavaweb/4_Javac编译原理.html/" rel="prev" title="四、Javac编译原理">
+                四、Javac编译原理 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -749,7 +818,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-虚拟机设置静态IP"><span class="nav-text">1. 虚拟机设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-虚拟机进行拷贝"><span class="nav-text">2. 虚拟机进行拷贝</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-使用公钥登录"><span class="nav-text">3. 使用公钥登录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-配置hosts文件"><span class="nav-text">4. 配置hosts文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-配置Java到环境变量"><span class="nav-text">5. 配置Java到环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-设置请求转发"><span class="nav-text">6. 设置请求转发</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-几种常见的编码格式"><span class="nav-text">1. 几种常见的编码格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-为什么需要编码？"><span class="nav-text">1. 为什么需要编码？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-常见编码"><span class="nav-text">2. 常见编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ASCII码"><span class="nav-text">1. ASCII码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-ISO-8859-1"><span class="nav-text">2. ISO-8859-1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-GB2312"><span class="nav-text">3. GB2312</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-GBK"><span class="nav-text">4. GBK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-GB18030"><span class="nav-text">5. GB18030</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-UTF-16"><span class="nav-text">6. UTF-16</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-UTF-8"><span class="nav-text">7. UTF-8</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-编码的场景"><span class="nav-text">2. 编码的场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-I-O操作"><span class="nav-text">1. I/O操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-在内存操作中的编码"><span class="nav-text">2. 在内存操作中的编码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-在Java中如何编解码"><span class="nav-text">3. 在Java中如何编解码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-在Java-Web中设计的编解码"><span class="nav-text">4. 在Java Web中设计的编解码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-URL的编码"><span class="nav-text">1. URL的编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-HTTP-Header的编解码"><span class="nav-text">2. HTTP Header的编解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-POST表单的编解码"><span class="nav-text">3. POST表单的编解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-HTTP-BODY的编解码"><span class="nav-text">4. HTTP BODY的编解码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-在JS的编码"><span class="nav-text">5. 在JS的编码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-外部引入JS文件"><span class="nav-text">1. 外部引入JS文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-JS的URL编码"><span class="nav-text">2. JS的URL编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-escape"><span class="nav-text">1. escape()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-encodeURI"><span class="nav-text">2. encodeURI()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-encodeURIComponent"><span class="nav-text">3. encodeURIComponent()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Java与JS编解码问题"><span class="nav-text">4. Java与JS编解码问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-常见编码问题"><span class="nav-text">6. 常见编码问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-中文变成看不懂的字符"><span class="nav-text">1. 中文变成看不懂的字符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-中文变成一个问号"><span class="nav-text">2. 中文变成一个问号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-中文变成两个问号"><span class="nav-text">3. 中文变成两个问号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-一种不正常的正确编码"><span class="nav-text">4. 一种不正常的正确编码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-总结"><span class="nav-text">7. 总结</span></a></li></ol></div>
             
 
           </div>

@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="true" />
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="true" />
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java, IO, NIO, JavaWeb, Java乱码" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Hello" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="1. ClassLoader的等级加载机制 如何保证不同等级的会员通过不同的会员接待室进入会场？有可能有些会员并不能正确的找到接待自己的接待室，也有可能有些会员冒充更高级的会员身份混进去，所以必须要有机制能够保证所有会员都被正确的接待室接待进入会场，而且一个会员只能被一个接待室接待，不能出现被两个接待室 重复接待的情况。如何设计这个接待规则呢？   ClassLoader就设计了这样一种接待机制，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="六、深入分析ClassLoader工作机制">
+<meta property="og:url" content="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/index.html">
+<meta property="og:site_name" content="Hello">
+<meta property="og:description" content="1. ClassLoader的等级加载机制 如何保证不同等级的会员通过不同的会员接待室进入会场？有可能有些会员并不能正确的找到接待自己的接待室，也有可能有些会员冒充更高级的会员身份混进去，所以必须要有机制能够保证所有会员都被正确的接待室接待进入会场，而且一个会员只能被一个接待室接待，不能出现被两个接待室 重复接待的情况。如何设计这个接待规则呢？   ClassLoader就设计了这样一种接待机制，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-1.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-2.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-3.png">
+<meta property="og:updated_time" content="2017-08-11T17:46:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="六、深入分析ClassLoader工作机制">
+<meta name="twitter:description" content="1. ClassLoader的等级加载机制 如何保证不同等级的会员通过不同的会员接待室进入会场？有可能有些会员并不能正确的找到接待自己的接待室，也有可能有些会员冒充更高级的会员身份混进去，所以必须要有机制能够保证所有会员都被正确的接待室接待进入会场，而且一个会员只能被一个接待室接待，不能出现被两个接待室 重复接待的情况。如何设计这个接待规则呢？   ClassLoader就设计了这样一种接待机制，">
+<meta name="twitter:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/"/>
+
+
+
+
+<meta name="baidu-site-verification" content="6xZAlsxhGb" />
+
+
+
+  <title>六、深入分析ClassLoader工作机制 | Hello</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?288c34a835940e6526236ec438c47307";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hello</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">严律己，宽待人</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="TheOthers">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">六、深入分析ClassLoader工作机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-10T23:19:20+08:00">
+                2017-08-10 23:19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/readNote/" itemprop="url" rel="index">
+                    <span itemprop="name">读书笔记</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/readNote/deepJavaWeb/" itemprop="url" rel="index">
+                    <span itemprop="name">深入分析Java_Web技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  3,645
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-ClassLoader的等级加载机制"><a href="#1-ClassLoader的等级加载机制" class="headerlink" title="1. ClassLoader的等级加载机制"></a>1. ClassLoader的等级加载机制</h1><ol>
+<li>如何保证不同等级的会员通过不同的会员接待室进入会场？<br>有可能有些会员并不能正确的找到接待自己的接待室，也有可能有些会员冒充更高级的会员身份混进去，所以必须要有机制能够保证所有会员都被正确的接待室接待进入会场，而且一个会员只能被一个接待室接待，不能出现被两个接待室
+重复接待的情况。如何设计这个接待规则呢？  </li>
+<li>ClassLoader就设计了这样一种接待机制，即上级(双亲)委托接待机制。<br>任何一个会员到达任何一个会员接待室时，这个接待室首先会检查这个会员P是否已经被自己A接待过，如果已经接待过，则拒绝本次接待，如果自己没有接待过，那么会向上B询问这个会员是否应该在
+上一级的更高级别的接待室B接待，上级接待室B会根据它们的接待规则，检查这个会员是否被自己B接待过，如果接待过，将已经接待的结果反馈下一级A，
+如果也没有接待过，则向上一级询问这个会员P是否应该在上一级的更高级别的接待室接待，一直这样接待，直到有一级接待室接待或者告诉它
+下一级这个会员不是自己接待的结果；  </li>
+<li>如果这个会员来到的这个接待室A得到它上一级B的接待室反馈认为这个会员没有被接待，并且也不应该由它们BC接待，这个接待室A将会正式
+接待这个会员，并发入会证明，这个会员就被定义为这个接待室等级的会员。  </li>
+<li>整个JVM平台提供三层ClassLoader，这三层ClassLoader可以分为两种类型，可以理解为：为接待室服务的接待室和为会员服务的接待室两种。</li>
+</ol>
+<h2 id="1-BootstrapClassLoader"><a href="#1-BootstrapClassLoader" class="headerlink" title="1. BootstrapClassLoader"></a>1. BootstrapClassLoader</h2><p>这个ClassLoader就是接待室服务自身的，它主要加载JVM自身工作需要的类，这个ClassLoader完全是由JVM自己控制的，需要加载哪个类、
+怎么加载都由JVM自己控制，别人也访问不到这个类，所以这个ClassLoader是不遵守前面介绍的加载规则的，它仅仅是一个类的加载工具而已，
+既没有更高一级的父加载器，也没有子加载器。</p>
+<h2 id="2-ExtClassLoader"><a href="#2-ExtClassLoader" class="headerlink" title="2. ExtClassLoader"></a>2. ExtClassLoader</h2><p>这个类加载器有点特殊，它是JVM自身的一部分，但是它的血统不是很纯正，它并不是JVM亲自实现的，我们可以理解为这个类加载器是那些与这个大会合作单位的员工会员，
+这些会员既不是JVM内部的，也和普通的外部会员不同，所以就由这个类即在其来加载。它服务的特定目标在<code>System.getProperty(&quot;java.ext.dirs&quot;)</code>目录下。</p>
+<h2 id="3-AppClassLoader"><a href="#3-AppClassLoader" class="headerlink" title="3. AppClassLoader"></a>3. AppClassLoader</h2><p>这个类加载器就是专门为接待会员服务的，它的父类是ExtClassLoader。它服务的目标是广大普通会员，所有在<code>System.getProperty(&quot;java.class.path&quot;)</code>
+目录下的类都可以被这个类加载器加载，这个目录就是我们经常用到的classpath。</p>
+<p>如果我们要实现自己的类加载器，不管你是直接实现抽象类ClassLoader，还是继承URLClassLoader类，或者其他子类，它的父加载器都是AppClassLoader，
+因为不管调用哪个父类构造器，创建的对象都必须最终调用getSystemClassLoader()作为父加载器。而getSystemClassLoader()方法获取
+到的正是AppClassLoader。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-1.png" alt="应用中类加载器的等级层次"><br>很多文章在介绍ClassLoader的等级结构时把Bootstrap ClassLoader也列在ExtClassLoader的上一级中，其实BootstrapClassLoader并不属于JVM的类等级层次，
+因为BootstrapClassLoader并没有遵守ClassLoader的加载规则。另外BootstrapClassLoader并没有子类。<br>ExtClassLoader的父类也不是BootstrapClassLoader，ExtClassLoader并没有父类，我们在应用中能提取到的顶层父类是ExtClassLoader。<br>ExtClassLoader和AppClassLoader都位于sun.misc.Launcher类中，它们是Launcher类的内部类。<br>如果在Java应用中没有定义其他ClassLoader，那么除了<code>System.getProperty(&quot;java.ext.dirs&quot;)</code>目录下的类是由ExtClassLoader加载外，
+其他类都由AppClassLoader加载。<br>JVM加载class文件到内存由两种方式。</p>
+<ul>
+<li>隐式加载：即不在代码里调用ClassLoader来加载所需要的类，而是通过JVM来自动加载所需要的类到内存的方式。例如，当我们在类中继承或者引用某个类时，
+JVM在解析当前这个类时发现引用的类不在内存中，那么就会自动将这么类加载到内存中。</li>
+<li>显式加载：即调用<code>this.getClass().getClassLoader().loadClass()</code>或者<code>Class.forName()</code>，或者我们自己实现的ClassLoader的findClass()方法等。<blockquote>
+<p>ClassLoader().loadClass()底层是loadClass(name, false),即只加载不解析。而Class.forName()底层是forName0(className, true, ClassLoader.getClassLoader(caller), caller)，
+即初始化。注意：在Java中，类装载分三步，对应三种状态，即：加载-&gt;链接(校验、准备、解析)-&gt;初始化。第一种对应的加载后，第二种对应的时链接后。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-2.png" alt="类装载"><br>例如：即要对驱动初始化才能使用就使用的后者加载Class.forName(“com.mysql.jdbc.Driver”)。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="2-如何加载class文件"><a href="#2-如何加载class文件" class="headerlink" title="2. 如何加载class文件"></a>2. 如何加载class文件</h1><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-6-1-3.png" alt="JVM加载类">  </p>
+<ul>
+<li>找到.class文件，并把这个文件包含的字节码加载到内存中。</li>
+<li>字节码验证、Class类数据结构分析、内存分配，符号表的链接。</li>
+<li>[类中静态属性和初始化赋值][1]，以及静态块的执行等。</li>
+</ul>
+<h2 id="1-加载字节码到内存"><a href="#1-加载字节码到内存" class="headerlink" title="1. 加载字节码到内存"></a>1. 加载字节码到内存</h2><p>抽象类ClassLoader中并没有定义如何去加载，让子类具体实现找到指定类并把它的字节码加载到内存需要的子类中，
+例如：URLClassLoader如何实现的findClass()方法，这个类底层通过URLClassPath取得要加载的class文件字节流，
+而这个URLClassPath定义了到哪里去找这个class文件，如果找到了这个class文件，再读取它的byte字节流，通过
+调用defineClass()方法来创建类对象。<br>URL数组是创建URLClassPath对象的必要条件。</p>
+<h2 id="2-验证与解析"><a href="#2-验证与解析" class="headerlink" title="2. 验证与解析"></a>2. 验证与解析</h2><ul>
+<li>字节码验证：确保格式正确、行为正确。</li>
+<li>类准备：准备类中定义的字段、方法和实现接口所必须的数据结构</li>
+<li>解析：类装入器装入类所引用的其他所有累。如超类(父类)、接口、字段、方法签名、方法中使用的本地变量。</li>
+</ul>
+<h2 id="3-初始化Class对象"><a href="#3-初始化Class对象" class="headerlink" title="3. 初始化Class对象"></a>3. 初始化Class对象</h2><p>在类中包含的静态初始化器都被执行，在这一阶段末尾静态字段被初始化为默认值。</p>
+<h1 id="3-常见加载类错误分析"><a href="#3-常见加载类错误分析" class="headerlink" title="3. 常见加载类错误分析"></a>3. 常见加载类错误分析</h1><h2 id="1-ClassNotFoundException"><a href="#1-ClassNotFoundException" class="headerlink" title="1. ClassNotFoundException"></a>1. ClassNotFoundException</h2><p>JVM要加载指定文件的字节码到内存时，并没有找到这个文件对应的字节码文件，即.class文件不存在。解决的办法就是检查
+在当前的classpath目录下有没有指定的文件存在。可通过以下命令：<br><code>this.getClass().getClassLoader().getResource(&quot;&quot;).toString()</code><br>获取之后结果，让我大吃一惊，这不是我用idea设置的output文件夹么，原来idea设置的output文件夹有这个作用！</p>
+<h2 id="2-NoClassDefFoundError"><a href="#2-NoClassDefFoundError" class="headerlink" title="2.NoClassDefFoundError"></a>2.NoClassDefFoundError</h2><p>确保每个类引用的类都在当前的classpath下面。</p>
+<h2 id="3-UnsatisfiedLinkError"><a href="#3-UnsatisfiedLinkError" class="headerlink" title="3. UnsatisfiedLinkError"></a>3. UnsatisfiedLinkError</h2><p>常见在JVM启动时，JVM中的某个lib删除了，可能会报这个错误（并这个lib中包含native标示的方法）。</p>
+<h2 id="4-ClassCastException"><a href="#4-ClassCastException" class="headerlink" title="4. ClassCastException"></a>4. ClassCastException</h2><ul>
+<li>对于普通对象，对象必须是目标类的实例或目标类的子类的实例。如果目标类是接口，那么 会把它当作实现了该接口的一个子类。</li>
+<li><p>对于数组类型，目标类型必须是数组类型或java.lang.Object、java.lang.Cloneable、java.io.Serializable。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Integer[] a = <span class="keyword">new</span> Integer[]&#123;<span class="number">1</span>&#125;;</div><div class="line">Object b = a;</div><div class="line">Cloneable c = a;</div><div class="line">Serializable d = a;</div><div class="line">System.out.println(b + <span class="string">","</span> + c + <span class="string">","</span> + d);</div><div class="line"><span class="comment">//output:[Ljava.lang.Integer;@78e03bb5,[Ljava.lang.Integer;@78e03bb5,[Ljava.lang.Integer;@78e03bb5</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>建议先使用instanceof检查是不是目标类型，再进行强制类型转换。</p>
+</li>
+</ul>
+<h2 id="5-ExceptionInInitializerError"><a href="#5-ExceptionInInitializerError" class="headerlink" title="5. ExceptionInInitializerError"></a>5. ExceptionInInitializerError</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> Map m = <span class="keyword">new</span> HashMap()&#123;</div><div class="line">        &#123;</div><div class="line">            m.put(<span class="string">"a"</span>,<span class="string">"2"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sss</span><span class="params">()</span> </span>&#123;</div><div class="line">    Integer s = (Integer) m.get(<span class="string">"a"</span>);</div><div class="line">    System.out.println(s);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>初始化类的时候，给静态属性m赋值出现了异常导致抛出错误。</p>
+<h1 id="4-常用ClassLoader分析"><a href="#4-常用ClassLoader分析" class="headerlink" title="4. 常用ClassLoader分析"></a>4. 常用ClassLoader分析</h1><p>基于对Tomcat的源码分析，对部署在Tomcat的Servlet的项目，执行
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ClassLoader classLoader = <span class="keyword">this</span>.getClass().getClassLoader();</div><div class="line"><span class="keyword">while</span> (classLoader != <span class="keyword">null</span>) &#123;</div><div class="line">    System.out.println(classLoader.getClass().getCanonicalName());</div><div class="line">    classLoader = classLoader.getParent();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Tomcat本身自己实现了WebappClassLoader，会优先检查WebappClassLoader加载到额缓存，而不是JVM的findLoaderClass缓存。<br>并设置WebappClassLoadera的加载路径为WEB-INF/classes目录，查找文件的字节码，然后保存类的元信息，方便下次查找。
+（前提是被查找的类再BootstrapClassLoader、ExtClassLoader、AppClassLoader等父加载器都反馈为不为他们加载）。</p>
+<h1 id="5-如何实现自己的ClassLoader"><a href="#5-如何实现自己的ClassLoader" class="headerlink" title="5. 如何实现自己的ClassLoader"></a>5. 如何实现自己的ClassLoader</h1><p>ClassLoader能够完成的事情：</p>
+<ul>
+<li>在自定义路径下查找定义的class类文件，也许我们需要的class文件并不总在已经设置好的ClassPath下面，那么我们
+必须想办法来找到这个类，这时，就需要自己实现一个ClassLoader。</li>
+<li>对我们自己的要加载的类做特殊处理，如保证通过网络传输的类的安全性，可以将类经过加密后再传输，再加载到JVM
+之前需对类的字节码再解码，这个过程就可以在自定义的ClassLoader中实现。</li>
+<li>可以定义类的实现机制，我们可以检查已经加载的class文件是否被修改，如果修改了，可以重新加载这个类，从而实现
+类的热部署。</li>
+</ul>
+<h2 id="1-加载自定义路径下的class文件"><a href="#1-加载自定义路径下的class文件" class="headerlink" title="1. 加载自定义路径下的class文件"></a>1. 加载自定义路径下的class文件</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PathClassLoader</span> <span class="keyword">extends</span> <span class="title">ClassLoader</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String classPath;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String packageName = <span class="string">"com.lwg.classknow"</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PathClassLoader</span><span class="params">(String classPath)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.classPath = classPath;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</div><div class="line">        <span class="keyword">if</span> (name.startsWith(packageName)) &#123;</div><div class="line">            <span class="comment">// 这里写从自己的缓冲中寻找，找到就直接返回。</span></div><div class="line">            <span class="keyword">byte</span>[] classData = getData(name);</div><div class="line">            <span class="keyword">if</span> (classData == <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// 这里写放入自己的缓存中，或者注册到一个Bean管理器，统一管理等。</span></div><div class="line">                <span class="keyword">return</span> defineClass(name, classData, <span class="number">0</span>, classData.length);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.loadClass(name);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">byte</span>[] getData(String className) &#123;</div><div class="line">        String path = classPath + File.separator + className.replace(<span class="string">'.'</span>, File.separatorChar) + <span class="string">".class"</span>;</div><div class="line">        <span class="keyword">try</span>&#123;</div><div class="line">            <span class="comment">// 如果是通过某种加密的文件，则这么可以进行特殊的解密</span></div><div class="line">            InputStream is = <span class="keyword">new</span> FileInputStream(path);</div><div class="line">            ByteArrayOutputStream stream = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">            <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line">            <span class="keyword">int</span> num = <span class="number">0</span>;</div><div class="line">            <span class="keyword">while</span> ((num = is.read(buffer)) != -<span class="number">1</span>) &#123;</div><div class="line">                stream.write(buffer, <span class="number">0</span>, num);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> stream.toByteArray();</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] agrs)</span> </span>&#123;</div><div class="line">        PathClassLoader loader = <span class="keyword">new</span> PathClassLoader(<span class="string">"C:\\lwg\\lwg\\out\\production\\lwg"</span>);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Class cus = loader.findClass(<span class="string">"com.lwg.classknow.classloader.ssss"</span>);</div><div class="line">            System.out.println(cus); <span class="comment">//output:class com.lwg.classknow.classloader.ssss</span></div><div class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>还有直接继承URLClassLoader(下面代码没有经过验证):
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">URLPathClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String packageName = <span class="string">"com.lwg.classknow.classloader"</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">URLPathClassLoader</span><span class="params">(URL[] urls, ClassLoader parent)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(urls, parent);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</div><div class="line">        Class&lt;?&gt; clz = findLoadedClass(name);</div><div class="line">        <span class="keyword">if</span> (clz != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span> clz;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (!packageName.startsWith(name)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.loadClass(name);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> findClass(name);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, MalformedURLException </span>&#123;</div><div class="line">        URLPathClassLoader loader = <span class="keyword">new</span> URLPathClassLoader(<span class="keyword">new</span> URL[]&#123;<span class="keyword">new</span> URL(<span class="string">"http://www.xxx.com"</span>)&#125;, <span class="keyword">null</span>);</div><div class="line">        loader.findClass(<span class="string">"com.lwg.classknow.classloader.ssss"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="6-实现类的热部署"><a href="#6-实现类的热部署" class="headerlink" title="6. 实现类的热部署"></a>6. 实现类的热部署</h1><p>JVM在加载类之前会检查请求的类是否已经被加载起来，也就是要调用findLoaderClass()方法查看是否能偶返回类实例。如果类已经加载过来，再调用
+loadClass()将会导致类冲突。但是JVM标示一个类是否是同一个类会有两个条件。</p>
+<ul>
+<li>类的完整类名是否一样，这个类名包括类所在的包名。</li>
+<li>加载这个类的ClassLoader是否是同一个实例。<br>所以要实现类的热部署可以创建不同的ClassLoader的实例对象，然后通过对这个不同的实例对象来加载同名的类。</li>
+</ul>
+<p>使用不同的ClassLoader实例加载同一个类，会不会导致JVM的PermGen区无限增大？答案是否定的，因为我们的ClassLoader对象也会和其他对象一样，
+当没有对象再引用它以后，也会被JVM回收。但是需要注意的一点是，被这个ClassLoader加载的类的字节码会保存在JVM的PermGen区，这个数据一般
+只是在执行Full GC时才会被回收的，所以如果在你的应用中都是大量的动态类加载，Full GC又不是太频繁，也要注意PermGen区的大小，防止内存溢出。</p>
+<h1 id="7-Java应不应该动态加载类"><a href="#7-Java应不应该动态加载类" class="headerlink" title="7. Java应不应该动态加载类"></a>7. Java应不应该动态加载类</h1><p>我想大家都知道用Java有一个痛处，就是修改一个类，必须要重启一遍，很费时。于是就想能不能来个动态类的加载而不需要重启JVM，如果你了解JVM
+的工作机制，就应该放弃这个念头。<br>Java的优势正是基于共享对象的机制，达到信息的高度共享，也就是通过保存并持有对象的状态而省去类信息的重复创建和回收。我们知道对象一旦被创建，
+这个对象就可以被人持有和引用。<br>假如，我们能够动态加载一个对象进入JVM，但是如何做到JVM中对象的平滑过渡？几乎不可能！虽然在JVM中对象只有一份，在理论上可以直接诶替换这个
+对象，然后更新Java栈中所有对原对象的引用关系。看起来好像对象可以被替换了，但是这仍然不可行，因为它违反了JVM的设计原则，对象的引用关系
+只有对象的创建者持有和使用，JVM不可以干预对象的引用关系，因为JVM并不知道对象是怎么被使用的，这就涉及JVM并不知道对象的运行时类型
+而只知道编译时类型。<br>假如一个对象的属性结构被修改，但是在运行时其他对象可能仍然引用该属性。<br>虽然完全的无障碍的替换时不现实的，但是如果你非要那么做，也还是可以。前面的分析造成不能动态提供类对象的关键是，对象的状态被保存了，
+并且被其他对象引用了，一个简单的解决方法就是不保存对象的状态，对象被创建使用后被释放掉，下次修改后，对象也就是新的了。<br>这就是JSP，动态的加载类，所有其他解释型语言都是如此。</p>
+<h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h1><p>ClassLoader的基本工作机制，以及双亲委派机制的解释，自己创建ClassLoader以及热部署的原理。</p>
+
+      
+    </div>
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/">六、深入分析ClassLoader工作机制</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
+  <p><span>发布时间:</span>2017年08月10日 - 23:08</p>
+  <p><span>最后更新:</span>2017年08月12日 - 01:08</p>
+  <p><span>原始链接:</span><a href="/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/" title="六、深入分析ClassLoader工作机制">http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          html: false,
+          timer: 500,
+          showConfirmButton: false
+        });
+      });
+    }));
+</script>
+
+
+      
+    </div>
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/10/deepknowjavaweb/5_深入class文件结构.html/" rel="next" title="五、深入class文件结构">
+                <i class="fa fa-chevron-left"></i> 五、深入class文件结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/12/deepknowjavaweb/7_JVM体系结构与工作方式.html/" rel="prev" title="七、JVM体系结构与工作方式">
+                七、JVM体系结构与工作方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMDEzNi82Njkx"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="TheOthers" />
+          <p class="site-author-name" itemprop="name">TheOthers</p>
+           
+              <p class="site-description motion-element" itemprop="description">最怕一生碌碌无为，还安慰自己平凡可贵</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://www.liwenguang.website/about/" target="_blank" title="关于">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      关于
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/LiWenGu" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://music.163.com/#/user/home?id=81894903" target="_blank" title="网易云">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      网易云
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=474922552&auto=0&height=66"></iframe>
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              推荐阅读
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ifeve.com/" title="并发编程网" target="_blank">并发编程网</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://tinyjpg.com/" title="图片压缩" target="_blank">图片压缩</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-ClassLoader的等级加载机制"><span class="nav-text">1. ClassLoader的等级加载机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-BootstrapClassLoader"><span class="nav-text">1. BootstrapClassLoader</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ExtClassLoader"><span class="nav-text">2. ExtClassLoader</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-AppClassLoader"><span class="nav-text">3. AppClassLoader</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-如何加载class文件"><span class="nav-text">2. 如何加载class文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-加载字节码到内存"><span class="nav-text">1. 加载字节码到内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-验证与解析"><span class="nav-text">2. 验证与解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-初始化Class对象"><span class="nav-text">3. 初始化Class对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-常见加载类错误分析"><span class="nav-text">3. 常见加载类错误分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-ClassNotFoundException"><span class="nav-text">1. ClassNotFoundException</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-NoClassDefFoundError"><span class="nav-text">2.NoClassDefFoundError</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-UnsatisfiedLinkError"><span class="nav-text">3. UnsatisfiedLinkError</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-ClassCastException"><span class="nav-text">4. ClassCastException</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-ExceptionInInitializerError"><span class="nav-text">5. ExceptionInInitializerError</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-常用ClassLoader分析"><span class="nav-text">4. 常用ClassLoader分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-如何实现自己的ClassLoader"><span class="nav-text">5. 如何实现自己的ClassLoader</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-加载自定义路径下的class文件"><span class="nav-text">1. 加载自定义路径下的class文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-实现类的热部署"><span class="nav-text">6. 实现类的热部署</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-Java应不应该动态加载类"><span class="nav-text">7. Java应不应该动态加载类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-总结"><span class="nav-text">8. 总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">TheOthers</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="powered-by">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+<div class="theme-info" id=show>
+</div>
+
+
+<script>
+  window.onload = function() {
+  var show = document.getElementById("show");
+  setInterval(function() {
+  var time = new Date();
+  // 程序计时的月从0开始取值后+1
+  var m = time.getMonth() - 7;
+  var d = time.getDate() - 13;
+  //根据自己博客的创建时间更改数值
+  var t = "已经运行了 - "+(time.getFullYear()-2017) + "年" + m + "月"
+  + d + "天 " + time.getHours() + "时"
+  + time.getMinutes() + "分" + time.getSeconds() + "秒";
+  show.innerHTML = t;
+  }, 1000);
+  };
+</script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

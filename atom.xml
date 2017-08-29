@@ -16,9 +16,9 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>五、Curator操作</title>
-    <link href="http://www.liwenguang.website/2017/08/28/zookeeper/5_Curator%E6%93%8D%E4%BD%9C.html/"/>
-    <id>http://www.liwenguang.website/2017/08/28/zookeeper/5_Curator操作.html/</id>
+    <title>五、课外学习Curator操作</title>
+    <link href="http://www.liwenguang.website/2017/08/28/zookeeper/5_%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0Curator%E6%93%8D%E4%BD%9C.html/"/>
+    <id>http://www.liwenguang.website/2017/08/28/zookeeper/5_课外学习Curator操作.html/</id>
     <published>2017-08-27T17:15:20.000Z</published>
     <updated>2017-08-27T17:17:30.000Z</updated>
     
@@ -1054,8 +1054,8 @@ PC二维码客户端类似Watch了某个ZK的节点进行监听，这样避免�
   
   <entry>
     <title>九、Servlet工作原理解析</title>
-    <link href="http://www.liwenguang.website/2017/08/17/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B9%9D%E7%AB%A0%EF%BC%9AServlet%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/"/>
-    <id>http://www.liwenguang.website/2017/08/17/读书笔记/深入分析Java_Web技术/第九章：Servlet工作原理解析/</id>
+    <link href="http://www.liwenguang.website/2017/08/17/deepknowjavaweb/9_Servlet%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90.html/"/>
+    <id>http://www.liwenguang.website/2017/08/17/deepknowjavaweb/9_Servlet工作原理解析.html/</id>
     <published>2017-08-16T16:12:30.000Z</published>
     <updated>2017-08-16T16:37:12.000Z</updated>
     
@@ -1103,8 +1103,8 @@ Context容器，你可以配置多个。</context></p>
   
   <entry>
     <title>八、JVM内存管理</title>
-    <link href="http://www.liwenguang.website/2017/08/14/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%85%AB%E7%AB%A0%EF%BC%9AJVM%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
-    <id>http://www.liwenguang.website/2017/08/14/读书笔记/深入分析Java_Web技术/第八章：JVM内存管理/</id>
+    <link href="http://www.liwenguang.website/2017/08/14/deepknowjavaweb/8_JVM%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.html/"/>
+    <id>http://www.liwenguang.website/2017/08/14/deepknowjavaweb/8_JVM内存管理.html/</id>
     <published>2017-08-14T15:14:12.000Z</published>
     <updated>2017-08-16T15:46:23.000Z</updated>
     
@@ -1368,8 +1368,8 @@ Minor GC。在触发GC之前首先会检查每次晋升到Old区的平均大小�
   
   <entry>
     <title>七、JVM体系结构与工作方式</title>
-    <link href="http://www.liwenguang.website/2017/08/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%83%E7%AB%A0%EF%BC%9AJVM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F/"/>
-    <id>http://www.liwenguang.website/2017/08/12/读书笔记/深入分析Java_Web技术/第七章：JVM体系结构与工作方式/</id>
+    <link href="http://www.liwenguang.website/2017/08/12/deepknowjavaweb/7_JVM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F.html/"/>
+    <id>http://www.liwenguang.website/2017/08/12/deepknowjavaweb/7_JVM体系结构与工作方式.html/</id>
     <published>2017-08-12T09:57:12.000Z</published>
     <updated>2017-08-13T15:58:23.000Z</updated>
     
@@ -1498,8 +1498,8 @@ Java代码。例如，在80x86的机器上寄存器就是没有规律的，很�
   
   <entry>
     <title>六、深入分析ClassLoader工作机制</title>
-    <link href="http://www.liwenguang.website/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%85%AD%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90ClassLoader%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6/"/>
-    <id>http://www.liwenguang.website/2017/08/10/读书笔记/深入分析Java_Web技术/第六章：深入分析ClassLoader工作机制/</id>
+    <link href="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90ClassLoader%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.html/"/>
+    <id>http://www.liwenguang.website/2017/08/10/deepknowjavaweb/6_深入分析ClassLoader工作机制.html/</id>
     <published>2017-08-10T15:19:20.000Z</published>
     <updated>2017-08-11T17:46:20.000Z</updated>
     
@@ -1615,8 +1615,8 @@ loadClass()将会导致类冲突。但是JVM标示一个类是否是同一个类
   
   <entry>
     <title>五、深入class文件结构</title>
-    <link href="http://www.liwenguang.website/2017/08/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%94%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/"/>
-    <id>http://www.liwenguang.website/2017/08/10/读书笔记/深入分析Java_Web技术/第五章：深入class文件结构/</id>
+    <link href="http://www.liwenguang.website/2017/08/10/deepknowjavaweb/5_%E6%B7%B1%E5%85%A5class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84.html/"/>
+    <id>http://www.liwenguang.website/2017/08/10/deepknowjavaweb/5_深入class文件结构.html/</id>
     <published>2017-08-10T14:06:20.000Z</published>
     <updated>2017-08-10T15:18:10.000Z</updated>
     
@@ -1643,8 +1643,8 @@ loadClass()将会导致类冲突。但是JVM标示一个类是否是同一个类
   
   <entry>
     <title>四、Javac编译原理</title>
-    <link href="http://www.liwenguang.website/2017/08/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E5%9B%9B%E7%AB%A0%EF%BC%9AJavac%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
-    <id>http://www.liwenguang.website/2017/08/08/读书笔记/深入分析Java_Web技术/第四章：Javac编译原理/</id>
+    <link href="http://www.liwenguang.website/2017/08/08/deepknowjavaweb/4_Javac%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86.html/"/>
+    <id>http://www.liwenguang.website/2017/08/08/deepknowjavaweb/4_Javac编译原理.html/</id>
     <published>2017-08-08T02:21:21.000Z</published>
     <updated>2017-08-10T14:03:20.000Z</updated>
     
@@ -1708,8 +1708,8 @@ IDENTIFIEDR的名称呢?</li>
   
   <entry>
     <title>三、深入分析Java Web中的中文编码问题</title>
-    <link href="http://www.liwenguang.website/2017/08/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/"/>
-    <id>http://www.liwenguang.website/2017/08/07/读书笔记/深入分析Java_Web技术/第三章：深入分析Java Web中的中文编码问题/</id>
+    <link href="http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98.html/"/>
+    <id>http://www.liwenguang.website/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/</id>
     <published>2017-08-07T14:56:30.000Z</published>
     <updated>2017-08-08T17:31:21.000Z</updated>
     
@@ -1804,8 +1804,8 @@ UTF-8，而Java用GBK去解码显然不对。<br>解决方式是encodeURICompone
   
   <entry>
     <title>二、课外学习NIO</title>
-    <link href="http://www.liwenguang.website/2017/08/04/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%BA%8C%E7%AB%A0%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%85%B3%E4%BA%8ENIO/"/>
-    <id>http://www.liwenguang.website/2017/08/04/读书笔记/深入分析Java_Web技术/第二章课外学习：关于NIO/</id>
+    <link href="http://www.liwenguang.website/2017/08/04/deepknowjavaweb/2_%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0NIO.html/"/>
+    <id>http://www.liwenguang.website/2017/08/04/deepknowjavaweb/2_课外学习NIO.html/</id>
     <published>2017-08-04T14:56:30.000Z</published>
     <updated>2017-08-07T13:21:30.000Z</updated>
     
@@ -1917,8 +1917,8 @@ mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给po
   
   <entry>
     <title>一、深入Web请求过程</title>
-    <link href="http://www.liwenguang.website/2017/08/03/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java_Web%E6%8A%80%E6%9C%AF/%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/"/>
-    <id>http://www.liwenguang.website/2017/08/03/读书笔记/深入分析Java_Web技术/第一章：深入Web请求过程/</id>
+    <link href="http://www.liwenguang.website/2017/08/03/deepknowjavaweb/1_%E6%B7%B1%E5%85%A5Web%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B.html/"/>
+    <id>http://www.liwenguang.website/2017/08/03/deepknowjavaweb/1_深入Web请求过程.html/</id>
     <published>2017-08-03T04:08:20.000Z</published>
     <updated>2017-08-04T08:19:00.000Z</updated>
     
