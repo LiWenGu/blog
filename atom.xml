@@ -1008,7 +1008,35 @@ InnerHttpSession对象了，我们可以拦截response的addCookies设置的Cook
 下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则302重定向跳转到中转服务器C（C你可以理解成专门取Session的
 域），服务器C获得了session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。（如今，大部分都是实现的单点登录SSO，来解决
 子系统间的跨域问题，让子系统共享顶级域名的Session、Cookie等）。</p>
-<h1 id="5-Cookie压缩"><a href="#5-Cookie压缩" class="headerlink" title="5 Cookie压缩"></a>5 Cookie压缩</h1><h1 id="6-表单重复提交问题"><a href="#6-表单重复提交问题" class="headerlink" title="6 表单重复提交问题"></a>6 表单重复提交问题</h1><h1 id="7-多终端Session统一"><a href="#7-多终端Session统一" class="headerlink" title="7 多终端Session统一"></a>7 多终端Session统一</h1><h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8 总结"></a>8 总结</h1>]]></content>
+<h1 id="5-Cookie压缩"><a href="#5-Cookie压缩" class="headerlink" title="5 Cookie压缩"></a>5 Cookie压缩</h1><p>Cookie在HTTP的头部，所以通常的gzip和deflate针对HTTP Body的压缩不能压缩Cookie，如果Cookie的量非常大，则可以考虑将Cookie也做压缩，
+压缩方式是将Cookie的多个k/v对看成普通的文本，做文本压缩。压缩算法同样可以使用gzip和deflate算法，但是需要注意的一点是，根据Cookie的规范，
+在Cookie中不能包含控制字符，仅能包含ASCII码为34~126的可见字符。所以要将压缩后的结果再进行转码，可以进行Base32或者Base64编码。
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 使用DeflaterOutputStream压缩后再用BASE64编码</span></div><div class="line">Cookie c = getCookieObject(<span class="string">""</span>);</div><div class="line">HttpServletResponse res = getResponse();</div><div class="line">ByteArrayOutputStream bos  = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">DeflaterOutputStream dos = <span class="keyword">new</span> DeflaterOutputStream(bos);</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    dos.write(c.getValue().getBytes());</div><div class="line">    dos.close();</div><div class="line">    System.out.println(<span class="string">"before compress length:"</span> + c.getValue().length());</div><div class="line">    String compress = <span class="keyword">new</span> sun.misc.BASE64Encoder().encode(bos.toByteArray());</div><div class="line">    res.addCookie(<span class="keyword">new</span> Cookie(<span class="string">"compress"</span>, compress));</div><div class="line">    System.out.println(<span class="string">"after compress length:"</span> + compress.getBytes().length);</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div><div class="line"><span class="comment">// 使用BASE64解码后再用InflaterInputStream解压</span></div><div class="line">ByteArrayOutputStream out = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">byte</span>[] compress = <span class="keyword">new</span> sun.misc.BASE64Decoder().decodeBuffer(<span class="keyword">new</span> String(c.getValue().getBytes()));</div><div class="line">    ByteArrayInputStream bis = <span class="keyword">new</span> ByteArrayInputStream(compress);</div><div class="line">    InflaterInputStream inflater = <span class="keyword">new</span> InflaterInputStream(bis);</div><div class="line">    <span class="keyword">byte</span>[] b = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line">    <span class="keyword">int</span> count;</div><div class="line">    <span class="keyword">while</span> ((count = inflater.read(b)) &gt;= <span class="number">0</span>) &#123;</div><div class="line">        out.write(b, <span class="number">0</span>, count);</div><div class="line">    &#125;</div><div class="line">    inflater.close();</div><div class="line">    System.out.println(out.toByteArray());</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="6-表单重复提交问题"><a href="#6-表单重复提交问题" class="headerlink" title="6 表单重复提交问题"></a>6 表单重复提交问题</h1><p>要防止表单重复提交，就要标识用户的每一次访问请求，使得每一次访问对服务端来说都是唯一确定的。为了标识用户的每次访问请求，可以在用户请求一个表单域时
+增加一个隐藏表单项，这个表单项每次都是唯一的token，如：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-7.png" alt="" title="表单重复提交"><br>当用户第一次请求表单页面时生成唯一的token，并存储到用户Session中，当用户第二次请求表单页面时再生成唯一的token，覆盖Session，这样就能保证
+每次都只能通过请求表单页面来提交表单。</p>
+<h1 id="7-多终端Session统一"><a href="#7-多终端Session统一" class="headerlink" title="7 多终端Session统一"></a>7 多终端Session统一</h1><p>当前大部分网站都有了无线端，对无线端的Cookie如何处理也是很多程序员必须考虑的问题。<br>在无线端发展初期，后端的服务系统未必和PC的服务系统是统一的，这样就涉及在一端调用多个系统时如何做到服务端Session共享的问题了。有两个明显的例子：
+一个是在无线端可能会通过手机访问无线服务端系统，如果它们两个的登录系统没有统一的话，将会非常麻烦，可能会出现二次登录的情况；另一个是在手机上
+登录以后再在PC上同样访问服务端数据，Session能否共享就决定了客户端是否要再次登录。  </p>
+<p>针对这两种情况，目前都有理由的解决方案。  </p>
+<ul>
+<li>多端共享Session
+多端共享Session必须要做的工作是不管是无线端还是PC端，后端的服务系统必须统一会话架构，也就是两边的登录系统必须要基于一致的会员数据结构、Cookie
+与Session的统一。也就是不管是PC端登录还是无线端登录，后面对应的数据结构和存储要统一，写到客户端的Cookie也必须一样，这是前提条件。  </li>
+</ul>
+<p>那么如何做到这一点？就是要按照我们在前面所说的实现分布式的Session框架。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-8.png" alt="" title="服务端统一Session示意图"><br>上面服务端统一Session后，在同一个终端上不管是访问哪个服务端都能做到登录状态统一。例如不管是Native还是内嵌Webview，都可以拿统一的Session ID
+去服务端验证登录状态。</p>
+<ul>
+<li>多终端登录
+目前很多网站都会出现无线端和PC端多端登录的情况，例如可以通过扫码登录等。这些是如何实现的呢？<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-9.png" alt="" title="多终端登录示意图"><br>这里手机端在扫码之前必须是已经登录的状态，因为这样才能获取到到底是谁将要登录的信息，同时扫码的二维码也带有一个特定的标识，标识是这个客户端
+通过手机端登陆了。当手机端扫码成功后，会在服务端设置这个二维码对应的标识为已经登录成功，这时PC客户端会通过将“心跳”请求发送到服务端，来验证是否
+已经登录成功，这样就称为一种便捷的登录方式。（博主以微信扫码登录为例，每次微信PC端的二维码都是带有一个唯一的标识，当你用登录的手机微信扫码
+之后，手机将你已登录的微信信息获取，并发送给微信服务端，微信服务端将二维码的唯一标识以及手机微信的账号信息绑定，发送给微信PC端，其中，微信
+PC二维码客户端类似Watch了某个ZK的节点进行监听，这样避免客户端每隔一段时间发送心跳）。</li>
+</ul>
+<h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8 总结"></a>8 总结</h1><p>Cookie和Session都是为了保持用户访问的连续状态，之所以要保持这种状态，一方面是为了方便业务实现，另一方面就是简化服务端的程序设计，提高访问
+性能，但是也带来了安全问题、应用的分布式部署带来的Session的同步问题以及跨域名Session的同步问题（通过单点登录避免）。</p>
+]]></content>
     
     <summary type="html">
     
