@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.website/"/>
-  <updated>2017-08-29T17:19:20.000Z</updated>
+  <updated>2017-08-30T17:20:20.000Z</updated>
   <id>http://www.liwenguang.website/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://www.liwenguang.website/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/"/>
     <id>http://www.liwenguang.website/2017/08/30/zookeeper/6_Zookeeper的典型应用场景.html/</id>
     <published>2017-08-29T16:30:20.000Z</published>
-    <updated>2017-08-29T17:19:20.000Z</updated>
+    <updated>2017-08-30T17:20:20.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-典型应用场景及实现"><a href="#1-典型应用场景及实现" class="headerlink" title="1 典型应用场景及实现"></a>1 典型应用场景及实现</h1><h2 id="1-1-数据发布-订阅"><a href="#1-1-数据发布-订阅" class="headerlink" title="1.1 数据发布/订阅"></a>1.1 数据发布/订阅</h2><p>数据发布/订阅（Pulish/Subscribe）系统，即所谓的配置中心，顾名思义就是发布者将数据发布到ZooKeeper的一个或一系列节点上，供订阅者进行数据订阅，
 进而达到动态获取数据的目的，实现配置信息的集中式管理和数据的动态更新。  </p>
@@ -50,7 +50,98 @@ Water监听，一旦发生节点数据变更，所有订阅的客户端都能够
 <p>在分布式系统中，负载均衡更是一种普遍的技术，基本上每一个分布式系统都需要使用负载均衡。在本书第一章讲解分布式系统特征的时候，我们提到，分布式系统具有
 对等性，为了保证系统的高可用性，通常采用副本的方式来对数据和服务进行部署。而对于消费者而言，则需要在这些对等的服务提供方中选择一个来执行相关的业务
 逻辑，其中比较典型的就是DNS服务。在本节中，我们将详细介绍如何使用ZooKeeper来解决负载均衡问题（<a href="../../../03/deepknowjavaweb/1_深入Web请求过程.html">请看深入分析Java_Web技术的第一章</a>）。</p>
-<h3 id="1-2-1-一种动态的DNS服务"><a href="#1-2-1-一种动态的DNS服务" class="headerlink" title="1.2.1 一种动态的DNS服务"></a>1.2.1 一种动态的DNS服务</h3><h3 id="1-2-2-域名配置"><a href="#1-2-2-域名配置" class="headerlink" title="1.2.2 域名配置"></a>1.2.2 域名配置</h3><h3 id="1-2-3-域名解析"><a href="#1-2-3-域名解析" class="headerlink" title="1.2.3 域名解析"></a>1.2.3 域名解析</h3><h3 id="1-2-4-域名变更"><a href="#1-2-4-域名变更" class="headerlink" title="1.2.4 域名变更"></a>1.2.4 域名变更</h3><h3 id="1-2-5-自动化的DNS服务"><a href="#1-2-5-自动化的DNS服务" class="headerlink" title="1.2.5 自动化的DNS服务"></a>1.2.5 自动化的DNS服务</h3><h3 id="1-2-6-域名注册"><a href="#1-2-6-域名注册" class="headerlink" title="1.2.6 域名注册"></a>1.2.6 域名注册</h3><h3 id="1-2-7-域名解析"><a href="#1-2-7-域名解析" class="headerlink" title="1.2.7 域名解析"></a>1.2.7 域名解析</h3><h3 id="1-2-8-域名探测"><a href="#1-2-8-域名探测" class="headerlink" title="1.2.8 域名探测"></a>1.2.8 域名探测</h3>]]></content>
+<h3 id="1-2-1-一种动态的DNS服务"><a href="#1-2-1-一种动态的DNS服务" class="headerlink" title="1.2.1 一种动态的DNS服务"></a>1.2.1 一种动态的DNS服务</h3><p>DNS是域名系统（Domain Name System）的缩写。DNS系统可以看作是一个超大规模的分布式映射表，用于将域名和IP地址进行一一映射，进而方便人们
+通过域名来访问互联网站点。  </p>
+<p>通常情况下，我们可以向域名注册服务商申请域名注册，但是这种方式最大的缺陷在于只能注册有限的域名：</p>
+<blockquote>
+<p>日常开发过程中，经常会碰到这样的情况，在一个Company1公司内部，需要给一个App1应用的服务器集群机器配置一个域名解析。相信有过一线开发
+经验的读者一定知道，这个时候通常需要由类似于app1.company1.com的一个域名，其对应的就是一个服务器地址。如果系统数量不多，那么通过
+这种传统的DNS配置方式还可以应付，但是，一旦公司规模变大，各类应用层出不穷，那么就很难再通过这种方式来进行统一的管理了。</p>
+</blockquote>
+<p>因此，在实际开发中，往往使用本地HOST绑定来实现域名解析的工作。具体如何进行本地HOST绑定，因为不是本书的重点，并且互联网上有大量额资料，
+因此这里不再多说明。使用本地HOST绑定的方法，可以很容易解决域名紧张的问题，基本上每一个系统都可以自行确定系统的域名与目标IO地址。大大提高了
+开发调试效率。（就是修改HOST文件，让域名与IP直接映射，减去解析时间）然而，这种看上去完美的方案，也有其致命的缺陷：</p>
+<blockquote>
+<p>当应用的机器规模在一定范围内，并且域名的变更不是特别频繁时，本地HOST绑定是非常高效且简单的方式。然而一旦机器规模变大后，就常常
+会碰到这样的情况：我们在应用上线的时候，需要在应用的每台机器上去绑定域名，但是在机器规模相当庞大的情况下，这种做法就相当不方便。
+另外，如果想要临时更新域名，还需要到每个机器上去逐个进行变更，更消耗大量时间，因此完全无法保证实时性。</p>
+</blockquote>
+<p>现在，我们来介绍一种基于ZoKeeper实现的动态DNS方案（简称“DDNS”，Dynamic DNS）。</p>
+<h3 id="1-2-2-域名配置"><a href="#1-2-2-域名配置" class="headerlink" title="1.2.2 域名配置"></a>1.2.2 域名配置</h3><p>首先需要在ZooKeeper上创建一个节点来进行域名配置。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-1.png" alt=""><br>这样，在<code>/DDNS/app1</code>的节点上，将自己的域名配置上去，并支持多个IP
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">192.168.0.1:8080, 192.168.0.2:8080</div></pre></td></tr></table></figure></p>
+<h3 id="1-2-3-域名解析"><a href="#1-2-3-域名解析" class="headerlink" title="1.2.3 域名解析"></a>1.2.3 域名解析</h3><p>在传统的DNS解析中，我们都不需要关系域名的解析过程，所有这些工作都交给了操作系统的域名和IP地址映射机制（本地HOST绑定）或是专门的域名解析
+服务器（由域名注册服务商提供）。因此，在这点上，DDNS方案和传统的域名解析有很大的区别————在DDNS中，域名的解析过程都是由每一个应用自己负责的。
+通常应用都会首先从域名节点中获取一份IP地址和端口的配置，进行自行解析。同时，每个应用还会在域名节点上注册一个数据变更Watcher监听，以便及时
+收到域名变更的通知。</p>
+<h3 id="1-2-4-域名变更"><a href="#1-2-4-域名变更" class="headerlink" title="1.2.4 域名变更"></a>1.2.4 域名变更</h3><p>在运行过程中，难免会碰上域名对应的IP地址或是端口变更，这个时候就需要进行域名变更操作。在DDNS中，我们只需要对指定的域名节点进行更新操作，
+ZooKeeper就会向订阅的客户端发送这个事件通知，应用在接收到这个事件通知后，就会再次进行域名配置的获取。  </p>
+<p>上面我们介绍了如何使用ZooKeeper来实现一种动态的DNS系统。通过ZooKeeper来实现动态DNS服务，一方面，可以避免域名数量无限增长带来的集中式维护
+的成本；另一方面，在域名变更的情况下，也能够避免因逐台机器更新本地HOST而带来的繁琐工作。</p>
+<h3 id="1-2-5-自动化的DNS服务"><a href="#1-2-5-自动化的DNS服务" class="headerlink" title="1.2.5 自动化的DNS服务"></a>1.2.5 自动化的DNS服务</h3><p>根据上面的讲解，相信读者基本上已经能够使用ZooKeeper来实现一个动态的DNS服务了。但是我们仔细看一下上面的实现就会发现，在域名变更环节中，当
+域名对应的I地址发生变更的时候，我们还是需要人为地介入去修改域名节点上的IP地址和端口。接下来我们看看下面这种使用ZooKeeper实现的更为自动化
+的DNS服务。自动化的DNS服务系统主要是为了实现服务的自动化定位。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-2.png" alt=""><br>首先来介绍整个动态DNS系统的架构体系中比较重要的组件及其职责。</p>
+<ul>
+<li>Register Cluster：负责域名的动态注册。</li>
+<li>Dispatcher Cluster：负责域名解析。</li>
+<li>Scanner Cluster：负责检测以及维护服务状态（探测服务的可用性、屏蔽异常服务节点等）。</li>
+<li>SDK：提供各种语言的系统接入协议，提供服务注册以及查询接口。</li>
+<li>Monitor：负责收集服务信息以及对DDNS自身状态的监控。</li>
+<li>Controller：后台管理的Console，负责授权管理、流量控制、静态配置服务和手动屏蔽服务等功能，运维人员在上面管理Register、Dispatcher和Scanner等Cluster。</li>
+</ul>
+<p>整个系统的核心当然是ZooKeeper集群，负责数据的存储以及一系列分布式协调。下面我们再来详细地看下整个系统是如何运行的。在这个架构模型中，我们
+将那些目标IP地址和端口抽象为服务的提供者，而那些需要使用域名解析的客户端则被抽象成服务的消费者。</p>
+<h4 id="1-域名注册"><a href="#1-域名注册" class="headerlink" title=".1 域名注册"></a>.1 域名注册</h4><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-3.png" alt=""><br>域名注册主要是针对服务提供者来说的。域名注册过程可以简单地概括为：每个服务提供者在启动的过程中，都会把自己的域名信息注册到Register Cluster中去。</p>
+<ol>
+<li>服务提供者通过SDK提供的API接口，将域名、IP地址和端口发送给Register Cluster。例如，A机器用于提供serverA.xxx.com，于是它就向Register
+发送一个“域名-&gt;IP:PORT”的映射：“serverA.xxx.com-&gt;192.168.0.1:8080”。</li>
+<li>Register获取到域名、IP地址和端口配置后，根据域名将信息写入相对应的ZooKeeper域名节点中。</li>
+</ol>
+<h4 id="2-域名解析"><a href="#2-域名解析" class="headerlink" title=".2 域名解析"></a>.2 域名解析</h4><p>域名解析是针对服务消费者来说的，正好和域名注册过程相反：服务消费者在使用域名的时候，会向Dispatcher发出域名解析请求。Dispatcher收到请求后，
+会从ZooKeeper上的指定域名节点读取相应的IP:PORT列表，通过一定的策略选取其中一个返回给前端应用。</p>
+<h4 id="3-域名探测"><a href="#3-域名探测" class="headerlink" title=".3 域名探测"></a>.3 域名探测</h4><p>域名探测是指DDNS系统需要对域名下所有注册的IP地址和端口的可用性进行检测，俗称“健康度检测”。健康度检测一般有两种方式，第一种是服务端主动发起健康度心跳
+检测，这种方式一般需要在服务端和客户端之间建立起一个TCP长链接；第二种则是客户端主动向服务端发起健康度心跳检测。在DDNS架构中的域名探测，使用
+的是服务提供者都会定时向Scanner进行状态汇报（即第二种健康度检测方式）的模式，即每个服务提供者后都会定时向Scanner汇报自己的状态。  </p>
+<p>Scanner会负责记录每个服务提供者最近一次的状态汇报时间，一旦超过5秒没有收到状态汇报，那么就认为该IP地址和端口已经不可用，于是开始进行域名
+清理过程。在域名清理过程中，Scanner会在ZooKeeper中找到该域名对应的域名节点，然后将该IP地址和端口配置从节点内容中移除。</p>
+<h2 id="3-1-命名服务"><a href="#3-1-命名服务" class="headerlink" title="3.1 命名服务"></a>3.1 命名服务</h2><p>命名服务（Name Service）也是分布式系统中比较常见的一类场景。在分布式系统中，被命名的实体通常可以是集群中的机器、提供的服务地址或远程对象等————
+这些我们都可以统称它们为名字（Name），其中较为常见的就是一些分布式服务框架（如RPC、RMI）中的服务地址列表，通过使用命名服务，
+客户端应用能够根据指定名字来获取资源的实体、服务地址和提供者的信息等。  </p>
+<p>Java语言中的JNDI便是一种典型的命名服务。JNDI是Java命名与目录接口（Java Naming and Directory Interface）的缩写，是J2EE体系中重要的规范之一，
+标准的J2EE容器都提供了对JNDI规范的实现。因此，在实际开发中，开发人员常常使用应用服务器自带的JNDI实现来数据源的配置与管理————使用JNDI方式后，
+开发人员可以完成不需要关心与数据库相关的任何信息，包括数据库类型、JDBC驱动类型以及数据库账号等。  </p>
+<p>ZooKeeper提供的命名服务功能与JNDI技术有相似的地方，都能够帮助应用系统通过一个资源引用的方式来实现对资源的定位与使用。另外，广义上命名服务
+的资源定位都不是真正意义的实体资源————在分布式环境中，上层应用仅仅需要一个全局唯一的名字，类似于数据库中的唯一主键。下面我们来看看如何使用
+ZooKeeper来实现一套分布式全局唯一ID的分配机制。  </p>
+<p>所谓ID，就是一个能够唯一标识某个对象的标识符。在我们熟悉的关系型数据库中，各个表都需要一个主键来唯一标识每条数据库记录，这个主键就是这样的唯一ID。
+在过去的单库单表型系统中，通常可以使用数据库字段自带的auto_increment属性来自动为每条数据库记录生成一个唯一的ID，数据库会保证生成的这个ID
+在全局唯一。但是随着数据库数据规模的不断增大，分库分表随之出现，而auto_increment属性仅能针对单一表中的记录自动生成ID，因此在这种情况下，
+就无法再依靠数据库的auto_increment属性来唯一标识一条记录了。于是，我们必须寻求一种能够在分布式环境下生成全局唯一ID的方法。  </p>
+<p>一说起全局唯一ID，相信读者都会联想到UUID。没错，UUID是通用唯一识别码（Universally Unique Identifier）的简称，是一种在分布式系统中广泛
+使用的用于唯一标识元素的标准，最典型的实现是GUID（Globally Unique Identifier，全局唯一标识符），主流ORM框架Hibernate有对UUID的直接支持。  </p>
+<p>确实，UUID是一个非常不错的全局唯一ID生成方式，能够非常简便地保证分布式环境中的唯一性。一个标准的UUID是一个包含32位字符和4个短线的字符串，
+例如“asd321a-sd-sdwds321d5w4a2-w5e4w51d”。UUID的优势自然不必多说，我们重点来看看它的缺陷。  </p>
+<ul>
+<li>长度过长：与数据库中的INT类型相比，存储一个UUID需要花费更多得空空间。</li>
+<li>含义不明：影响问题排查和开发调试的效率。</li>
+</ul>
+<p>接下来，我们结合一个分布式任务调度系统来看看如何使用ZooKeeper来实现这类全局唯一ID的生成。  </p>
+<p>通过ZooKeeper节点创建的API接口可以创建一个顺序节点，并且在API返回值中会返回这个节点的完整名字。利用这个特性，我们就可以借助ZooKeeper来生成
+全局唯一的ID了。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-4.png" alt="">  </p>
+<ol>
+<li>所有客户端都会根据自己的任务类型，在指定类型的任务下面通过调用create()接口创建一个顺序节点，例如创建“job-”节点。</li>
+<li>节点创建完毕后，create()接口会返回一个完整的节点名，例如“job-0000000003”。</li>
+<li>客户端拿到这个返回值后，拼接上type类型，例如“type2-job-0000000003”，这就可以作为一个全局唯一的ID了。  </li>
+</ol>
+<p>在ZooKeeper中，每一个数据节点都能够维护一份子节点的顺序顺列，当客户单对其创建一个顺序子节点的时候ZooKeeper会自动以后缀的形式在其子节点上
+添加一个序号，在这个场景中就是利用了ZooKeeper的这个特性。以下为博主测试：
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-5.png" alt=""><br>另外如果子节点过多，导致连接读取超时，可以适当提高配置中的initLimit以及syncLimit的数值（10倍也是可以的）。</p>
+<h2 id="4-1-分布式协调-通知"><a href="#4-1-分布式协调-通知" class="headerlink" title="4.1 分布式协调/通知"></a>4.1 分布式协调/通知</h2><p>分布式协调/通知服务是分布系统不可缺少的环节，是将不同的分布式组件有机结合起来的关键所在。对于一个在多台机器上部署运行得意应用而言，通常
+需要一个协调者（Coordinator）来控制整个系统的运行流程，例如分布式事务的处理、机器间的互相协调等。同时，引入这样一个协调者，便于将分布式协调的职责从
+应用中分离出来，从而可以大大减少系统之间的耦合性，而且能够显著提高系统的可扩展性。  </p>
+<p>ZooKeeper中特有的Watcher注册与异步通知机制，能够很好地实现分布式环境下不同机器，甚至是不同系统之间的协调与通知，从而实现对数据变更的实时处理。
+基于ZooKeeper实现分布式协调与通知功能，通常的做法是不同的客户端都对ZooKeeper上同一个数据节点进行Watcher注册，监听数据节点的变化（包括
+数据节点本身及其子节点），如果数据节点发生变化，那么所有订阅的客户端都能够接收到相应的Watcher通知，并做出相应的处理。</p>
+]]></content>
     
     <summary type="html">
     
