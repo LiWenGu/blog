@@ -117,6 +117,14 @@
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-8.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-9.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-10.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-12.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-13.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-14.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-15.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-16.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-17.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-18.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-19.png">
 <meta property="og:updated_time" content="2017-08-30T17:20:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="六、Zookeeper的典型应用场景">
@@ -435,7 +443,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  10,986
+                  16,116
                 </span>
               
 
@@ -451,7 +459,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  38
+                  56
                 </span>
               
             </div>
@@ -722,6 +730,123 @@ Core进程也会在这个instances节点下创建类似的子节点。和热备�
 这些节点变化，那么通知的消息量可能会非常大。另一方面，在收集器机器正常工作的情况下，日志系统没有必要去实时地接收每次节点状态变更，因此大部分
 这些变更通知都是无用的。因此我们考虑放弃监听设置，而是采用日志系统主动轮询收集器节点的策略，这样就节省了不少网卡流量，唯一的缺陷就是有
 一定的延时（考虑到分布式日志收集系统的定位，这个延时是可以接受的）。</p>
+<h3 id="5-1-2-在线云主机管理"><a href="#5-1-2-在线云主机管理" class="headerlink" title="5.1.2 在线云主机管理"></a>5.1.2 在线云主机管理</h3><p>在线云主机管理通常出现在那些虚拟主机提供商的应用场景中。在这类集群管理中，有很重要的一块就是集群机器的监控。这个场景通常对于集群中的机器状态，
+尤其是机器在线率的统计有较高的要求，同时需要能够快速地对集群中机器的变更做出响应。  </p>
+<p>在传统的实现方案中，监控系统通过某种手段（比如检测主机的指定端口）来对每台机器进行定时检测，或者每台机器自己定时向监控系统汇报“我还活着”。
+但是这种方式需要每个业务系统的开发人员自己来处理网络通信、协议设计、调度和容灾等诸多琐碎的问题。下面来看看使用ZooKeeper实现的另一种集群机器
+存活性监控系统。针对这个系统，我们的需求点通常如下。</p>
+<ul>
+<li>如何快速地统计当前生产环境一共有多少台机器？</li>
+<li>如何快速地获取到机器上/下线的情况？</li>
+<li>如何实时监控集群中每台主机的运行时状态？</li>
+</ul>
+<h4 id="1-机器上-下线"><a href="#1-机器上-下线" class="headerlink" title=".1 机器上/下线"></a>.1 机器上/下线</h4><p>为了实现自动化的线上运维，我们必须对机器的上/下线情况有一个全局的监控。通常在新增机器的时候，需要首先将指定的Agent部署到这些机器上去。
+Agent部署启动之后，会首先向ZooKeeper的指定节点进行注册，具体的做法就是在机器列表节点下面创建一个临时子节点，例如<code>/XAE/machine/[Hostname]</code>
+（下文以“主机节点”代表这个节点），如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-12.png" alt=""><br>当Agent在ZooKeeper上创建完这个临时子节点后，对<code>/XAE/machines</code>节点关注的监控中心就会接收到“子节点变更”事件，即上线通知，于是就可以对这个
+新加入的机器开启相应的后台管理逻辑。另一方面，监控中心同样可以获取到机器下线的通知，这样便实现了对机器上/下线的检测，同时能够很容易地获取
+到在线的机器列表，对于大规模的扩容和容量评估都有很大的帮助。</p>
+<h4 id="2-机器监控"><a href="#2-机器监控" class="headerlink" title=".2 机器监控"></a>.2 机器监控</h4><p>对于一个在线云主机系统，不仅要对机器的在线状态进行检测，还需要对机器的运行时状态进行监控。在运行的过程中，Agent会定时将主机的运行状态信息
+写入ZooKeeper上的主机节点，监控中心通过订阅这些节点的数据变更通知来间接地获取主机的运行时信息。  </p>
+<p>随着分布式系统规模变得越来越庞大，对集群机器的监控和管理显得越来越重要。上面提到的这种借助ZooKeeper来实现的方式，不仅能够实时地检测到集群
+中机器的上/下线情况，而且能够实时地获取到主机的运行时信息，从而能够构建出一个大规模集群的主机图谱。</p>
+<h2 id="6-1-Master选举"><a href="#6-1-Master选举" class="headerlink" title="6.1 Master选举"></a>6.1 Master选举</h2><p>Master选举是一个在分布式系统中非常常见的应用场景。分布式最核心的特性就是能够将具有独立计算能力的系统单元部署在不同的机器上，构成一个完整的
+分布式系统。而与此同时，实际场景中往往也需要在这些分布在不同机器上的独立系统单元中选出一个所谓的“老大”，在计算机科学中，我们称之为“Master”。  </p>
+<p>在分布式系统中，Master往往用来协调集群中其他系统单元，具有对分布式系统状态变更的决定权。例如，在一些读写分离的应用场景中，客户端的写请求往往
+是由Master来处理的；而在另一些场景中，Master则常常负责处理一些复杂的逻辑，并将处理结果同步给集群中其它系统单元。Master选举可以说是ZooKeeper
+最典型的应用场景了，在本节中，我们就结合“一种海量数据处理与共享模型”这个具体例子来看看ZooKeeper在集群Master选举中的应用场景。  </p>
+<p>在分布式环境中，经常会碰到这样的应用场景：集群中的所有系统单元需要对前端业务提供数据，比如一个商品ID，或者是一个网站轮播广告的广告ID（通常
+出现在一些广告投放系统中）等，而这些商品ID或是广告ID往往需要从一系列的海量数据处理中计算得到————这通常是一个非常耗费I/O和CPU资源的过程。
+鉴于该计算过程的复杂性，如果让集群中的所有机器都执行这个计算逻辑的话，那么将耗费非常多的资源。一种比较好的方法就是只让集群中的部分，甚至只
+让其中的一台机器去处理数据计算，一旦计算出数据结果，就可以共享给整个集群中的其他所有客户端机器，这样可以大大减少重复劳动，提升性能。  </p>
+<p>这里我们以一个简单的广告投放系统后台场景为例来讲解这个模型。整个系统大体上可以分成客户端集群、分布式缓存系统、海量数据处理总线和ZooKeeper
+四个部分，如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-13.png" alt=""><br>Client集群每天定时会通过ZooKeeper来实现Master选举。选举产生Master客户端之后，这个Master就会负责进行一系列的海量数据处理，最终计算得到
+一个数据结果，并将其放置在一个内存/数据库中。同时，Master还需要通知集群中其它所有的客户端从这个内存/数据库中共享计算结果。  </p>
+<p>接下去，我们将重点来看Master选举的过程，首先来明确下Master选举的需求：在集群的所有机器中选举出一台机器作为Master。针对这个需求，通常情况
+下，我们可以选择常见的关系型数据库中的主键特性来实现：集群中的所有机器都向数据库中插入一条相同主键ID的记录，数据库会帮助我们自动进行主键冲突
+检查，也就是说，所有进行插入操作的客户端机器中，只有一台机器能够成功————那么，我们就认为向数据库中成功插入数据的客户端机器成为Master。  </p>
+<p>乍一看，这个方案确实可行，依靠关系型数据库的主键特性能够很好地保证在集群中选举出唯一的一个Master。但是我们需要考虑的另一个问题是，如果当前
+选举出的Master挂了，那么该如何处理？谁来告诉我Master挂了呢？显然，关系型数据库没法通知我们这个事件。  </p>
+<p>ZooKeeper的强一致性，能够很好地保证在分布式高并发情况下节点的创建一定能够保证全局唯一性，即ZooKeeper将会保证客户端无法重复创建一个已经存在
+的数据节点。也就是说，如果同时有多个客户端请求创建同一个节点，那么最终一定只有一个客户端请求能够创建成功。利用这个特性，就能很容易地在分布式
+环境中进行Master选举了。  </p>
+<p>在这个系统中，首先会在ZooKeeper上创建一个日期节点，如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-14.png" alt=""><br>客户端集群每天都会定时往ZooKeeper上创建一个临时节点，例如<code>/master_election/2017-09-03/binding</code>。在这个过程中，只有一个客户端能够成功
+创建这个节点，那么这个客户端所在机器就称为了Master。同时，其他没有在ZooKeeper上成功创建节点的客户端，都会在节点<code>/master_ecection/2017-09-03</code>
+上注册一个子节点变更的Watcher，用于监控当前的Master机器是否存活，一旦发现当前的Master挂了，那么其余的客户端将会重新进行Master选举。  </p>
+<p>从上面的讲解中，我们可以看到，如果仅仅只是想实现Master选举的话，那么其实只需要有一个能够保证唯一性的组件即可，例如关系型数据库的主键模型
+就是不错的选择。但是，如果希望能够快速地进行集群Master动态选举，那么基于ZooKeeper来实现是一个不错的新思路。</p>
+<h2 id="7-1-分布式锁"><a href="#7-1-分布式锁" class="headerlink" title="7.1 分布式锁"></a>7.1 分布式锁</h2><p>分布式锁是控制分布式系统之间同步访问共享资源的一种方式。如果不同的系统或是同一个系统的不同主机之间共享了一个或一组资源，那么访问这些资源的
+时候，往往需要通过一些互斥手段来防止彼此之间的干扰，以保证一致性，在这种情况下，就需要使用分布式锁了。  </p>
+<p>在平时的实际项目开发中，我们往往很少会去在意分布式锁，而是依赖于关系型数据库固有的排他性来实现不同进程之间的互斥。这确实是一种非常简便且被
+广泛使用的分布式锁实现方式。然而有一个不争的事实是，目前绝大多数大型分布式系统的性能瓶颈都集中在数据库操作上。因此，如果上层业务再给数据库
+添加一些额外的锁，例如行锁、表锁甚至是繁重的事务处理，那么是不是会让数据库更加不堪重负呢？下面我们来看看使用ZooKeeper如何实现分布式锁，
+这里主要讲解排他锁和共享锁两类分布式锁。</p>
+<h3 id="7-1-1-排他锁"><a href="#7-1-1-排他锁" class="headerlink" title="7.1.1 排他锁"></a>7.1.1 排他锁</h3><p>排他锁（Exclusive Locks，简称X锁），又称为写锁或独占锁，是一种基本的锁类型。如果事务T1对数据对象O1加上了排他锁，那么在整个加锁期间，只允许
+事务T1对O1进行读取和更新操作，其他任何事务都不能再对这个数据对象进行任何类型的操作————直到T1释放了排他锁。  </p>
+<p>从上面讲解的排他锁的基本概念中，我们可以看到，排他锁的核心是如何保证当前有且仅有一个事务获得锁，并且锁被释放后，所有正在等待获取锁的事务都
+能够被通知到。下面我们就看看如何借助ZooKeeper实现排他锁。</p>
+<h4 id="1-定义锁"><a href="#1-定义锁" class="headerlink" title=".1 定义锁"></a>.1 定义锁</h4><p>有两种常见的方式可以用来定义锁，分别是synchronized机制和JDK5提供的ReentrantLock。然而，在ZooKeeper中，没有类似于这样的API可以直接使用，
+而是通过ZooKeeper上的数据节点来表示一个锁，例如<code>/exclusive_lock/lock</code>节点就可以被定义为一个锁，如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-15.png" alt=""></p>
+<h4 id="2-获取锁"><a href="#2-获取锁" class="headerlink" title=".2 获取锁"></a>.2 获取锁</h4><p>在需要获取排他锁时，所有的客户端都会试图通过调用create()接口，在<code>/exclusive_lock</code>节点下创建临时子节点<code>/exclusive_lock/lock</code>。而ZooKeeper
+会保证在所有的客户端中，最终只有一个客户端能够创建成功，那么就可以认为该客户端获取了锁。同时，所有没有获取到锁的客户端就需要到<code>/exclusive_lock</code>
+节点上注册一个子节点变更的Watcher监听，以便实时监听到lock节点的变更情况。</p>
+<h4 id="3-释放锁"><a href="#3-释放锁" class="headerlink" title=".3 释放锁"></a>.3 释放锁</h4><p>由于是临时节点，有下面两种情况，可能释放锁：</p>
+<ul>
+<li>当前获取锁的客户端机器发生宕机</li>
+<li>正常执行完业务逻辑后，客户端主动将临时节点删除。</li>
+</ul>
+<p>无论在上面情况下移除了lock节点，ZooKeeper都会通知所有在<code>/exclusive_lock</code>节点上注册了子节点变更Watcher监听的客户端。这些客户端在接收到通知后，
+再次重新发起分布式锁获取，即重复“获取锁”过程。如下图：
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-16.png" alt="" title="排他锁的流程图"></p>
+<h3 id="7-1-2-共享锁"><a href="#7-1-2-共享锁" class="headerlink" title="7.1.2 共享锁"></a>7.1.2 共享锁</h3><p>共享锁（Shared Locks，简称S锁），又称读锁，同样是一种基本的锁类型。如果事务T1对数据对象O1加上了共享锁，那么当前事务只能对O1进行读取操作，
+其他事务也只能对这个数据对象加共享锁————直到该数据对象上的所有共享锁都被释放。  </p>
+<p>共享锁和排他锁最根本的区别在于，加上排他锁后，数据对象只对一个事务可见，而加上共享锁后，数据对所有事务都可见。</p>
+<h4 id="1-定义锁-1"><a href="#1-定义锁-1" class="headerlink" title=".1 定义锁"></a>.1 定义锁</h4><p>和排他锁一样，同样是通过ZooKeeper上的数据节点来表示一个锁，是一个类似于<code>/shared_lock/[Hostname]-请求类型-序号</code>的临时顺序节点，例如
+<code>/shared_lock/192.168.0.1-R-0000000001</code>，那么，这个节点就代表了一个共享锁，如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-17.png" alt=""></p>
+<h4 id="2-获取锁-1"><a href="#2-获取锁-1" class="headerlink" title=".2 获取锁"></a>.2 获取锁</h4><p>在需要获取共享锁时，所有客户端都会到<code>/shared_lock</code>这个节点下面创建一个临时顺序节点，如果当前是读请求，那么就创建例如<code>/shared_lock/192.168.0.1-R-000000001/</code>
+的节点；如果是写请求，那么就创建例如<code>/shared_lock/192.168.0.1-W-000000001</code>的节点。</p>
+<h4 id="3-判断读写顺序"><a href="#3-判断读写顺序" class="headerlink" title=".3 判断读写顺序"></a>.3 判断读写顺序</h4><p>根据共享锁的定义，不同的事务都可以同时对同一数据对象进行读取操作，而更新操作必须在当前没有任何事务进行读写操作的情况下进行。基于这个原则，
+我们来看看如何通过ZooKeeper的节点来确定分布式读写顺序，大致可以分为如下4个步骤。</p>
+<ol>
+<li>创建完节点后，获取<code>/shared_lock</code>节点下的所有子节点，并对该节点注册子节点变更的Watcher监听。</li>
+<li>确定自己的节点序号在所有子节点中的顺序。</li>
+<li>如果当前节点业务为读请求：如果没有比自己序号小的子节点，或是所有比自己序号小的子节点都是读请求，那么表明自己已经成功获取到了共享锁，同时
+开始执行读取逻辑。如果比自己序号小的子节点有写请求，那么就需要进入等待。<br>如果当前节点业务为写请求：如果自己不是序号最小的子节点， 那么就需要进入等待。</li>
+<li>接收到Watcher通知后，重复步骤1。</li>
+</ol>
+<h4 id="4-释放锁"><a href="#4-释放锁" class="headerlink" title=".4 释放锁"></a>.4 释放锁</h4><p>释放锁的逻辑和排他锁是一致的。</p>
+<h4 id="5-羊群效应"><a href="#5-羊群效应" class="headerlink" title=".5 羊群效应"></a>.5 羊群效应</h4><p>上面讲解的这个共享锁实现，大体上能够满足一般的分布式集群竞争锁的需求，并且性能都还可以————这里说的一般场景是指集群规模不是特别大，一般是在
+10台机器以内。但是如果机器规模扩大之后，会有什么问题呢？我们着重来看上面“判断读写顺序”过程的步骤3，如下图，看看实际运行中的情况。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-18.png" alt="">  </p>
+<ol>
+<li>192.168.0.1这台机器首先进行读操作，完成读操作后将节点<code>/192.168.0.1-R-000000001</code>删除。</li>
+<li>余下的4台机器均收到了这个节点被移除的通知，然后重新从<code>/shared_lock/</code>节点上获取一份新的子节点列表。</li>
+<li>每个机器判断自己的读写顺序。其中192.168.0.2这台机器检测到自己已经是序号最小的机器了，于是开始进行写操作，而余下的其他机器发现没有轮到
+自己进行读取或更新操作，于是继续等待。</li>
+<li>继续……</li>
+</ol>
+<p>上面这个过程就是共享锁在实际运行中最主要的步骤了，我们着重看下上面步骤3中提到的：“而余下的其他机器发现没有轮到自己进行读取或更新操作，于是继续等待。”
+很明显，我们看到，192.168.0.1这个客户端在移除自己的共享锁后，ZooKeeper发送了子节点变更Watcher通知给所有机器，然而这个通知除了给192.168.0.2
+这台机器产生实际影响外，对于余下的其他所有机器都没有任何作用。  </p>
+<p>相信读者也已经意思到了，在这整个分布式锁的竞争过程中，大量的“Watcher通知”和“子节点列表获取”两个操作重复运行，并且绝大多数的运行结果都是
+判断出自己并非是序号最小的节点，从而继续等待下一次通知————这个看起来显然不怎么科学。客户端无端地接收到过多和自己并不相关的事件通知，如果在集群
+规模比较大的情况下，不仅会对ZooKeeper服务器造成巨大的性能影响和网络冲击，更为严重的是，如果同一时间有多个节点对应的客户端完成事务或是事务
+中断引起节点消息，ZooKeeper服务器就会在短时间内向其余客户端发送大量的事件通知————这就是所谓的羊群效应。  </p>
+<p>上面这个ZooKeeper分布式共享锁实现中出现羊群效应的根源在于，没有找准客户端真正的关注点。我们再来回顾一下上面的分布式锁竞争过程，它和核心
+逻辑在于：判断自己是否是所有子节点中序号最小的。于是，很容易可以联想到，每个节点对应的客户端只需要关注比自己序号小的那个相关节点的变更情况
+就可以了————而不需要关注全局的子列表变更情况。</p>
+<h4 id="6-改进后的分布式锁实现"><a href="#6-改进后的分布式锁实现" class="headerlink" title=".6 改进后的分布式锁实现"></a>.6 改进后的分布式锁实现</h4><p>现在我们来看看如何改进上面的分布式锁实现。首先，我们需要肯定的一点是，上面提到的共享锁实现，从整体思路上来说完全正确。这里主要的改动在于：
+每个锁竞争者，只需要关注<code>/shared_lock/</code>节点下序号比自己小的那个节点是否存在即可，具体实现如下：</p>
+<ol>
+<li>客户端调用create()方法创建一个类似于<code>/shared_lock/[Hostname]-请求类型-序号</code>的临时顺序节点。</li>
+<li>客户端调用getChildren()接口来获取所有已经创建的子节点列表，注意，这里不注册任何Watcher。</li>
+<li>如果无法获取共享锁，那么就调用exist()来对比自己小的那个节点注册Watcher。注意，这里“比自己小的节点”只是一个笼统的说法，具体对于读请求和写请求不一样。<br>读请求：向比自己序号小的最后一个写请求节点注册Watcher监听。<br>写请求：向比自己序号小的最后一个节点注册Watcher监听。</li>
+<li>等待Watcher通知，继续进入步骤2。</li>
+</ol>
+<p>流程图如下：
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-19.png" alt="" title="共享锁流程图">  </p>
+<h4 id="7-注意"><a href="#7-注意" class="headerlink" title=".7 注意"></a>.7 注意</h4><p>看到这里，相信很多读者都会觉得改进后的分布式锁实现相对来说比较麻烦。确实如此，如同在多线程并发编程实践中，我们会去尽量缩小锁的范围————对于
+分布式锁实现的改进其实也是同样的思路。那么对于开发人员来说，是否必须按照改进后的思路来设计实现自己的分布式锁呢？答案是否定的。在具体的实际开发
+过程中，我们提倡根据具体的业务场景和集群规模来选择适合自己的分布式锁实现：在集群规模不大、网络资源丰富的情况下，第一种分布式锁实现方式是
+简单实用的选择；而如果集群规模达到一定程度，并且希望能够精细化地控制分布式锁机制，那么不妨试试改进版的分布式锁实现。</p>
 
       
     </div>
@@ -991,7 +1116,7 @@ Core进程也会在这个instances节点下创建类似的子节点。和热备�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-典型应用场景及实现"><span class="nav-text">1 典型应用场景及实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-数据发布-订阅"><span class="nav-text">1.1 数据发布/订阅</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-配置存储"><span class="nav-text">1.1.1 配置存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-配置获取"><span class="nav-text">1.1.2 配置获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-配置变更"><span class="nav-text">1.1.3 配置变更</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-负载均衡"><span class="nav-text">1.2 负载均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-一种动态的DNS服务"><span class="nav-text">1.2.1 一种动态的DNS服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-域名配置"><span class="nav-text">1.2.2 域名配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-域名解析"><span class="nav-text">1.2.3 域名解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-4-域名变更"><span class="nav-text">1.2.4 域名变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-5-自动化的DNS服务"><span class="nav-text">1.2.5 自动化的DNS服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-域名注册"><span class="nav-text">.1 域名注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-域名解析"><span class="nav-text">.2 域名解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-域名探测"><span class="nav-text">.3 域名探测</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-命名服务"><span class="nav-text">3.1 命名服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-分布式协调-通知"><span class="nav-text">4.1 分布式协调/通知</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-1-MySQL数据复制总线：MySQL-Replicator"><span class="nav-text">4.1.1 MySQL数据复制总线：MySQL_Replicator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-2-任务注册"><span class="nav-text">4.1.2 任务注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-3-任务热备份"><span class="nav-text">4.1.3 任务热备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-4-热备切换"><span class="nav-text">4.1.4 热备切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-5-记录执行状态"><span class="nav-text">4.1.5 记录执行状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-6-控制台协调"><span class="nav-text">4.1.6 控制台协调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-7-冷备切换"><span class="nav-text">4.1.7 冷备切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-8-冷热备份对比"><span class="nav-text">4.1.8 冷热备份对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-9-一种通用的分布式系统机器间通信方式"><span class="nav-text">4.1.9 一种通用的分布式系统机器间通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-心跳监测"><span class="nav-text">.1 心跳监测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-工作进度汇报"><span class="nav-text">.2 工作进度汇报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-系统调度"><span class="nav-text">.3 系统调度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-集群管理"><span class="nav-text">5.1 集群管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-1-分布式日志收集系统"><span class="nav-text">5.1.1 分布式日志收集系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-注册收集器机器"><span class="nav-text">.1 注册收集器机器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-任务分发"><span class="nav-text">.2 任务分发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-状态汇报"><span class="nav-text">.3 状态汇报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-动态分配"><span class="nav-text">.4 动态分配</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-全局动态分配"><span class="nav-text">.4.1 全局动态分配</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-局部动态分配"><span class="nav-text">.4.2 局部动态分配</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-注意事项"><span class="nav-text">.5 注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-节点类型"><span class="nav-text">.5.1 节点类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-日志系统节点监听"><span class="nav-text">.5.2 日志系统节点监听</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-典型应用场景及实现"><span class="nav-text">1 典型应用场景及实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-数据发布-订阅"><span class="nav-text">1.1 数据发布/订阅</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-配置存储"><span class="nav-text">1.1.1 配置存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-配置获取"><span class="nav-text">1.1.2 配置获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-配置变更"><span class="nav-text">1.1.3 配置变更</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-负载均衡"><span class="nav-text">1.2 负载均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-一种动态的DNS服务"><span class="nav-text">1.2.1 一种动态的DNS服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-域名配置"><span class="nav-text">1.2.2 域名配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-域名解析"><span class="nav-text">1.2.3 域名解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-4-域名变更"><span class="nav-text">1.2.4 域名变更</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-5-自动化的DNS服务"><span class="nav-text">1.2.5 自动化的DNS服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-域名注册"><span class="nav-text">.1 域名注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-域名解析"><span class="nav-text">.2 域名解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-域名探测"><span class="nav-text">.3 域名探测</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-命名服务"><span class="nav-text">3.1 命名服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-分布式协调-通知"><span class="nav-text">4.1 分布式协调/通知</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-1-MySQL数据复制总线：MySQL-Replicator"><span class="nav-text">4.1.1 MySQL数据复制总线：MySQL_Replicator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-2-任务注册"><span class="nav-text">4.1.2 任务注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-3-任务热备份"><span class="nav-text">4.1.3 任务热备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-4-热备切换"><span class="nav-text">4.1.4 热备切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-5-记录执行状态"><span class="nav-text">4.1.5 记录执行状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-6-控制台协调"><span class="nav-text">4.1.6 控制台协调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-7-冷备切换"><span class="nav-text">4.1.7 冷备切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-8-冷热备份对比"><span class="nav-text">4.1.8 冷热备份对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-9-一种通用的分布式系统机器间通信方式"><span class="nav-text">4.1.9 一种通用的分布式系统机器间通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-心跳监测"><span class="nav-text">.1 心跳监测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-工作进度汇报"><span class="nav-text">.2 工作进度汇报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-系统调度"><span class="nav-text">.3 系统调度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-集群管理"><span class="nav-text">5.1 集群管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-1-分布式日志收集系统"><span class="nav-text">5.1.1 分布式日志收集系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-注册收集器机器"><span class="nav-text">.1 注册收集器机器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-任务分发"><span class="nav-text">.2 任务分发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-状态汇报"><span class="nav-text">.3 状态汇报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-动态分配"><span class="nav-text">.4 动态分配</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-全局动态分配"><span class="nav-text">.4.1 全局动态分配</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-局部动态分配"><span class="nav-text">.4.2 局部动态分配</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-注意事项"><span class="nav-text">.5 注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-节点类型"><span class="nav-text">.5.1 节点类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-日志系统节点监听"><span class="nav-text">.5.2 日志系统节点监听</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-2-在线云主机管理"><span class="nav-text">5.1.2 在线云主机管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-机器上-下线"><span class="nav-text">.1 机器上/下线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-机器监控"><span class="nav-text">.2 机器监控</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-Master选举"><span class="nav-text">6.1 Master选举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-1-分布式锁"><span class="nav-text">7.1 分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-1-排他锁"><span class="nav-text">7.1.1 排他锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-定义锁"><span class="nav-text">.1 定义锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-获取锁"><span class="nav-text">.2 获取锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-释放锁"><span class="nav-text">.3 释放锁</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-2-共享锁"><span class="nav-text">7.1.2 共享锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-定义锁-1"><span class="nav-text">.1 定义锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-获取锁-1"><span class="nav-text">.2 获取锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-判断读写顺序"><span class="nav-text">.3 判断读写顺序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-释放锁"><span class="nav-text">.4 释放锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-羊群效应"><span class="nav-text">.5 羊群效应</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-改进后的分布式锁实现"><span class="nav-text">.6 改进后的分布式锁实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-注意"><span class="nav-text">.7 注意</span></a></li></ol></li></ol></li></ol></li></ol></div>
             
 
           </div>
