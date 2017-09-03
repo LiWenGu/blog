@@ -901,18 +901,34 @@ Native代码操作非JVM堆的内存空间，每次创建或者释放都要手�
 
 <script>
   window.onload = function() {
-  var show = document.getElementById("show");
-  setInterval(function() {
-  var time = new Date();
-  // 程序计时的月从0开始取值后+1
-  var m = time.getMonth() - 7;
-  var d = time.getDate() - 13;
-  //根据自己博客的创建时间更改数值
-  var t = "已经运行了 - "+(time.getFullYear()-2017) + "年" + m + "月"
-  + d + "天 " + time.getHours() + "时"
-  + time.getMinutes() + "分" + time.getSeconds() + "秒";
-  show.innerHTML = t;
-  }, 1000);
+    var show = document.getElementById("show");
+    setInterval(function() {
+
+      var date1= '2017/08/13 00:00:00';  //开始时间
+      var date2 = new Date();    //结束时间
+      var date3 = date2.getTime() - new Date(date1).getTime();   //时间差的毫秒数
+
+      //计算出相差天数
+      var days=Math.floor(date3/(24*3600*1000))
+
+      //计算出小时数
+      var leave1=date3%(24*3600*1000)    //计算天数后剩余的毫秒数
+      var hours = Math.floor(leave1/(3600*1000))
+
+      //计算相差分钟数
+      var leave2 = leave1%(3600*1000)        //计算小时数后剩余的毫秒数
+      var minutes = Math.floor(leave2/(60*1000))
+
+      //计算相差秒数
+      var leave3 = leave2%(60*1000)      //计算分钟数后剩余的毫秒数
+      var seconds = Math.round(leave3/1000)
+
+      var t = "已经运行了 - "
+            + days + "天 " + hours + "时"
+            + minutes + "分" + seconds + "秒";
+
+      show.innerHTML = t;
+    }, 1000);
   };
 </script>
 
