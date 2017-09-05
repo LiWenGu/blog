@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.cn/"/>
-  <updated>2017-08-30T17:20:20.000Z</updated>
+  <updated>2017-09-05T15:51:00.000Z</updated>
   <id>http://www.liwenguang.cn/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/"/>
     <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景.html/</id>
     <published>2017-08-29T16:30:20.000Z</published>
-    <updated>2017-08-30T17:20:20.000Z</updated>
+    <updated>2017-09-05T15:51:00.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-典型应用场景及实现"><a href="#1-典型应用场景及实现" class="headerlink" title="1 典型应用场景及实现"></a>1 典型应用场景及实现</h1><h2 id="1-1-数据发布-订阅"><a href="#1-1-数据发布-订阅" class="headerlink" title="1.1 数据发布/订阅"></a>1.1 数据发布/订阅</h2><p>数据发布/订阅（Pulish/Subscribe）系统，即所谓的配置中心，顾名思义就是发布者将数据发布到ZooKeeper的一个或一系列节点上，供订阅者进行数据订阅，
 进而达到动态获取数据的目的，实现配置信息的集中式管理和数据的动态更新。  </p>
@@ -393,7 +393,7 @@ Agent部署启动之后，会首先向ZooKeeper的指定节点进行注册，具
 分布式队列，简单地讲分为两大类，一种是常规的先入先出队列，另一种则是要等到队列元素集聚之后才统一安排执行的Barrier模型。</p>
 <h3 id="8-1-1-FIFO-先进先出"><a href="#8-1-1-FIFO-先进先出" class="headerlink" title="8.1.1 FIFO:先进先出"></a>8.1.1 FIFO:先进先出</h3><p>使用ZooKeeper实现FIFO队列，和共享锁的实现非常类似。FIFO队列就类似于一个全写的共享锁模型，大体的设计思想其实非常简单：所有客户端都会到
 <code>/queue_fifo</code>这个节点下面创建一个临时顺序节点，例如<code>/queue_fifo/192.168.0.1-0000000001</code>，如下图：
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-20.png" alt="" title="共享锁流程图"><br>创建完节点之后，根据如下4个步骤来确定执行顺序。</p>
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-20.png" alt=""><br>创建完节点之后，根据如下4个步骤来确定执行顺序。</p>
 <ol>
 <li>通过调用getChildren()接口来获取<code>/queue_fifo</code>节点下的所有子节点，即获取队列中所有的元素。</li>
 <li>确定自己的节点序号在所有子节点中的顺序。</li>
@@ -401,10 +401,24 @@ Agent部署启动之后，会首先向ZooKeeper的指定节点进行注册，具
 <li>接收到Watcher通知到，重复步骤1。</li>
 </ol>
 <p>整个FIFO队列的工作流程，如下图：
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-21.png" alt="" title="共享锁流程图"></p>
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-21.png" alt=""></p>
 <h3 id="8-1-2-Barrier-分布式屏障"><a href="#8-1-2-Barrier-分布式屏障" class="headerlink" title="8.1.2 Barrier:分布式屏障"></a>8.1.2 Barrier:分布式屏障</h3><p>Barrier原意是指障碍物、屏障，而在分布式系统中，特指系统之间的一个协调条件，规定了一个队列的元素必须都集聚后才能统一进行安排，否则一直等待。
 这往往出现在那些大规模分布式并行计算的应用场景了：最终的合并计算需要基于很多并行计算的子结果来进行。这些队列其实是FIFO队列的基础上进行了
-增强，大致的设计思想如下：开始时，<code>/queue_barrier</code>节点是一个已经存在的默认节点，</p>
+增强，大致的设计思想如下：开始时，<code>/queue_barrier</code>节点是一个已经存在的默认节点，并且将其节点的数据内容赋值为一个数字n来代表Barrier值，
+例如n=10表示只有当<code>/queue_barrier</code>节点下的子节点个数达到10后，才会打开Barrier。之后，所有的客户端都会到<code>/queue_barrier</code>节点下创建一个
+临时节点，例如<code>/queue_barrier/192.168.0.1</code>，如下图：
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-22.png" alt=""><br>创建完节点之后，根据如下5个步骤来确定执行顺序。</p>
+<ol>
+<li>通过调用getDate()接口获取<code>/queue_barrier</code>节点的数据内容：10。</li>
+<li>通过调用getChildren()接口获取<code>/queue_barrier</code>节点下的所有子节点，即获取队列中所有元素，同时注册对子节点列表变更的Watcher监听。</li>
+<li>统计子节点的个数。</li>
+<li>如果子节点个数还不足10个，那么就需要进入等待。</li>
+<li>接收到Watcher通知后，重复步骤2。
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/paxos2zookeeper/Paxos2zookeeper-6-1-23.png" alt="" title="Barrier的流程图"><br><strong>博主理解为，如果在很少的时间内，同时超过了10个以上的业务机创建了临时节点，那么业务处理的速度并不是恒定的，因为有可能这个业务被11个机器处理，
+下一个被12个业务机处理？</strong></li>
+</ol>
+<h2 id="9-1-小结"><a href="#9-1-小结" class="headerlink" title="9.1 小结"></a>9.1 小结</h2><p>数据发布/订阅（配置中心）、负载均衡（DNS解析）、命名服务（顺序节点特性）、分布式协调/通知（Watcher机制），集群管理（子节点）、Master选举
+（同时创建节点）、分布式锁（同时创建节点）、分布式队列（创建顺序节点）</p>
 ]]></content>
     
     <summary type="html">
@@ -2192,7 +2206,7 @@ request.setCharacterEncoding(charset)来设置。<br>注意：要在第一次调
 的值，并通过Header的Content-Type返回客户端，浏览器接收到返回的Socket流时将通过Content-Type的charset来解码。如果返回的HTTP Header中Content-Type
 没有设置charset，那么浏览器将根据浏览器的<mete http-equiv="Content-Type" content="text/html; charset=GBK">中的charset来解码，
 如果浏览器中没有定义，则使用默认的编码。<br>连接JDBC也是指定一致的编码：<code>jdbc:mysql://localhost:3306?DB?useUnicode=true&amp;characterEncoding=GBK</code>。</mete></p>
-<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></div></pre></td></tr></table></figure>
 <p>而script.js脚本中，有如下代码：
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.write(<span class="string">"中国"</span>);</div></pre></td></tr></table></figure></p>
 <p>如果引入的时候没有设置charset，浏览器就会以当前页面的默认字符集解析这个JS文件。如果一致那就没问题，但是如果页面和js字符编码不一致，就会变成乱码。</p>
