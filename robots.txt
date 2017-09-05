@@ -8,5 +8,5 @@ Disallow: /fonts/
 Disallow: /vendors/
 Disallow: /fancybox/
 
-Sitemap: http://www.liwenguang.website/sitemap.xml
-Sitemap: http://www.liwenguang.website/baidusitemap.xml
+Sitemap: http://www.liwenguang.cn/sitemap.xml
+Sitemap: http://www.liwenguang.cn/baidusitemap.xml
