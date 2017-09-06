@@ -16,6 +16,24 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>六、Zookeeper的典型应用场景续</title>
+    <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%BB%AD.html/"/>
+    <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景续.html/</id>
+    <published>2017-08-29T16:30:20.000Z</published>
+    <updated>2017-09-05T15:51:00.000Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
+    
+      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.cn/categories/readNote/zookeeper/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>六、Zookeeper的典型应用场景</title>
     <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html/"/>
     <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景.html/</id>
@@ -424,24 +442,6 @@ Agent部署启动之后，会首先向ZooKeeper的指定节点进行注册，具
     <summary type="html">
     
       &lt;h1 id=&quot;1-典型应用场景及实现&quot;&gt;&lt;a href=&quot;#1-典型应用场景及实现&quot; class=&quot;headerlink&quot; title=&quot;1 典型应用场景及实现&quot;&gt;&lt;/a&gt;1 典型应用场景及实现&lt;/h1&gt;&lt;h2 id=&quot;1-1-数据发布-订阅&quot;&gt;&lt;a href=&quot;#1-1-数据
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
-    
-      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.cn/categories/readNote/zookeeper/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>六、Zookeeper的典型应用场景续</title>
-    <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%BB%AD.html/"/>
-    <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景续.html/</id>
-    <published>2017-08-29T16:30:20.000Z</published>
-    <updated>2017-09-05T15:51:00.000Z</updated>
-    
-    <summary type="html">
     
     </summary>
     
@@ -2224,7 +2224,7 @@ request.setCharacterEncoding(charset)来设置。<br>注意：要在第一次调
 的值，并通过Header的Content-Type返回客户端，浏览器接收到返回的Socket流时将通过Content-Type的charset来解码。如果返回的HTTP Header中Content-Type
 没有设置charset，那么浏览器将根据浏览器的<mete http-equiv="Content-Type" content="text/html; charset=GBK">中的charset来解码，
 如果浏览器中没有定义，则使用默认的编码。<br>连接JDBC也是指定一致的编码：<code>jdbc:mysql://localhost:3306?DB?useUnicode=true&amp;characterEncoding=GBK</code>。</mete></p>
-<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></div></pre></td></tr></table></figure>
 <p>而script.js脚本中，有如下代码：
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.write(<span class="string">"中国"</span>);</div></pre></td></tr></table></figure></p>
 <p>如果引入的时候没有设置charset，浏览器就会以当前页面的默认字符集解析这个JS文件。如果一致那就没问题，但是如果页面和js字符编码不一致，就会变成乱码。</p>
