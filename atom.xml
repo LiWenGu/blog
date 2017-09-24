@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.cn/"/>
-  <updated>2017-09-05T15:51:00.000Z</updated>
+  <updated>2017-09-24T16:00:00.000Z</updated>
   <id>http://www.liwenguang.cn/</id>
   
   <author>
@@ -14,6 +14,86 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一、并发编程的挑战</title>
+    <link href="http://www.liwenguang.cn/2017/09/25/concurrent_art/1_%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E6%8C%91%E6%88%98.html/"/>
+    <id>http://www.liwenguang.cn/2017/09/25/concurrent_art/1_并发编程的挑战.html/</id>
+    <published>2017-09-24T16:00:00.000Z</published>
+    <updated>2017-09-24T16:00:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-上下文切换"><a href="#1-上下文切换" class="headerlink" title="1 上下文切换"></a>1 上下文切换</h1><p>并发是单核处理器支持多线程执行代码。则 <code>CPU</code> 通过给每个线程分配时间片来实现，线程任务执行的切换，由于在切换
+前要保存当前任务的状态，因此从保存再到加载的过程就是一次上下文切换。</p>
+<h2 id="1-1-多线程一定快吗？"><a href="#1-1-多线程一定快吗？" class="headerlink" title="1.1 多线程一定快吗？"></a>1.1 多线程一定快吗？</h2><p>以下为对比：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcurrencyTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> count = <span class="number">100000001</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">        concurrenct();</div><div class="line">        serial();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">concurrenct</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</div><div class="line">        Thread thread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="keyword">int</span> a = <span class="number">0</span>;</div><div class="line">                <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">                    a += <span class="number">5</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        thread.start();</div><div class="line">        <span class="keyword">int</span> b = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">            b--;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> time = System.currentTimeMillis() - start;</div><div class="line">        thread.join();</div><div class="line">        System.out.println(<span class="string">"concurrency: "</span> + time + <span class="string">"ms, b = "</span> + b);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">serial</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</div><div class="line">        <span class="keyword">int</span> a = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">            a += <span class="number">5</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> b = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">            b--;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> time = System.currentTimeMillis() - start;</div><div class="line">        System.out.println(<span class="string">"serial: "</span> + time + <span class="string">"ms, b = "</span> + b);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">循环次数</th>
+<th style="text-align:center">serial/ms</th>
+<th style="text-align:center">concurrent/ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">一亿</td>
+<td style="text-align:center">91</td>
+<td style="text-align:center">51</td>
+</tr>
+<tr>
+<td style="text-align:center">一千万</td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">一百万</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">5</td>
+</tr>
+<tr>
+<td style="text-align:center">十万</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">一万</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-上下文切换&quot;&gt;&lt;a href=&quot;#1-上下文切换&quot; class=&quot;headerlink&quot; title=&quot;1 上下文切换&quot;&gt;&lt;/a&gt;1 上下文切换&lt;/h1&gt;&lt;p&gt;并发是单核处理器支持多线程执行代码。则 &lt;code&gt;CPU&lt;/code&gt; 通过给每个线程分配时间片来
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
+    
+      <category term="Java并发编程的艺术" scheme="http://www.liwenguang.cn/categories/readNote/concurrent-art/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>六、Zookeeper的典型应用场景续</title>
+    <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%BB%AD.html/"/>
+    <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景续.html/</id>
+    <published>2017-08-29T16:30:20.000Z</published>
+    <updated>2017-09-05T15:51:00.000Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
+    
+      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.cn/categories/readNote/zookeeper/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>六、Zookeeper的典型应用场景</title>
@@ -424,24 +504,6 @@ Agent部署启动之后，会首先向ZooKeeper的指定节点进行注册，具
     <summary type="html">
     
       &lt;h1 id=&quot;1-典型应用场景及实现&quot;&gt;&lt;a href=&quot;#1-典型应用场景及实现&quot; class=&quot;headerlink&quot; title=&quot;1 典型应用场景及实现&quot;&gt;&lt;/a&gt;1 典型应用场景及实现&lt;/h1&gt;&lt;h2 id=&quot;1-1-数据发布-订阅&quot;&gt;&lt;a href=&quot;#1-1-数据
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
-    
-      <category term="从Paxos到Zookeeper分布式一致性原理与实践" scheme="http://www.liwenguang.cn/categories/readNote/zookeeper/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>六、Zookeeper的典型应用场景续</title>
-    <link href="http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper%E7%9A%84%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%BB%AD.html/"/>
-    <id>http://www.liwenguang.cn/2017/08/30/zookeeper/6_Zookeeper的典型应用场景续.html/</id>
-    <published>2017-08-29T16:30:20.000Z</published>
-    <updated>2017-09-05T15:51:00.000Z</updated>
-    
-    <summary type="html">
     
     </summary>
     
@@ -1332,16 +1394,9 @@ Prepare请求后，就会将编号为7的提案作为响应反馈给Proposer。<
     <published>2017-08-16T16:37:45.000Z</published>
     <updated>2017-08-29T15:12:21.000Z</updated>
     
-    <content type="html"><![CDATA[<p>本章概要：<br>当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应
-如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用Cookie来传递信息时，随着Cookie个数的增多和访问量的
-增加，它占用的网络带宽也很大，试想假如Cookie占用200个字节，如果一天的PV有几亿，那么它要占用多少带宽？所以有大访问量时希望用Session，但是
-Session的致命弱点是不容易在多台服务器之间共享，这也限制了Session的使用。</p>
-<h1 id="1-理解Cookie"><a href="#1-理解Cookie" class="headerlink" title="1. 理解Cookie"></a>1. 理解Cookie</h1><p>Cookie的作用通俗地说就是当一个用户通过HTTP访问一个服务器时，这个服务器会将一些Key/Value键值对返回给客户端浏览器，并给这些数据加上一些
-限制条件，在条件符合时这个用户下次访问这个服务器时，数据又被完整地带回给服务器。  </p>
-<p>当初W3C设计Cookie时实际考虑的是为了记录用户在一段时间内访问Web应用的行为路径。由于HTTP是一种无状态协议，当用户的一次访问请求结束后，
-后端服务器就无法知道下一次来访问的还是不是上次访问的用户。例如，在一个很短的时间内，如果与用户相关的数据被频繁访问，可以针对这个数据做缓存，
-这样可以大大提高数据的访问性能。Cookie的作用正是如此，由于是同一个客户端发出的请求，每次发出的请求都会带有第一次访问时，服务端设置的信息，
-这样服务端就可以根据Cookie值来划分访问的用户了。</p>
+    <content type="html"><![CDATA[<p>本章概要：<br>当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用Cookie来传递信息时，随着Cookie个数的增多和访问量的增加，它占用的网络带宽也很大，试想假如Cookie占用200个字节，如果一天的PV有几亿，那么它要占用多少带宽？所以有大访问量时希望用Session，但是Session的致命弱点是不容易在多台服务器之间共享，这也限制了Session的使用。</p>
+<h1 id="1-理解Cookie"><a href="#1-理解Cookie" class="headerlink" title="1. 理解Cookie"></a>1. 理解Cookie</h1><p>Cookie的作用通俗地说就是当一个用户通过HTTP访问一个服务器时，这个服务器会将一些Key/Value键值对返回给客户端浏览器，并给这些数据加上一些限制条件，在条件符合时这个用户下次访问这个服务器时，数据又被完整地带回给服务器。  </p>
+<p>当初W3C设计Cookie时实际考虑的是为了记录用户在一段时间内访问Web应用的行为路径。由于HTTP是一种无状态协议，当用户的一次访问请求结束后，后端服务器就无法知道下一次来访问的还是不是上次访问的用户。例如，在一个很短的时间内，如果与用户相关的数据被频繁访问，可以针对这个数据做缓存，这样可以大大提高数据的访问性能。Cookie的作用正是如此，由于是同一个客户端发出的请求，每次发出的请求都会带有第一次访问时，服务端设置的信息，这样服务端就可以根据Cookie值来划分访问的用户了。</p>
 <h2 id="1-1-Cookie属性项"><a href="#1-1-Cookie属性项" class="headerlink" title="1.1 Cookie属性项"></a>1.1 Cookie属性项</h2><p>当前Cookie有两个版本：Version0和Version1，它们有两种设置响应头的标识，分别是“Set-Cookie”和“Set-Cookie2”。它们属性项有些不同。  </p>
 <p>Version0属性项：</p>
 <table>
@@ -1378,8 +1433,7 @@ Session的致命弱点是不容易在多台服务器之间共享，这也限制�
 </tr>
 </tbody>
 </table>
-<p>在Java Web的Servlet规范并不支持Set-Cookie2响应头，在实际应用中Set-Cookie2的一些属性项却可以设置在Set-Cookie中。博主在查看Cookie源码，
-发现是支持的：
+<p>在Java Web的Servlet规范并不支持Set-Cookie2响应头，在实际应用中Set-Cookie2的一些属性项却可以设置在Set-Cookie中。博主在查看Cookie源码，发现是支持的：
 <img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-2.png" alt="" title="JDK1.7"><br>另外也可以从源码可以得知，一般所说的Cookie键值对，都是值NAME和VALUE属性，其实Cookie还有其他的属性，通过Get/Set方法进行获取和设置。
 另外下面是博主在使用Chrome浏览器查看的Cookie：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-1.png" alt="" title="Chrome浏览器的Cookie"></p>
 <h2 id="1-2-Cookie如何工作"><a href="#1-2-Cookie如何工作" class="headerlink" title="1.2 Cookie如何工作"></a>1.2 Cookie如何工作</h2><p>当我们用如下方式创建Cookie时：
@@ -1402,43 +1456,21 @@ Session的致命弱点是不容易在多台服务器之间共享，这也限制�
 <li>基于Cookie，如果没有修改Context容器的Cookies标识，则默认也是支持的。</li>
 <li>基于SSL，默认不支持，只有connector.getAttribute(“SSLEnabled”)为TRUE时才支持。</li>
 </ul>
-<p>在第一种情况，当浏览器不支持Cookie功能时，浏览器会将用户的SessionCookieName重写到用户请求的URL参数中，传递格式如/path/Servlet;name=value;name2=value2?Name3=value3，
-其中“Servlet；”后面的K-V就是要传递的Path Parameters，服务器会从这个Path Parameters中拿到用户配置的SessionCookieName。关于这个SessionCookieName，
-如果在web.xml中配置session-config配置项，其cookie-config下的name属性就是这个SessionCookieName的值。如果没有配置sessio-config配置项，
-默认的SessionCookieName就是大家熟悉的“JSESSIONID”。需要说明的一点是，与Session关联的Cookie与其他Cookie没有什么不同。接着Request根据这个SessionCookieName
-到Parameters中拿到Session ID并设置到request.setRequestedSessionId中。  </p>
+<p>在第一种情况，当浏览器不支持Cookie功能时，浏览器会将用户的SessionCookieName重写到用户请求的URL参数中，传递格式如/path/Servlet;name=value;name2=value2?Name3=value3，其中“Servlet；”后面的K-V就是要传递的Path Parameters，服务器会从这个Path Parameters中拿到用户配置的SessionCookieName。关于这个SessionCookieName，如果在web.xml中配置session-config配置项，其cookie-config下的name属性就是这个SessionCookieName的值。如果没有配置sessio-config配置项，默认的SessionCookieName就是大家熟悉的“JSESSIONID”。需要说明的一点是，与Session关联的Cookie与其他Cookie没有什么不同。接着Request根据这个SessionCookieName到Parameters中拿到Session ID并设置到request.setRequestedSessionId中。  </p>
 <p>请注意，如果客户端也支持Cookie，则Tomcat仍然会解析Cookie中的Session ID，并会覆盖URL中的Session ID。  </p>
 <p>如果是第三种情况，则会根据javax.servlet.request.ssl_session属性值设置Session ID。</p>
-<h2 id="2-2-Session如何工作"><a href="#2-2-Session如何工作" class="headerlink" title="2.2 Session如何工作"></a>2.2 Session如何工作</h2><p>有了Session ID，服务端就可以创建HttpSession对象了，第一次触发通过<code>request.getSession()</code>方法。如果当前的Session ID还没有对应的HttpSession对象，
-那么就创建一个新的，并将这个对象加到org.apache.catalina.Manager的session容器中保存。Manager类将管理所有Session生命周期，Session过期将被回收，
-服务器关闭，Sessoin将被序列化到磁盘等。只要这个HttpSession对象存在，用户就可以根据Session ID来获取这个对象，也就做到了对状态的保持。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-3.png" alt="" title="Session工作的时序图"><br>从Request中获取的Session对象保存在org.apache.catalina.Manager类中，它的实现类是org.apache.catalina.session.StandardManager，通过
-requestedSessionId从StandardManager的Sessions集合取出对应的StandardSession对象。由于一个requestedSessionId对应一个访问的客户端，
-所以一个客户端也就对应了一个StandardSession对象，这个对象正是保存我们创建的Session值的。下面我们看一下StandardManager这个类是如何管理StandardSession
-的生命周期的。  </p>
-<p>StandardManager类负责Servlet容器中所有的StandardSession对象的生命周期管理。当Servlet容器重启或关闭时，StandardManager负责持久化没有过期的
-StandardSession对象，它会将所有的StandardSession对象持久化到一个以“SESSIONS。ser”为文件名的文件中。到Servlet容器重启时，也就是StandardManager
-初始化时，它会重新读取这个文件，解析出所有Session对象，重新保存在StandardManager的sessions集合中。  </p>
-<p>当Servlet容器关闭时StandardManager类会调用unload方法将session集合中的StandardSession对象写到“SESSIONS.ser”文件中，然后在启动时
-再重新恢复，注意要持久化保存Servlet容器中的Session对象，必须调用Servlet容器的stop的start命令，而不能直接结束（kill）Servlet容器的进程。
+<h2 id="2-2-Session如何工作"><a href="#2-2-Session如何工作" class="headerlink" title="2.2 Session如何工作"></a>2.2 Session如何工作</h2><p>有了Session ID，服务端就可以创建HttpSession对象了，第一次触发通过<code>request.getSession()</code>方法。如果当前的Session ID还没有对应的HttpSession对象，那么就创建一个新的，并将这个对象加到org.apache.catalina.Manager的session容器中保存。Manager类将管理所有Session生命周期，Session过期将被回收，服务器关闭，Sessoin将被序列化到磁盘等。只要这个HttpSession对象存在，用户就可以根据Session ID来获取这个对象，也就做到了对状态的保持。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-3.png" alt="" title="Session工作的时序图"><br>从Request中获取的Session对象保存在org.apache.catalina.Manager类中，它的实现类是org.apache.catalina.session.StandardManager，通过requestedSessionId从StandardManager的Sessions集合取出对应的StandardSession对象。由于一个requestedSessionId对应一个访问的客户端，所以一个客户端也就对应了一个StandardSession对象，这个对象正是保存我们创建的Session值的。下面我们看一下StandardManager这个类是如何管理StandardSession的生命周期的。  </p>
+<p>StandardManager类负责Servlet容器中所有的StandardSession对象的生命周期管理。当Servlet容器重启或关闭时，StandardManager负责持久化没有过期的StandardSession对象，它会将所有的StandardSession对象持久化到一个以“SESSIONS。ser”为文件名的文件中。到Servlet容器重启时，也就是StandardManager初始化时，它会重新读取这个文件，解析出所有Session对象，重新保存在StandardManager的sessions集合中。  </p>
+<p>当Servlet容器关闭时StandardManager类会调用unload方法将session集合中的StandardSession对象写到“SESSIONS.ser”文件中，然后在启动时再重新恢复，注意要持久化保存Servlet容器中的Session对象，必须调用Servlet容器的stop的start命令，而不能直接结束（kill）Servlet容器的进程。
 因为直接结束进程，Servlet容器没有机会调用unload方法来持久化这些Session对象。  </p>
-<p>另外，在StandardManager的sessions集合中的StandardSession对象并不是永远保存的，否则Servlet容器的内存将容易被消耗尽，所以必须给每个Session对象定义一个有效时间，
-超过这个时间则Session对象将被清除。在Tomcat中这个有效时间是60s（maxInactiveInterval属性通知），超过60s该Session将会过期。检查每个Session是否失效是
-Tomcat的一个后台线程中完成的。  </p>
-<p>除了后台进程检查Session是否失效外，当调用<code>request.getSession()</code>时也会检查该Session是否过期。值得注意的是，<code>request.getSession()</code>方法调用的
-StandardSession永远都会存在，即使与这个客户端关联的Session对象已经过期。如果过期，则又会重新创建一个全新的StandardSession对象，但是
-以前设置的Session值将会丢失。如果你取到了Session对象，但是通过<code>session.getAttribute</code>取不到前面设置的Session值，请不要奇怪，因为很可能已经失效了，
-请检查以下<manager pathname="" maxinactiveinterval="60">中<code>maxInactiveInterval</code>配置项的值，如果不想让Session过期则可以设置为-1。
-但是你要仔细评估一下，网站的访问量和设置的Session的大小，防止将你的Servlet容器内存撑爆。如果不想自动创建Session对象，也可以通过
-<code>request.getSession(bolean create)</code>方法来判断与该客户端关联的Session对象是否存在。</manager></p>
-<h1 id="3-Cookie安全问题"><a href="#3-Cookie安全问题" class="headerlink" title="3 Cookie安全问题"></a>3 Cookie安全问题</h1><p>Cookie通过把所有要保存的数据通过HTTP的头部从客户端传递到服务端，又从服务端传回到客户端，所有的数据都存储在客户端的浏览器里，所以这些Cookie
-数据可以被访问到，通过浏览器插件可以对Cookie进行修改等。  </p>
+<p>另外，在StandardManager的sessions集合中的StandardSession对象并不是永远保存的，否则Servlet容器的内存将容易被消耗尽，所以必须给每个Session对象定义一个有效时间，超过这个时间则Session对象将被清除。在Tomcat中这个有效时间是60s（maxInactiveInterval属性通知），超过60s该Session将会过期。检查每个Session是否失效是Tomcat的一个后台线程中完成的。  </p>
+<p>除了后台进程检查Session是否失效外，当调用<code>request.getSession()</code>时也会检查该Session是否过期。值得注意的是，<code>request.getSession()</code>方法调用的StandardSession永远都会存在，即使与这个客户端关联的Session对象已经过期。如果过期，则又会重新创建一个全新的StandardSession对象，但是以前设置的Session值将会丢失。如果你取到了Session对象，但是通过<code>session.getAttribute</code>取不到前面设置的Session值，请不要奇怪，因为很可能已经失效了，请检查以下<manager pathname="" maxinactiveinterval="60">中<code>maxInactiveInterval</code>配置项的值，如果不想让Session过期则可以设置为-1。但是你要仔细评估一下，网站的访问量和设置的Session的大小，防止将你的Servlet容器内存撑爆。如果不想自动创建Session对象，也可以通过<code>request.getSession(bolean create)</code>方法来判断与该客户端关联的Session对象是否存在。</manager></p>
+<h1 id="3-Cookie安全问题"><a href="#3-Cookie安全问题" class="headerlink" title="3 Cookie安全问题"></a>3 Cookie安全问题</h1><p>Cookie通过把所有要保存的数据通过HTTP的头部从客户端传递到服务端，又从服务端传回到客户端，所有的数据都存储在客户端的浏览器里，所以这些Cookie数据可以被访问到，通过浏览器插件可以对Cookie进行修改等。  </p>
 <p>相对而言Session的安全性要高很多，因为Session是将数据保存在服务端，只是通过Cookie传递一个SessionID而已，所以Session更适合存储用户隐私和重要的数据。</p>
 <h1 id="4-分布式Session框架"><a href="#4-分布式Session框架" class="headerlink" title="4 分布式Session框架"></a>4 分布式Session框架</h1><h2 id="4-1-Cookie存在哪些问题"><a href="#4-1-Cookie存在哪些问题" class="headerlink" title="4.1 Cookie存在哪些问题"></a>4.1 Cookie存在哪些问题</h2><ul>
 <li>客户端Cookie存储限制</li>
-<li>Cookie管理的混乱，每个应用系统都自己管理每个应用使用的Cookie会导致混乱，由于通常应用系统都在同一个于明霞，Cookie又有上面一条提到的限制，
-所以统一管理很容易出现Cookie超出限制的情况。</li>
-<li>不安全，虽然通过设置HttpOnly属性防止一些私密Cookie被客户端访问，但是仍然不能保证Cookie无法被篡改。为了保证Cookie的私密性通常会对Cookie
-进行加密，但是维护这个加密Key也是一件麻烦的事情，无法保证定期更新加密Key也是会带来安全性问题的一个重要因素。</li>
+<li>Cookie管理的混乱，每个应用系统都自己管理每个应用使用的Cookie会导致混乱，由于通常应用系统都在同一个域名下，Cookie又有上面一条提到的限制，所以统一管理很容易出现Cookie超出限制的情况。</li>
+<li>不安全，虽然通过设置HttpOnly属性防止一些私密Cookie被客户端访问，但是仍然不能保证Cookie无法被篡改。为了保证Cookie的私密性通常会对Cookie进行加密，但是维护这个加密Key也是一件麻烦的事情，无法保证定期更新加密Key也是会带来安全性问题的一个重要因素。</li>
 </ul>
 <h2 id="4-2-Cookie-Session可以解决哪些问题"><a href="#4-2-Cookie-Session可以解决哪些问题" class="headerlink" title="4.2 Cookie+Session可以解决哪些问题"></a>4.2 Cookie+Session可以解决哪些问题</h2><p>下面是分布式Session框架可以解决的问题：</p>
 <ul>
@@ -1452,68 +1484,41 @@ StandardSession永远都会存在，即使与这个客户端关联的Session对�
 <li>Session框架的可扩展性，兼容更多的Session机制如wapSession。</li>
 <li>跨域名Session与Cookie如何共享的问题。现在同一个网站可能存在多个域名，如何将Session和Cookie在不同的域名之间共享是一个具有挑战性的问题。</li>
 </ul>
-<h2 id="4-3-总体实现思路"><a href="#4-3-总体实现思路" class="headerlink" title="4.3 总体实现思路"></a>4.3 总体实现思路</h2><p>为了达成上面所说的几个目标，我们需要一个服务订阅服务器，在应用启动时可以从这个订阅服务器订阅这个应用需要的可写Session项和可写Cookie项，
-这些配置的Session和Cookie可以限制这个应用能够使用哪些Session和Cookie，甚至可以通知Session和Cookie可读或可写。这样可以精确地控制哪些应用
-可以操作哪些Session和Cookie，可以有效控制Session的安全性和Cookie的数量。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-4.png" alt="" title="Session框架架构图"><br>如Session的配置项可以为如下形式：
+<h2 id="4-3-总体实现思路"><a href="#4-3-总体实现思路" class="headerlink" title="4.3 总体实现思路"></a>4.3 总体实现思路</h2><p>为了达成上面所说的几个目标，我们需要一个服务订阅服务器，在应用启动时可以从这个订阅服务器订阅这个应用需要的可写Session项和可写Cookie项，这些配置的Session和Cookie可以限制这个应用能够使用哪些Session和Cookie，甚至可以通知Session和Cookie可读或可写。这样可以精确地控制哪些应用可以操作哪些Session和Cookie，可以有效控制Session的安全性和Cookie的数量。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-4.png" alt="" title="Session框架架构图"><br>如Session的配置项可以为如下形式：
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">sessions</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">session</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>sessionID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">cookiekey</span>&gt;</span>sessionID<span class="tag">&lt;/<span class="name">cookiekey</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">lifeCycle</span>&gt;</span>9000<span class="tag">&lt;/<span class="name">lifeCycle</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">base64</span>&gt;</span>true<span class="tag">&lt;/<span class="name">base64</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">session</span>&gt;</span></div><div class="line">    .......</div><div class="line"><span class="tag">&lt;/<span class="name">sessions</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>Cookie的配置可以为如下形式：
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">cookies</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">cookie</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>cookie<span class="tag">&lt;/<span class="name">key</span>&gt;</span>    </div><div class="line">        <span class="tag">&lt;<span class="name">lifeCycle</span>&gt;</span>10000<span class="tag">&lt;/<span class="name">lifeCycle</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">type</span>&gt;</span>1<span class="tag">&lt;/<span class="name">type</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">path</span>&gt;</span>/wp<span class="tag">&lt;/<span class="name">path</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">domain</span>&gt;</span>liwenguang.website<span class="tag">&lt;/<span class="name">domain</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">decrypt</span>&gt;</span>false<span class="tag">&lt;/<span class="name">decrypt</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">httpOnly</span>&gt;</span>false<span class="tag">&lt;/<span class="name">httpOnly</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">cookie</span>&gt;</span></div><div class="line">    ......</div><div class="line"><span class="tag">&lt;/<span class="name">cookies</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>统一通过订阅服务器推送配置可以有效地几种管理资源，所以可以省去每个应用都来配置Cookie，简化Cookie的管理。如果应用要使用一个新增的Cookie，
-则可以通过一个统一的平台来申请，申请通过才将这个配置项增加到订阅服务器。如果是一个所有应用都要使用的全局Cookie，那么只需要将这个Cookie通过
-订阅服务器统一推送过去就行了，省去了要在每个应用中手动增加Cookie的配置。  </p>
+<p>统一通过订阅服务器推送配置可以有效地几种管理资源，所以可以省去每个应用都来配置Cookie，简化Cookie的管理。如果应用要使用一个新增的Cookie，则可以通过一个统一的平台来申请，申请通过才将这个配置项增加到订阅服务器。如果是一个所有应用都要使用的全局Cookie，那么只需要将这个Cookie通过订阅服务器统一推送过去就行了，省去了要在每个应用中手动增加Cookie的配置。  </p>
 <p>关于这个订阅服务器现在有很多开源的配置服务器，如ZooKeeper集群管理服务器，可以统一管理所有服务器的配置文件。  </p>
-<p>由于应用是一个集群，所以不可能将创建的Session都保存在每台应用服务器的内存中，因为如果每台服务器有几十万的访问用户，那么服务器的内存可能不够用，
-即使内存够用，这些Session也无法同步到这个应用的所有服务器中。所以要共享这些Session必须将它们存储在一个分布式缓存中，可以随时写入和读取，
-而且性能要很好才能满足要求。当前能满足这个要求的系统有很多，如MemCache或者淘宝的开源分布式缓存系统Tair都是很好的选择。  </p>
+<p>由于应用是一个集群，所以不可能将创建的Session都保存在每台应用服务器的内存中，因为如果每台服务器有几十万的访问用户，那么服务器的内存可能不够用，即使内存够用，这些Session也无法同步到这个应用的所有服务器中。所以要共享这些Session必须将它们存储在一个分布式缓存中，可以随时写入和读取，而且性能要很好才能满足要求。当前能满足这个要求的系统有很多，如MemCache或者淘宝的开源分布式缓存系统Tair都是很好的选择。  </p>
 <p>解决了配置和存储问题，下面看一下如何存取Session和Cookie。  </p>
-<p>既然是一个分布式Session的处理框架，必然会重新实现HttpSession的操作接口，使得应用操作Session的对象都是我们实现的InnerHttpSession对象，
-这个操作必须在进入应用之前完成，所以可以配置一个filter拦截用户的请求。  </p>
+<p>既然是一个分布式Session的处理框架，必然会重新实现HttpSession的操作接口，使得应用操作Session的对象都是我们实现的InnerHttpSession对象，这个操作必须在进入应用之前完成，所以可以配置一个filter拦截用户的请求。  </p>
 <p>先看一下如何封装HttpSession对象和拦截请求，如下时序图： 
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-5.png" alt="" title="HttpSession拦截请求时序图"><br>我们可以在应用的web.xml中配置一个SessionFilter，用于在请求到达MVC框架之前封装HttpServletRequest和HttpServletResponse对象，并创建
-我们自己的InnerHttpSession对象，把它设置到request和response对象中。这样应用系统通过request.getHttpSession()返回的就是我们创建的
-InnerHttpSession对象了，我们可以拦截response的addCookies设置的Cookie。  </p>
-<p>在时序图中，应用创建的所有Session对象都会保存在InnerHttpSession对象中，当用户的这次访问请求完成时，Session框架将会把这个InnerHttpSession
-的所有内容再更新到分布式缓存中，以便于这个用户通过其它服务器再次访问这个应用系统。另外，为了保证一些应用对Session稳定性的特殊要求，可以将一些
-非常关键的Session再存储到Cookie中，如当分布式缓存存在问题时，可以将部分Session存储到Cookie中，这样即使分布式缓存出现问题也不会影响关键业务的正常运行。</p>
-<h2 id="4-4-增加Session跨域实现"><a href="#4-4-增加Session跨域实现" class="headerlink" title="4.4 增加Session跨域实现"></a>4.4 增加Session跨域实现</h2><p>还有一个非常重要的问题就是如何处理跨域名来共享Cookie的问题。我们知道Cookie是有域名限制的，也就是在一个域名下的Cookie不能被另一个域名访问，
-所以如果在一个域名下已经登录成功，如何访问到另外一个域名的应用且保证登录状态仍然有效，对这个问题大型网站应该经常会遇到。如何解决这个问题呢？
-下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则302重定向跳转到中转服务器C（C你可以理解成专门取Session的
-域），服务器C获得了session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。（如今，大部分都是实现的单点登录SSO，来解决
-子系统间的跨域问题，让子系统共享顶级域名的Session、Cookie等）。</p>
-<h1 id="5-Cookie压缩"><a href="#5-Cookie压缩" class="headerlink" title="5 Cookie压缩"></a>5 Cookie压缩</h1><p>Cookie在HTTP的头部，所以通常的gzip和deflate针对HTTP Body的压缩不能压缩Cookie，如果Cookie的量非常大，则可以考虑将Cookie也做压缩，
-压缩方式是将Cookie的多个k/v对看成普通的文本，做文本压缩。压缩算法同样可以使用gzip和deflate算法，但是需要注意的一点是，根据Cookie的规范，
-在Cookie中不能包含控制字符，仅能包含ASCII码为34~126的可见字符。所以要将压缩后的结果再进行转码，可以进行Base32或者Base64编码。
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-5.png" alt="" title="HttpSession拦截请求时序图"><br>我们可以在应用的web.xml中配置一个SessionFilter，用于在请求到达MVC框架之前封装HttpServletRequest和HttpServletResponse对象，并创建我们自己的InnerHttpSession对象，把它设置到request和response对象中。这样应用系统通过request.getHttpSession()返回的就是我们创建的InnerHttpSession对象了，我们可以拦截response的addCookies设置的Cookie。  </p>
+<p>在时序图中，应用创建的所有Session对象都会保存在InnerHttpSession对象中，当用户的这次访问请求完成时，Session框架将会把这个InnerHttpSession的所有内容再更新到分布式缓存中，以便于这个用户通过其它服务器再次访问这个应用系统。另外，为了保证一些应用对Session稳定性的特殊要求，可以将一些非常关键的Session再存储到Cookie中，如当分布式缓存存在问题时，可以将部分Session存储到Cookie中，这样即使分布式缓存出现问题也不会影响关键业务的正常运行。</p>
+<h2 id="4-4-增加Session跨域实现"><a href="#4-4-增加Session跨域实现" class="headerlink" title="4.4 增加Session跨域实现"></a>4.4 增加Session跨域实现</h2><p>还有一个非常重要的问题就是如何处理跨域名来共享Cookie的问题。我们知道Cookie是有域名限制的，也就是在一个域名下的Cookie不能被另一个域名访问，所以如果在一个域名下已经登录成功，如何访问到另外一个域名的应用且保证登录状态仍然有效，对这个问题大型网站应该经常会遇到。如何解决这个问题呢？
+下面介绍一种处理方式，流程图如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-6.png" alt="" title="跨域名同步session"><br>访问域名A时服务器A获得了session，用户访问域名B时，如果发现服务器B没有session，则302重定向跳转到中转服务器C（C你可以理解成专门取Session的域），服务器C获得了session后，则再进行302重定向到A服务器，写入session，从而完成了session跨域。（如今，大部分都是实现的单点登录SSO，来解决子系统间的跨域问题，让子系统共享顶级域名的Session、Cookie等）。</p>
+<h1 id="5-Cookie压缩"><a href="#5-Cookie压缩" class="headerlink" title="5 Cookie压缩"></a>5 Cookie压缩</h1><p>Cookie在HTTP的头部，所以通常的gzip和deflate针对HTTP Body的压缩不能压缩Cookie，如果Cookie的量非常大，则可以考虑将Cookie也做压缩，压缩方式是将Cookie的多个k/v对看成普通的文本，做文本压缩。压缩算法同样可以使用gzip和deflate算法，但是需要注意的一点是，根据Cookie的规范，在Cookie中不能包含控制字符，仅能包含ASCII码为34~126的可见字符。所以要将压缩后的结果再进行转码，可以进行Base32或者Base64编码。
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 使用DeflaterOutputStream压缩后再用BASE64编码</span></div><div class="line">Cookie c = getCookieObject(<span class="string">""</span>);</div><div class="line">HttpServletResponse res = getResponse();</div><div class="line">ByteArrayOutputStream bos  = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">DeflaterOutputStream dos = <span class="keyword">new</span> DeflaterOutputStream(bos);</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    dos.write(c.getValue().getBytes());</div><div class="line">    dos.close();</div><div class="line">    System.out.println(<span class="string">"before compress length:"</span> + c.getValue().length());</div><div class="line">    String compress = <span class="keyword">new</span> sun.misc.BASE64Encoder().encode(bos.toByteArray());</div><div class="line">    res.addCookie(<span class="keyword">new</span> Cookie(<span class="string">"compress"</span>, compress));</div><div class="line">    System.out.println(<span class="string">"after compress length:"</span> + compress.getBytes().length);</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div><div class="line"><span class="comment">// 使用BASE64解码后再用InflaterInputStream解压</span></div><div class="line">ByteArrayOutputStream out = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">byte</span>[] compress = <span class="keyword">new</span> sun.misc.BASE64Decoder().decodeBuffer(<span class="keyword">new</span> String(c.getValue().getBytes()));</div><div class="line">    ByteArrayInputStream bis = <span class="keyword">new</span> ByteArrayInputStream(compress);</div><div class="line">    InflaterInputStream inflater = <span class="keyword">new</span> InflaterInputStream(bis);</div><div class="line">    <span class="keyword">byte</span>[] b = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line">    <span class="keyword">int</span> count;</div><div class="line">    <span class="keyword">while</span> ((count = inflater.read(b)) &gt;= <span class="number">0</span>) &#123;</div><div class="line">        out.write(b, <span class="number">0</span>, count);</div><div class="line">    &#125;</div><div class="line">    inflater.close();</div><div class="line">    System.out.println(out.toByteArray());</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h1 id="6-表单重复提交问题"><a href="#6-表单重复提交问题" class="headerlink" title="6 表单重复提交问题"></a>6 表单重复提交问题</h1><p>要防止表单重复提交，就要标识用户的每一次访问请求，使得每一次访问对服务端来说都是唯一确定的。为了标识用户的每次访问请求，可以在用户请求一个表单域时
-增加一个隐藏表单项，这个表单项每次都是唯一的token，如：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-7.png" alt="" title="表单重复提交"><br>当用户第一次请求表单页面时生成唯一的token，并存储到用户Session中，当用户第二次请求表单页面时再生成唯一的token，覆盖Session，这样就能保证
-每次都只能通过请求表单页面来提交表单。</p>
-<h1 id="7-多终端Session统一"><a href="#7-多终端Session统一" class="headerlink" title="7 多终端Session统一"></a>7 多终端Session统一</h1><p>当前大部分网站都有了无线端，对无线端的Cookie如何处理也是很多程序员必须考虑的问题。<br>在无线端发展初期，后端的服务系统未必和PC的服务系统是统一的，这样就涉及在一端调用多个系统时如何做到服务端Session共享的问题了。有两个明显的例子：
-一个是在无线端可能会通过手机访问无线服务端系统，如果它们两个的登录系统没有统一的话，将会非常麻烦，可能会出现二次登录的情况；另一个是在手机上
-登录以后再在PC上同样访问服务端数据，Session能否共享就决定了客户端是否要再次登录。  </p>
+<h1 id="6-表单重复提交问题"><a href="#6-表单重复提交问题" class="headerlink" title="6 表单重复提交问题"></a>6 表单重复提交问题</h1><p>要防止表单重复提交，就要标识用户的每一次访问请求，使得每一次访问对服务端来说都是唯一确定的。为了标识用户的每次访问请求，可以在用户请求一个表单域时增加一个隐藏表单项，这个表单项每次都是唯一的token，如：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-7.png" alt="" title="表单重复提交"><br>当用户第一次请求表单页面时生成唯一的token，并存储到用户Session中，当用户第二次请求表单页面时再生成唯一的token，覆盖Session，这样就能保证每次都只能通过请求表单页面来提交表单。</p>
+<h1 id="7-多终端Session统一"><a href="#7-多终端Session统一" class="headerlink" title="7 多终端Session统一"></a>7 多终端Session统一</h1><p>当前大部分网站都有了无线端，对无线端的Cookie如何处理也是很多程序员必须考虑的问题。<br>在无线端发展初期，后端的服务系统未必和PC的服务系统是统一的，这样就涉及在一端调用多个系统时如何做到服务端Session共享的问题了。有两个明显的例子：<br>一个是在无线端可能会通过手机访问无线服务端系统，如果它们两个的登录系统没有统一的话，将会非常麻烦，可能会出现二次登录的情况；<br>另一个是在手机上登录以后再在PC上同样访问服务端数据，Session能否共享就决定了客户端是否要再次登录。  </p>
 <p>针对这两种情况，目前都有理由的解决方案。  </p>
 <ul>
 <li>多端共享Session
-多端共享Session必须要做的工作是不管是无线端还是PC端，后端的服务系统必须统一会话架构，也就是两边的登录系统必须要基于一致的会员数据结构、Cookie
-与Session的统一。也就是不管是PC端登录还是无线端登录，后面对应的数据结构和存储要统一，写到客户端的Cookie也必须一样，这是前提条件。  </li>
+多端共享Session必须要做的工作是不管是无线端还是PC端，后端的服务系统必须统一会话架构，也就是两边的登录系统必须要基于一致的会员数据结构、Cookie与Session的统一。也就是不管是PC端登录还是无线端登录，后面对应的数据结构和存储要统一，写到客户端的Cookie也必须一样，这是前提条件。  </li>
 </ul>
-<p>那么如何做到这一点？就是要按照我们在前面所说的实现分布式的Session框架。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-8.png" alt="" title="服务端统一Session示意图"><br>上面服务端统一Session后，在同一个终端上不管是访问哪个服务端都能做到登录状态统一。例如不管是Native还是内嵌Webview，都可以拿统一的Session ID
-去服务端验证登录状态。</p>
+<p>那么如何做到这一点？就是要按照我们在前面所说的实现分布式的Session框架。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-8.png" alt="" title="服务端统一Session示意图"><br>上面服务端统一Session后，在同一个终端上不管是访问哪个服务端都能做到登录状态统一。例如不管是Native还是内嵌Webview，都可以拿统一的Session ID去服务端验证登录状态。</p>
 <ul>
 <li>多终端登录
 目前很多网站都会出现无线端和PC端多端登录的情况，例如可以通过扫码登录等。这些是如何实现的呢？<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-10-1-9.png" alt="" title="多终端登录示意图"><br>这里手机端在扫码之前必须是已经登录的状态，因为这样才能获取到到底是谁将要登录的信息，同时扫码的二维码也带有一个特定的标识，标识是这个客户端
-通过手机端登陆了。当手机端扫码成功后，会在服务端设置这个二维码对应的标识为已经登录成功，这时PC客户端会通过将“心跳”请求发送到服务端，来验证是否
-已经登录成功，这样就称为一种便捷的登录方式。（博主以微信扫码登录为例，每次微信PC端的二维码都是带有一个唯一的标识，当你用登录的手机微信扫码
-之后，手机将你已登录的微信信息获取，并发送给微信服务端，微信服务端将二维码的唯一标识以及手机微信的账号信息绑定，发送给微信PC端，其中，微信
-PC二维码客户端类似Watch了某个ZK的节点进行监听，这样避免客户端每隔一段时间发送心跳）。</li>
+通过手机端登陆了。当手机端扫码成功后，会在服务端设置这个二维码对应的标识为已经登录成功，这时PC客户端会通过将“心跳”请求发送到服务端，来验证是否已经登录成功，这样就称为一种便捷的登录方式。（博主以微信扫码登录为例，每次微信PC端的二维码都是带有一个唯一的标识，当你用登录的手机微信扫码之后，手机将你已登录的微信信息获取，并发送给微信服务端，微信服务端将二维码的唯一标识以及手机微信的账号信息绑定，发送给微信PC端，其中，微信PC二维码客户端类似Watch了某个ZK的节点进行监听，这样避免客户端每隔一段时间发送心跳）。</li>
 </ul>
-<h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8 总结"></a>8 总结</h1><p>Cookie和Session都是为了保持用户访问的连续状态，之所以要保持这种状态，一方面是为了方便业务实现，另一方面就是简化服务端的程序设计，提高访问
-性能，但是也带来了安全问题、应用的分布式部署带来的Session的同步问题以及跨域名Session的同步问题（通过单点登录避免）。</p>
+<h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8 总结"></a>8 总结</h1><p>Cookie和Session都是为了保持用户访问的连续状态，之所以要保持这种状态，一方面是为了方便业务实现，另一方面就是简化服务端的程序设计，提高访问性能，但是也带来了安全问题、应用的分布式部署带来的Session的同步问题以及跨域名Session的同步问题（通过单点登录避免）。</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;本章概要：&lt;br&gt;当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应
-如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用C
+      &lt;p&gt;本章概要：&lt;br&gt;当我们的一个应用系统有几百台服务器时，如何解决Session在多台服务器之间共享的问题？它们还有一些安全问题，如Cookie被盗、Cookie伪造等问题应如何避免？Session与Cookie的作用都是为了保持访问用户与后端服务器的交互状态。例如，使用Co
     
     </summary>
     
@@ -2224,7 +2229,7 @@ request.setCharacterEncoding(charset)来设置。<br>注意：要在第一次调
 的值，并通过Header的Content-Type返回客户端，浏览器接收到返回的Socket流时将通过Content-Type的charset来解码。如果返回的HTTP Header中Content-Type
 没有设置charset，那么浏览器将根据浏览器的<mete http-equiv="Content-Type" content="text/html; charset=GBK">中的charset来解码，
 如果浏览器中没有定义，则使用默认的编码。<br>连接JDBC也是指定一致的编码：<code>jdbc:mysql://localhost:3306?DB?useUnicode=true&amp;characterEncoding=GBK</code>。</mete></p>
-<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></div></pre></td></tr></table></figure>
 <p>而script.js脚本中，有如下代码：
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.write(<span class="string">"中国"</span>);</div></pre></td></tr></table></figure></p>
 <p>如果引入的时候没有设置charset，浏览器就会以当前页面的默认字符集解析这个JS文件。如果一致那就没问题，但是如果页面和js字符编码不一致，就会变成乱码。</p>
@@ -2264,119 +2269,6 @@ UTF-8，而Java用GBK去解码显然不对。<br>解决方式是encodeURICompone
     <summary type="html">
     
       &lt;h1 id=&quot;1-几种常见的编码格式&quot;&gt;&lt;a href=&quot;#1-几种常见的编码格式&quot; class=&quot;headerlink&quot; title=&quot;1. 几种常见的编码格式&quot;&gt;&lt;/a&gt;1. 几种常见的编码格式&lt;/h1&gt;&lt;h2 id=&quot;1-为什么需要编码？&quot;&gt;&lt;a href=&quot;#1-为什么
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.cn/categories/readNote/deepJavaWeb/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>二、课外学习NIO</title>
-    <link href="http://www.liwenguang.cn/2017/08/04/deepknowjavaweb/2_%E8%AF%BE%E5%A4%96%E5%AD%A6%E4%B9%A0NIO.html/"/>
-    <id>http://www.liwenguang.cn/2017/08/04/deepknowjavaweb/2_课外学习NIO.html/</id>
-    <published>2017-08-04T14:56:30.000Z</published>
-    <updated>2017-08-07T13:21:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-跑个Channel实例"><a href="#1-跑个Channel实例" class="headerlink" title="1.跑个Channel实例"></a>1.跑个Channel实例</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFileChannel</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    <span class="comment">// 源目标，春运的100W人</span></div><div class="line">    RandomAccessFile aFile=<span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>);</div><div class="line">    <span class="comment">// 获得源目标的运载交通工具，例如动车，同时动车的站台也站了100W人。</span></div><div class="line">    FileChannel inChannel=aFile.getChannel();</div><div class="line"></div><div class="line">    <span class="comment">// 分配buffer，这次春运，这辆D8888，每次跑两个字节单位的座位</span></div><div class="line">    ByteBuffer buf=ByteBuffer.allocate(<span class="number">2</span>);</div><div class="line">    <span class="comment">// 把动车的站台人和座位连接在一起，得到一个返回值，即该动车和两个字节单位座位的车票信息。</span></div><div class="line">    <span class="keyword">int</span> bytesRead=inChannel.read(buf);</div><div class="line">    <span class="comment">// 车票如果是-1说明车票没了，载完了，动车就去保养了。</span></div><div class="line">    <span class="keyword">while</span>(bytesRead!=-<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 座位的保险带绑上，人不能下座位或者上座位了，只能被车站人员检查</span></div><div class="line">        buf.flip();</div><div class="line">        <span class="comment">// 车站人员检查座位是否有对应的人的信息</span></div><div class="line">        <span class="keyword">while</span>(buf.hasRemaining())</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 打印出以两个字节为单位的座位的人的信息</span></div><div class="line">            System.out.print((<span class="keyword">char</span>)buf.get());</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 座位保险带放开，人下车，座位就被清空</span></div><div class="line">        buf.clear();</div><div class="line">        <span class="comment">// 动车继续拉两个字节座位的人，又得到了座位的车票信息</span></div><div class="line">        bytesRead=inChannel.read(buf);</div><div class="line">    &#125;</div><div class="line">    aFile.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其中的Buffer作为一个顶层抽象类，下面有不止八个子类，对应八种数据类型以及其他一些类型。
-当Buffer，即座位在调用flip()方法之前，是写模式，即保险带是放开的，想上就上想下就下。<br>切记：Buffer只是在一个改变capacity、position、limit三个值的方法（还有mark，用于临时标记position，通常用于
-发送某个指定位置之后，返回到发送指定位置之前的position，因为内部提供了方法用于这个需求）。</p>
-<h2 id="1-写模式"><a href="#1-写模式" class="headerlink" title="1. 写模式"></a>1. 写模式</h2><ul>
-<li>capacity：固定的大小。</li>
-<li>position：初始值为0，写一单位数据就移动下一个可插入数据的单位，最大为capacity-1。</li>
-<li>limit：额外的变量，用于读写分离。此时limit=capacity，写入的最大值。  </li>
-</ul>
-<h2 id="2-读模式"><a href="#2-读模式" class="headerlink" title="2. 读模式"></a>2. 读模式</h2><ul>
-<li>capacity：固定的大小。</li>
-<li>position：重置为0，读一单位数据就移动下一个可插入数据的单位。</li>
-<li>limit：重置为position，你只能读你写了多少单位的数据。（flip()方法其实，就是将limit重置为position，position重置为0）</li>
-</ul>
-<h1 id="2-Buffer读写数据以及常用方法"><a href="#2-Buffer读写数据以及常用方法" class="headerlink" title="2. Buffer读写数据以及常用方法"></a>2. Buffer读写数据以及常用方法</h1><p>除了通过Channel写入数据，还可以使用Buffer.put()，写入执行某个位置。<br>也可以通过Buffer.get()，读取某个位置的数据。  </p>
-<h2 id="1-Buffer-clear"><a href="#1-Buffer-clear" class="headerlink" title="1. Buffer.clear()"></a>1. Buffer.clear()</h2><p>limit设置为capacity，position重置为0。  </p>
-<h2 id="2-Buffer-compact"><a href="#2-Buffer-compact" class="headerlink" title="2. Buffer.compact()"></a>2. <a href="http://zachary-guo.iteye.com/blog/1457542" target="_blank" rel="external">Buffer.compact()</a></h2><p>释放缓存区无用数据。当源目标为Mellow，我们已经读取了Me，现在缓存区还是Mellow，但是Me是无用的，这时候就可以调用该方法。  你可以使用
-Buffer.put()以及Buffer.get()方法达到这个效果。<br>底层其实是将position-limit数据复制到开始的位置，并重置position = limit - position。<br>WHY？这个position是什么意思？其实原因在于这个方法用于：我读了Me，position为2，此时我想开始写数据，但是我以后会在某个时间点回来继续读，
-则position就变成4，以后不管你写了多少，都正好不会覆盖未读数据。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-1.png" alt="Buffer.compact()"></p>
-<h2 id="3-Buffer-rewind"><a href="#3-Buffer-rewind" class="headerlink" title="3. Buffer.rewind()"></a>3. Buffer.rewind()</h2><p>用于position重置为0，即重新开始写，或者读。</p>
-<h2 id="4-Buffer-mark-和Buffer-reset"><a href="#4-Buffer-mark-和Buffer-reset" class="headerlink" title="4. Buffer.mark()和Buffer.reset()"></a>4. Buffer.mark()和Buffer.reset()</h2><p>mark默认为-1。
-mark()：将当前position赋值给mark变量。<br>reset()：将mark赋值给position变量。</p>
-<h2 id="5-Buffer-equals-和Buffer-compareTo"><a href="#5-Buffer-equals-和Buffer-compareTo" class="headerlink" title="5. Buffer.equals()和Buffer.compareTo()"></a>5. Buffer.equals()和Buffer.compareTo()</h2><p>相等的条件：类型相同、剩余的单位数量相同、剩余的单位类型相同。<br>比较的条件：第一个不相同的元素的大小，如果都相同，则看数量的多少。</p>
-<h1 id="3-scatter与gather"><a href="#3-scatter与gather" class="headerlink" title="3. scatter与gather"></a>3. scatter与gather</h1><h2 id="1-scatter"><a href="#1-scatter" class="headerlink" title="1. scatter"></a>1. scatter</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ByteBuffer header = ByteBuffer.allocate(<span class="number">128</span>);</div><div class="line">ByteBuffer body = ByteBuffer.allocate(<span class="number">1024</span>);</div><div class="line">ByteBuffer[] byteBuffers = &#123;header, body&#125;;</div><div class="line">FileChannel channel = <span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>).getChannel();</div><div class="line">channel.read(byteBuffers);</div></pre></td></tr></table></figure>
-<p>不适用与动态消息，第一个Buffer被填充完毕之后才会填充第二个。</p>
-<h2 id="2-gather"><a href="#2-gather" class="headerlink" title="2. gather"></a>2. gather</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ByteBuffer header = ByteBuffer.allocate(<span class="number">128</span>);</div><div class="line">ByteBuffer body = ByteBuffer.allocate(<span class="number">1024</span>);</div><div class="line">ByteBuffer[] buffers = &#123;header, body&#125;;</div><div class="line">FileChannel channel = <span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>,<span class="string">"rw"</span>).getChannel();</div><div class="line">channel.write(buffers);</div></pre></td></tr></table></figure>
-<p>只会有position-limit的数据会被写入。</p>
-<h1 id="4-Channel之间进行数据传输"><a href="#4-Channel之间进行数据传输" class="headerlink" title="4. Channel之间进行数据传输"></a>4. Channel之间进行数据传输</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">RandomAccessFile sourceFile = <span class="keyword">new</span> RandomAccessFile(<span class="string">"SourceData.txt"</span>, <span class="string">"rw"</span>);</div><div class="line">FileChannel sourceChannel = sourceFile.getChannel();</div><div class="line">RandomAccessFile targetFile = <span class="keyword">new</span> RandomAccessFile(<span class="string">"TargetData.txt"</span>, <span class="string">"rw"</span>);</div><div class="line">FileChannel targetChannel = targetFile.getChannel();</div><div class="line"><span class="keyword">long</span> position = <span class="number">0</span>;</div><div class="line"><span class="keyword">long</span> count = sourceChannel.size();</div><div class="line">targetChannel.transferFrom(sourceChannel, position, count);</div></pre></td></tr></table></figure>
-<p>还有一个Channel.transferTo()方法，和上面的方法相反的作用。<br>注意：目标文件如果本来大于源文件，目标文件只会被覆盖源文件要传输的数据，剩余的数据还会存在。
-如果count传入的时候实际大于size，则被当做count，如果小于size，则会按小于的值覆盖。查看源码即可知。</p>
-<h1 id="5-Selector"><a href="#5-Selector" class="headerlink" title="5. Selector"></a>5. Selector</h1><h2 id="1-为什么使用Selector？"><a href="#1-为什么使用Selector？" class="headerlink" title="1. 为什么使用Selector？"></a>1. 为什么使用Selector？</h2><p>Selector是Java NIO中能够检测一到多个NIO通道，并能够知晓通道是否为诸如读写事件做好准备的组件。
-这样一个单独的线程可以管理多个Channel，从而管理多个网络连接。<br>可以使用一个线程处理所有的通道，而对于操作系统来说，线程之间上下文切换的开销很大，Selector则是
-可以处理多个Channel。</p>
-<h2 id="2-Selector使用"><a href="#2-Selector使用" class="headerlink" title="2. Selector使用"></a>2. Selector使用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 创建Seletor</span></div><div class="line">Selector selector = Selector.open();</div><div class="line"><span class="comment">// channel注册到selector</span></div><div class="line"><span class="comment">// 继承自AbstractSelectableChannel的方法</span></div><div class="line">ServerSocketChannel channel = ServerSocketChannel.open();</div><div class="line">channel.configureBlocking(<span class="keyword">false</span>);</div><div class="line">SelectionKey key = channel.register(selector, SelectionKey.OP_READ);</div></pre></td></tr></table></figure>
-<p>与Selector一起使用时，Channel必须处于费阻塞模式下，而FileChannel只能是阻塞模式，套接字可以切换。<br>监听的第二个参数是不同类型的事件：</p>
-<ul>
-<li>Connect：SelectionKey.OP_CONNECT</li>
-<li>Accept：SelectionKey.OP_ACCEPT</li>
-<li>Read：SelectionKey.OP_READ</li>
-<li>Write：SelectionKey.OP_WRITE<br>监听多个事件：<code>第二个参数输入：SelectionKey.OP_CONNECT | SelectionKey.OP_CONNECT</code></li>
-</ul>
-<h2 id="3-SelectionKey"><a href="#3-SelectionKey" class="headerlink" title="3. SelectionKey"></a>3. SelectionKey</h2><h3 id="1-interset属性"><a href="#1-interset属性" class="headerlink" title="1. interset属性"></a>1. interset属性</h3><p>其中包含了一些你感兴趣的属性，即注册的事件：
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> interestSet = selectionKey.interestOps();</div><div class="line"><span class="keyword">boolean</span> isInterestedInAccept  = (interestSet &amp; SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT;</div><div class="line"><span class="keyword">boolean</span> isInterestedInConnect = (interestSet &amp; SelectionKey.OP_CONNECT) == SelectionKey.OP_CONNECT;</div><div class="line"><span class="keyword">boolean</span> isInterestedInRead    = (interestSet &amp; SelectionKey.OP_READ) == SelectionKey.OP_READ;</div><div class="line"><span class="keyword">boolean</span> isInterestedInWrite   = (interestSet &amp; SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE;</div></pre></td></tr></table></figure></p>
-<h3 id="2-ready属性"><a href="#2-ready属性" class="headerlink" title="2. ready属性"></a>2. ready属性</h3><p>ready集合是通道已经准备九局的操作的集合，你可以通过<code>int readySet = selectionKey.readyOps()</code>进行分别的访问，
-也可以使用：
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">selectionKey.isAcceptable();</div><div class="line">selectionKey.isConnectable();</div><div class="line">selectionKey.isReadable();</div><div class="line">selectionKey.isWritable();</div></pre></td></tr></table></figure></p>
-<h3 id="3-Selector获得Channel"><a href="#3-Selector获得Channel" class="headerlink" title="3. Selector获得Channel"></a>3. Selector获得Channel</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Channel  channel  = selectionKey.channel();</div><div class="line">Selector selector = selectionKey.selector();</div></pre></td></tr></table></figure>
-<h3 id="4-附加的对象（可选）"><a href="#4-附加的对象（可选）" class="headerlink" title="4. 附加的对象（可选）"></a>4. 附加的对象（可选）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">selectionKey.attach(theObject);</div><div class="line">Object attachedObj = selectionKey.attachment();</div></pre></td></tr></table></figure>
-<h3 id="5-通过Selector选择通道"><a href="#5-通过Selector选择通道" class="headerlink" title="5. 通过Selector选择通道"></a>5. 通过Selector选择通道</h3><ul>
-<li>int select()
-该方法会让Selector阻塞，直到至少有一个Channel在你注册的事件上就绪。</li>
-<li>int select(long timeout)
-设置最长阻塞的毫秒数</li>
-<li>int selectNow()
-直接返回，无论什么Channel。  </li>
-</ul>
-<p>返回值表示从上次select()方法调用之后，又有多少符合要求的Channel，不叠加。</p>
-<h3 id="6-wakeUp"><a href="#6-wakeUp" class="headerlink" title="6. wakeUp()"></a>6. wakeUp()</h3><p>某个线程调用select()让某个Selector阻塞后，使用该方法可以立马返回，如果没有阻塞，但是提前调用了wakeUp方法，
-那么下个调用select方法的线程会立即wake up。</p>
-<h3 id="7-遍历SelectorKeys"><a href="#7-遍历SelectorKeys" class="headerlink" title="7. 遍历SelectorKeys"></a>7. 遍历SelectorKeys</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Selector selector = Selector.open();</div><div class="line">Set selectionKeys = selector.selectedKeys();</div><div class="line">Iterator&lt;SelectionKey&gt; iterator = selectionKeys.iterator();</div><div class="line"><span class="keyword">while</span> (iterator.hasNext()) &#123;</div><div class="line">    SelectionKey key = iterator.next();</div><div class="line">    <span class="keyword">if</span> (key.isAcceptable()) &#123;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key.isConnectable()) &#123;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key.isReadable()) &#123;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key.isWritable()) &#123;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">    iterator.remove();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>需要手动将事件给移除。</p>
-<h2 id="4-完整的示例"><a href="#4-完整的示例" class="headerlink" title="4. 完整的示例"></a>4. 完整的示例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> port = <span class="number">9999</span>; </div><div class="line"></div><div class="line">ServerSocketChannel channel = ServerSocketChannel.open();</div><div class="line">channel.configureBlocking(<span class="keyword">false</span>); </div><div class="line"></div><div class="line">channel.socket().bind(<span class="keyword">new</span> InetSocketAddress(port)); </div><div class="line">Selector selector = Selector.open(); </div><div class="line">SelectionKey selKey = channel.register(selector, SelectionKey.OP_ACCEPT); </div><div class="line"></div><div class="line"><span class="keyword">int</span> interestSet = selKey.interestOps(); </div><div class="line"></div><div class="line"><span class="keyword">boolean</span> is_accept = (interestSet &amp; SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT;</div><div class="line"></div><div class="line">System.out.print(<span class="string">"isAccept:"</span>+ is_accept);</div></pre></td></tr></table></figure>
-<h1 id="6-FileChannel"><a href="#6-FileChannel" class="headerlink" title="6. FileChannel"></a>6. FileChannel</h1><p>文件通道，用于文件的读写，常用，由于FileChannel无法设置非阻塞模式，它总是运行在阻塞模式下。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"> String str = <span class="string">"112中国"</span>;</div><div class="line">RandomAccessFile file = <span class="keyword">new</span> RandomAccessFile(</div><div class="line">        <span class="string">"D:\\source\\eclipse\\liwen\\src\\main\\java\\liwen\\com\\io\\data.txt"</span>, <span class="string">"rw"</span>);</div><div class="line">FileChannel channel = file.getChannel();</div><div class="line">channel.position(channel.position() + file.length());  <span class="comment">//这行代码设置写入文件的最后</span></div><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">buffer.put(str.getBytes());</div><div class="line">buffer.flip();</div><div class="line"><span class="keyword">while</span> (buffer.hasRemaining()) &#123;</div><div class="line">    channel.write(buffer);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>还有用于截取通道的方法：truncate()，以字节为单位。还有一个force()方法，用于强行将数据写入磁盘，
-操作系统一般先将数据写入内存，再从内存写入磁盘，设置为True即可。</p>
-<h1 id="7-SocketChannel"><a href="#7-SocketChannel" class="headerlink" title="7. SocketChannel"></a>7. SocketChannel</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 客户端连接，最后使用close关闭。</span></div><div class="line">SocketChannel channel = SocketChannel.open();</div><div class="line">channel.connect(<span class="keyword">new</span> InetSocketAddress(<span class="number">8989</span>));</div><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">channel.read(buffer);</div><div class="line"><span class="comment">// 从buffer中写入数据到channel</span></div><div class="line">String data = <span class="string">"what ? "</span>;</div><div class="line">buffer.clear();</div><div class="line">buffer.put(data.getBytes());</div><div class="line">buffer.flip();</div><div class="line"><span class="keyword">while</span> (buffer.hasRemaining()) &#123;</div><div class="line">    channel.write(buffer);</div><div class="line">&#125;</div><div class="line">channel.close();</div></pre></td></tr></table></figure>
-<h1 id="8-ServerSocketChannel"><a href="#8-ServerSocketChannel" class="headerlink" title="8. ServerSocketChannel"></a>8. ServerSocketChannel</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 服务端开启监听：</span></div><div class="line">ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();</div><div class="line">serverSocketChannel.configureBlocking(<span class="keyword">false</span>);</div><div class="line">serverSocketChannel.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">8777</span>));</div><div class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</div><div class="line">    SocketChannel channel = serverSocketChannel.accept();</div><div class="line">    <span class="comment">// 如果设置为非阻塞，则上面的代码会立马返回，需要判空，是否有连接。</span></div><div class="line">    <span class="keyword">if</span> (channel != <span class="keyword">null</span>)&#123;</div><div class="line">        String ip = serverSocketChannel.socket().getInetAddress().getHostAddress();</div><div class="line">        System.out.println(ip);</div><div class="line">        <span class="comment">// 此时你得到了channel，就可以使用Buffer对数据进行读取操作了。</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="9-DatagramChannel"><a href="#9-DatagramChannel" class="headerlink" title="9. DatagramChannel"></a>9. DatagramChannel</h1><p>用于UDP数据的发送和接收
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 服务端</span></div><div class="line">DatagramChannel channel = DatagramChannel.open();</div><div class="line">channel.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">9999</span>));</div><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">channel.configureBlocking(<span class="keyword">false</span>);</div><div class="line">channel.receive(buffer); <span class="comment">//将得到的UDP数据写入buffer中</span></div></pre></td></tr></table></figure></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 客户端</span></div><div class="line">DatagramChannel channel = DatagramChannel.open();</div><div class="line">String data = <span class="string">"中国"</span>;</div><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">buffer.put(data.getBytes());</div><div class="line">buffer.flip();</div><div class="line">channel.send(buffer, <span class="keyword">new</span> InetSocketAddress(<span class="number">9999</span>));</div><div class="line">channel.close();</div></pre></td></tr></table></figure>
-<h1 id="10-Pipe"><a href="#10-Pipe" class="headerlink" title="10. Pipe"></a>10. Pipe</h1><p>作为两个线程之间的单向数据连接连接（Channel本身是双向，但是通过两个双向的管道一起组合实现成一个单向的，即Sink-&gt;Source）。
-<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-2.png" alt="Pipe">
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 向管道写数据</span></div><div class="line">Pipe pipe = Pipe.open();</div><div class="line">Pipe.SinkChannel sinkChannel = pipe.sink();</div><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">buffer.put(<span class="string">"中国人"</span>.getBytes());</div><div class="line">buffer.flip();</div><div class="line"><span class="keyword">while</span> (buffer.hasRemaining())&#123;</div><div class="line">    sinkChannel.write(buffer);</div><div class="line">&#125;</div><div class="line"><span class="comment">// 从管道读数据</span></div><div class="line">Pipe.SourceChannel sourceChannel = pipe.source();</div><div class="line">buffer.clear();</div><div class="line">sourceChannel.read(buffer);</div></pre></td></tr></table></figure></p>
-<h1 id="11-NIO和IO"><a href="#11-NIO和IO" class="headerlink" title="11. NIO和IO"></a>11. NIO和IO</h1><h2 id="1-面向流和面向缓冲"><a href="#1-面向流和面向缓冲" class="headerlink" title="1. 面向流和面向缓冲"></a>1. 面向流和面向缓冲</h2><p>IO面向流，每次从流中读取一个或多个字节，直至读取所有的字节，没有被缓存再任何地方，另外，也不能移动流中的数据，
-如果想移动，需要手动将流中的数据缓存在一个第三方缓冲区变量中。而NIO则本身就将数据放入到缓冲区中，可以在缓冲区
-中前后移动，只是加多了对缓冲区的判断以及更多数据进入缓冲区时，不能覆盖原来的数据。</p>
-<h2 id="2-阻塞和非阻塞"><a href="#2-阻塞和非阻塞" class="headerlink" title="2. 阻塞和非阻塞"></a>2. 阻塞和非阻塞</h2><p>本质区别，IO在读写直接阻塞。而NIO的读写的操作会直接返回值，进入下一步操作不会阻塞，并通过Selector来实现一个线程
-对多个Channel，即多个读写进行管理。</p>
-<h2 id="3-数据的处理"><a href="#3-数据的处理" class="headerlink" title="3. 数据的处理"></a>3. 数据的处理</h2><ul>
-<li><p>IO的设计逐字节读取数据。例如你正在处理基于行的文本数据流：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-3.png" alt="">  </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**data.txt</span></div><div class="line"><span class="comment"> * Name: xxx</span></div><div class="line"><span class="comment"> * Age: 18</span></div><div class="line"><span class="comment"> * Email: xxx@gmail.com</span></div><div class="line"><span class="comment"> * Phone: 135xxxxx</span></div><div class="line"><span class="comment"> */</span></div><div class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(<span class="keyword">new</span> FileInputStream(<span class="string">"data.txt"</span>)));</div><div class="line">String nameLine   = reader.readLine();</div><div class="line">String ageLine    = reader.readLine();</div><div class="line">String emailLine  = reader.readLine();</div><div class="line">String phoneLine  = reader.readLine();</div></pre></td></tr></table></figure>
-</li>
-<li><p>NIO直接读写：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-4.png" alt="">  </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</div><div class="line">FileChannel channel = <span class="keyword">new</span> RandomAccessFile(<span class="string">"data.txt"</span>, <span class="string">"rw"</span>).getChannel();</div><div class="line"><span class="keyword">int</span> bytesRead = channel.read(buffer);</div><div class="line"><span class="keyword">while</span> (bytesRead != -<span class="number">1</span>) &#123;</div><div class="line">    channel.read(buffer);</div><div class="line"></div><div class="line">&#125;</div><div class="line">channel.close();</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><ul>
-<li>NIO可让您只使用一个（或几个）单线程管理多个通道（网络连接或文件），但付出的代价是解析数据可能会比从一个阻塞流中读取数据更复杂。<br>如果需要管理同时打开的成千上万个连接，这些连接每次只是发送少量的数据，例如聊天服务器，实现NIO的服务器可能是一个优势。同样，
-如果你需要维持许多打开的连接到其他计算机上，如P2P网络中，使用一个单独的线程来管理你所有出站连接，可能是一个优势。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-5.png" alt=""></li>
-<li>如果你有少量的连接使用非常高的带宽，一次发送大量的数据，也许典型的IO服务器实现可能非常契合。下图说明了一个典型的IO服务器设计：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-2-2-6.png" alt=""></li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-跑个Channel实例&quot;&gt;&lt;a href=&quot;#1-跑个Channel实例&quot; class=&quot;headerlink&quot; title=&quot;1.跑个Channel实例&quot;&gt;&lt;/a&gt;1.跑个Channel实例&lt;/h1&gt;&lt;figure class=&quot;highlight java
     
     </summary>
     
