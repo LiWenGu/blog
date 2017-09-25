@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.liwenguang.cn/"/>
-  <updated>2017-09-24T16:00:00.000Z</updated>
+  <updated>2017-09-25T16:18:00.000Z</updated>
   <id>http://www.liwenguang.cn/</id>
   
   <author>
@@ -16,11 +16,60 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>二、Java并发机制的底层实现原理</title>
+    <link href="http://www.liwenguang.cn/2017/09/26/concurrent_art/2_Java%E5%B9%B6%E5%8F%91%E6%9C%BA%E5%88%B6%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.html/"/>
+    <id>http://www.liwenguang.cn/2017/09/26/concurrent_art/2_Java并发机制的底层实现原理.html/</id>
+    <published>2017-09-25T16:18:00.000Z</published>
+    <updated>2017-09-25T16:18:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-volatile-的应用"><a href="#1-volatile-的应用" class="headerlink" title="1 volatile 的应用"></a>1 volatile 的应用</h1><h2 id="1-1-volatile-的定义与实现原理"><a href="#1-1-volatile-的定义与实现原理" class="headerlink" title="1.1 volatile 的定义与实现原理"></a>1.1 volatile 的定义与实现原理</h2><p><code>volatile</code> 变量修饰的共享变量进行写操作的时候，会引发两件事情：</p>
+<ol>
+<li>将当前处理器缓存行（ <code>cache line</code> ）的数据写回到系统内存。</li>
+<li>这个写回内存的操作会使其它 <code>CPU</code> 里缓存了该内存地址的数据无效。</li>
+</ol>
+<p>为了提高处理速度，处理器不直接和内存进行通信，而是先将系统内存的数据读到内部缓存（L1，L2或其它，即一级缓存、二级缓存等）后再进行操作，
+但操作完全不知道何时会真正写到内存。而声明了 <code>volatile</code> 的变量进行写操作， <code>JVM</code> 就会向处理器发送一条 <code>Lock</code> 前缀的指令，
+将这个变量所在缓存行的数据写回到系统内存。但是，就算写回到内存，如果其它处理器缓存的值还是旧的，再执行计算操作就会有问题。所以，
+<strong>在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，
+当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，当处理器对这个数据进行修改操作的时候，
+会重新从系统内存中把数据读到处理器缓存里</strong>。</p>
+<h2 id="1-2-volatile-的使用优化"><a href="#1-2-volatile-的使用优化" class="headerlink" title="1.2 volatile 的使用优化"></a>1.2 volatile 的使用优化</h2><p>在 <code>JDK 1.7</code> 中的 <code>LinkedTransferQueue</code> 使用 <code>volatile</code> 变量时，用一种追加字节的方式来优化队列出队和入队的性能，即将共享变量追加到 64 字节。
+一个对象的引用占用 4 个字节，追加 15 个变量（共占 60 个字节），一共 64 个字节。<strong>这样 <code>CPU</code> 中缓存行中，最多只有一个队列，
+而不会导致有两个队列，操作其中一个队列的时候由于和另一个队列在同一个缓存行中锁住了另一个队列</strong>。但是有两种场景下不应该使用这种方式：</p>
+<ol>
+<li>缓存行非 64 字节宽的处理。</li>
+<li>共享变量不会被频繁的写。</li>
+</ol>
+<p>但是在 <code>java7</code> 中，它会淘汰或重新排列无用字段，因此需要使用其它追加字节的方式。</p>
+<h1 id="2-synchronized-的实现原理与应用"><a href="#2-synchronized-的实现原理与应用" class="headerlink" title="2 synchronized 的实现原理与应用"></a>2 synchronized 的实现原理与应用</h1><p>作为一个重量级锁，虽然 <code>Java SE 1.6</code> 对 <code>synchronized</code> 进行了各种优化，有些情况下它就不那么重了。<br><code>Java</code> 中的每一个对象都可以作为锁：</p>
+<ol>
+<li>对于普通同步方法，锁是当前实例对象。</li>
+<li>对于静态同步方法，锁是当前类的 <code>Class</code> 对象。</li>
+<li>对于同步方法块，锁是 <code>Synchronized</code> 括号里配置的对象。</li>
+</ol>
+<p><code>JVM</code> 基于进入和退出 <code>Monitor</code> 对象来实现方法同步和代码块同步，但两者的实现细节不同。<br>代码块同步是使用 <code>monitorenter</code> 和 <code>monitorexit</code> 指令实现的，而方法同步使用另外一种方法实现，细节在 <code>JVM</code> 规范里并没有详细说明。但是，
+方法的同步同样可以使用这两个指令来实现。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-volatile-的应用&quot;&gt;&lt;a href=&quot;#1-volatile-的应用&quot; class=&quot;headerlink&quot; title=&quot;1 volatile 的应用&quot;&gt;&lt;/a&gt;1 volatile 的应用&lt;/h1&gt;&lt;h2 id=&quot;1-1-volatile-的定义与
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
+    
+      <category term="Java并发编程的艺术" scheme="http://www.liwenguang.cn/categories/readNote/concurrent-art/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>一、并发编程的挑战</title>
     <link href="http://www.liwenguang.cn/2017/09/25/concurrent_art/1_%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E6%8C%91%E6%88%98.html/"/>
     <id>http://www.liwenguang.cn/2017/09/25/concurrent_art/1_并发编程的挑战.html/</id>
     <published>2017-09-24T16:00:00.000Z</published>
-    <updated>2017-09-24T16:00:00.000Z</updated>
+    <updated>2017-09-25T16:17:00.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="1-上下文切换"><a href="#1-上下文切换" class="headerlink" title="1 上下文切换"></a>1 上下文切换</h1><p>并发是单核处理器支持多线程执行代码。则 <code>CPU</code> 通过给每个线程分配时间片来实现，线程任务执行的切换，由于在切换
 前要保存当前任务的状态，因此从保存再到加载的过程就是一次上下文切换。</p>
@@ -62,6 +111,30 @@
 </tr>
 </tbody>
 </table>
+<h2 id="1-2-如何减少上下文切换"><a href="#1-2-如何减少上下文切换" class="headerlink" title="1.2 如何减少上下文切换"></a>1.2 如何减少上下文切换</h2><ol>
+<li>无锁并发编程：多线程竞争锁时，会引起上下文切换。因此 <code>Hash</code> 算法通过取模分段，不同的线程处理不同段的数据。</li>
+<li><code>CAS</code> 算法： <code>Atomic</code> 包使用 <code>CAS</code> 算法来更新数据，而不需要加锁。 </li>
+<li>协程：在单线程里实现多任务的调度，并在单线程里维持多个任务间的切换。</li>
+</ol>
+<h1 id="2-死锁"><a href="#2-死锁" class="headerlink" title="2. 死锁"></a>2. 死锁</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockDemo</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String A = <span class="string">"A"</span>;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String B = <span class="string">"B"</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> DeadLockDemo().deadLock();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deadLock</span><span class="params">()</span> </span>&#123;</div><div class="line">        Thread t1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="keyword">synchronized</span> (A) &#123;</div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                        Thread.currentThread().sleep(<span class="number">2000</span>);</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                        e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">synchronized</span> (B) &#123;</div><div class="line">                        System.out.println(<span class="string">"1"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        Thread t2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="keyword">synchronized</span> (B) &#123;</div><div class="line">                    <span class="keyword">synchronized</span> (A) &#123;</div><div class="line">                        System.out.println(<span class="string">"2"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        t1.start();</div><div class="line">        t2.start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码的死锁在于，t1拿到锁之后，因为一些异常没有释放锁（或者死循环）。又或者是t1拿到一个数据库锁，释放锁的时候抛出了异常，没有释放掉。
+导致t2一直等待t1释放锁。<br>而避免死锁常见方法有：</p>
+<ol>
+<li>避免一个线程同时获取多个锁。</li>
+<li>避免一个线程在锁内同时占用多个资源，尽量保证每个锁只占用一个资源。</li>
+<li>尝试使用定时锁，使用 <code>lock.tryLock(timeout)</code> 来替代使用内部锁机制。</li>
+<li>对于数据库锁，加锁和解锁必须在一个数据库连接里，否则会出现解锁失败的情况。</li>
+</ol>
+<h1 id="3-资源限制的挑战"><a href="#3-资源限制的挑战" class="headerlink" title="3 资源限制的挑战"></a>3 资源限制的挑战</h1><h2 id="3-1-什么是资源限制"><a href="#3-1-什么是资源限制" class="headerlink" title="3.1 什么是资源限制"></a>3.1 什么是资源限制</h2><p>资源限制是指，程序的执行速度受限于计算机硬件资源或软件资源。例如，服务器的宽带只有 2MB/s ，某个资源的下载速度是 1MB/s ，
+系统启动 10 个线程下载资源，下载速度会不会变成 10MB/s ，所以在进行并发编程时，要考虑资源的限制。而硬件资源限制有带宽的上传/下载速度、
+硬盘读写速度和 <code>CPU</code> 的处理速度，软件资源限制有数据库的连接数和 <code>socket</code> 连接数等。</p>
+<h2 id="3-2-资源限制引发的问题"><a href="#3-2-资源限制引发的问题" class="headerlink" title="3.2 资源限制引发的问题"></a>3.2 资源限制引发的问题</h2><p>在并发编程中，将代码执行速度加快的原则是将代码中串行执行的部分编程并发执行，但是受限于资源，仍然在串行执行，这时候执行的会更慢，
+因为增加了上下文切换和资源调度的时间。例如，之前看到一段程序使用多线程在办公网并发的下载和处理数据，导致 <code>CPU</code> 使用率达到 100% ，
+几个小时都不能运行完成任务，后来修改成单线程，一个小时就执行完成了。</p>
+<h2 id="3-3-如何解决资源限制的问题"><a href="#3-3-如何解决资源限制的问题" class="headerlink" title="3.3 如何解决资源限制的问题"></a>3.3 如何解决资源限制的问题</h2><p>对于硬件资源限制，可以考虑使用集群并行执行程序。既然单机的资源有限制，那么就让程序在多机运行。不同的机器处理不同的数据。  </p>
+<p>对于软件资源限制，可以考虑使用资源池将资源复用。例如使用连接池数据库和 <code>Socket</code> 连接复用，或者在调用对方 <code>webservice</code> 接口获取数据时，
+只建立一个连接。</p>
+<h1 id="4-本章小结"><a href="#4-本章小结" class="headerlink" title="4 本章小结"></a>4 本章小结</h1><p>本章的并发程序不够严谨，但是够入门，笔者建议多实用 <code>JDK</code> 并发包提供的并发容器和工具类来解决并发问题，因为这些类都已经通过了充分的测试和优化。</p>
 ]]></content>
     
     <summary type="html">
@@ -2173,102 +2246,6 @@ IDENTIFIEDR的名称呢?</li>
     <summary type="html">
     
       &lt;h1 id=&quot;1-Javac是什么&quot;&gt;&lt;a href=&quot;#1-Javac是什么&quot; class=&quot;headerlink&quot; title=&quot;1. Javac是什么&quot;&gt;&lt;/a&gt;1. Javac是什么&lt;/h1&gt;&lt;p&gt;前言：&lt;br&gt;Java语言与Java语言规范，Java虚拟机有Java虚
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://www.liwenguang.cn/categories/readNote/"/>
-    
-      <category term="深入分析Java_Web技术" scheme="http://www.liwenguang.cn/categories/readNote/deepJavaWeb/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>三、深入分析Java Web中的中文编码问题</title>
-    <link href="http://www.liwenguang.cn/2017/08/07/deepknowjavaweb/3_%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%20Web%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%87%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98.html/"/>
-    <id>http://www.liwenguang.cn/2017/08/07/deepknowjavaweb/3_深入分析Java Web中的中文编码问题.html/</id>
-    <published>2017-08-07T14:56:30.000Z</published>
-    <updated>2017-08-08T17:31:21.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="1-几种常见的编码格式"><a href="#1-几种常见的编码格式" class="headerlink" title="1. 几种常见的编码格式"></a>1. 几种常见的编码格式</h1><h2 id="1-为什么需要编码？"><a href="#1-为什么需要编码？" class="headerlink" title="1. 为什么需要编码？"></a>1. 为什么需要编码？</h2><ul>
-<li>计算机中存储信息的最小单位是1个字节，即8个bit，所以能表示的字符范围是2^8=256个。</li>
-<li>人类符号过于复杂，至少一个几个字节才能满足人类的一个单位。</li>
-</ul>
-<h2 id="2-常见编码"><a href="#2-常见编码" class="headerlink" title="2. 常见编码"></a>2. 常见编码</h2><p>编码即就是人类的字符-&gt;机器的字符的过程。</p>
-<h3 id="1-ASCII码"><a href="#1-ASCII码" class="headerlink" title="1. ASCII码"></a>1. ASCII码</h3><p>总共有128个，用1个字节的低七位表示，0~31是控制字符，如换行、回车、删除，32~126是打印字符，可以通过键盘输入并且能够显示出来。</p>
-<h3 id="2-ISO-8859-1"><a href="#2-ISO-8859-1" class="headerlink" title="2. ISO-8859-1"></a>2. ISO-8859-1</h3><p>128个字符显示是不够的，于是ISO组织在ASCII码基础上又制定了一系列标准来扩展ASCII编码，他们是ISO-8859-1至ISO-8859-15。ISO-8859-1仍然
-是单字节编码，它总共能表示256个字符。</p>
-<h3 id="3-GB2312"><a href="#3-GB2312" class="headerlink" title="3. GB2312"></a>3. GB2312</h3><p>GB2312全称是《信息技术·中文编码字符集》，总的编码范围是：A1~F7。它是双字节编码。包含了符号以及汉字。</p>
-<h3 id="4-GBK"><a href="#4-GBK" class="headerlink" title="4. GBK"></a>4. GBK</h3><p>GBK全称是《汉字内码扩展规范》，是国家技术监督局为Windows95所制定新的汉字内码规范，它的出现是为了扩展GB2312，并加入更多的汉字。
-编码范围是8140~FEFE，总共23940，表示21003个汉字，编码是和GB2312兼容，也就是GB2312编码的汉字可以用GBK解码，不会乱码。</p>
-<h3 id="5-GB18030"><a href="#5-GB18030" class="headerlink" title="5. GB18030"></a>5. GB18030</h3><p>应用不广泛，与GB2312兼容</p>
-<h3 id="6-UTF-16"><a href="#6-UTF-16" class="headerlink" title="6. UTF-16"></a>6. UTF-16</h3><p>Unicode（Universal Code统一码），ISO试图创建一个全新的超语言字典，世界上所有的语言都可以通过这个字典来相互翻译。可想而知这个字典是多么
-复杂。Unicode是Java和XML的基础。<br>UTF-16具体定义了Unicode字符在计算机中的存取方法，UTF-16用两个字节来表示Unicode的转化格式，它采用定长的表示方法，即不论什么字符都可以用
-两个字节表示。<br>两个字节是16个bit，所以叫UTF-16。UTF-16表示字符非常方便，每两个字节表示一个字符，简化了字符串操作，这也是Java以UTF-16作为内存的字符存储
-格式的一个重要的原因。</p>
-<h3 id="7-UTF-8"><a href="#7-UTF-8" class="headerlink" title="7. UTF-8"></a>7. UTF-8</h3><p>UTF-16统一采用两个字节表示一个字符，虽然表示上简单方便，但是也有其缺点，很大一部分字符用一个字节就可以表示的现在要用两个字节表示，存储空间
-放大了一倍。而UTF-8采用了一种变长技术，每个编码区域有不同的字码长度。不同类型的字符可以由1~6个字节组成。</p>
-<ul>
-<li>如果是一个字节。最高为为0，则表示这是一个ASCII字符，可见，所有ASCII编码已经是UTF-8了。</li>
-<li>如果是一个字节，以11开头，则连续的1的个数暗示这个字符的字节数。例如：110xxxxx代表它是双字节UTF-8字符的首字节。</li>
-<li>如果是一个字节，以10开始，表示它不是首字节，需要向前查找才能得到当前字符的首字节。</li>
-</ul>
-<h2 id="2-编码的场景"><a href="#2-编码的场景" class="headerlink" title="2. 编码的场景"></a>2. 编码的场景</h2><h3 id="1-I-O操作"><a href="#1-I-O操作" class="headerlink" title="1. I/O操作"></a>1. I/O操作</h3><p>Reader类和InputStream之间的InputStreamReader，通过StreamDecoder以及StreamEncoder进行字符和字节的转换，在解码过程必须指定编码格式，
-否则按系统编码。
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">String file = <span class="string">"D:\\source\\eclipse\\liwen\\src\\main\\java\\liwen\\com\\io\\data.txt"</span>;</div><div class="line">String charset = <span class="string">"UTF-8"</span>;</div><div class="line">FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(file);</div><div class="line">OutputStreamWriter writer = <span class="keyword">new</span> OutputStreamWriter(fileOutputStream);</div><div class="line">writer.write(<span class="string">"这是要保存的中文字符"</span>);</div><div class="line">writer.close();</div><div class="line"></div><div class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(file);</div><div class="line">InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(fileInputStream, charset);</div><div class="line"></div><div class="line"><span class="keyword">char</span>[] buf = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">1024</span>];</div><div class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</div><div class="line">StringBuffer buffer = <span class="keyword">new</span> StringBuffer();</div><div class="line"><span class="keyword">while</span>((count = reader.read(buf)) != -<span class="number">1</span>) &#123;</div><div class="line">    buffer.append(buf, <span class="number">0</span>, count);</div><div class="line">&#125;</div><div class="line">System.out.print(buffer.toString());</div><div class="line">reader.close();</div></pre></td></tr></table></figure></p>
-<h3 id="2-在内存操作中的编码"><a href="#2-在内存操作中的编码" class="headerlink" title="2. 在内存操作中的编码"></a>2. 在内存操作中的编码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 第一种，通过字符串操作</span></div><div class="line">String s = <span class="string">"中文"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = s.getBytes(<span class="string">"UTF-8"</span>);</div><div class="line">String n = <span class="keyword">new</span> String(b, <span class="string">"UTF-8"</span>);</div><div class="line">System.out.print(n);</div><div class="line"></div><div class="line"><span class="comment">// 第二种，通过nio中的Charset与Buffer实现编码解码。</span></div><div class="line">Charset charset = Charset.forName(<span class="string">"UTF-8"</span>);</div><div class="line">ByteBuffer buffer = charset.encode(s);       <span class="comment">//字符转字节</span></div><div class="line">CharBuffer buffer1 = charset.decode(buffer); <span class="comment">//字节转字符</span></div><div class="line"><span class="keyword">char</span>[] a = buffer1.array();</div><div class="line">System.out.print(a);</div><div class="line"></div><div class="line"><span class="comment">// 第三种，通过将16bit的char拆分为2个8bit的byte，没有编码解码，只是软转化</span></div><div class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">1024</span>);</div><div class="line">ByteBuffer byteBuffer1 = byteBuffer.putChar(<span class="string">'a'</span>);</div></pre></td></tr></table></figure>
-<h1 id="3-在Java中如何编解码"><a href="#3-在Java中如何编解码" class="headerlink" title="3. 在Java中如何编解码"></a>3. 在Java中如何编解码</h1><p>UTF_32，GBK等编码都是继承自Charset（查看GB18030类的源码，会让你大吃一惊）。<br>Java内存编码采用的UTF-16编码，编码效率高，虽然用双字节存储，但是不适合网络之间传输，因为网络传输容易损坏字节流，当一个字节损坏，就两个字节没用了，UTF-8更适合网络传输。<br>UTF-8对ASCII字符采用单字节存储，另外单个字符损坏也不会影响后面的其他字符，编码效率上介于GBK和
-UTF-16之间，所以UTF-8在编码效率上和编码安全性上做了平衡，是理想的中文编码方式。</p>
-<h1 id="4-在Java-Web中设计的编解码"><a href="#4-在Java-Web中设计的编解码" class="headerlink" title="4. 在Java Web中设计的编解码"></a>4. 在Java Web中设计的编解码</h1><p>有I/O的地方就会涉及编码。网络传输都是以字节为单位的，所以所有的数据必须能够被序列化，即继承Serializable。<br>一个文本的实际大小应该怎么计算。例如：把整型数字1234567当做字符哎存储，则采用UTF-8编码会占用7个字节，采用UTF-16编码<br>会占用14个字节，但是当把它当成int类型的数字来存储则只需要4个字节。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-1.png" alt="HTTP请求的编码示例"></p>
-<h2 id="1-URL的编码"><a href="#1-URL的编码" class="headerlink" title="1. URL的编码"></a>1. URL的编码</h2><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-2.png" alt="URL"><br>其中浏览器对PathInfo和QueryString是编码不同的，因此服务器分别在不同的地方对其进行解码。<br>例如Tomcat先判断URIEncoding是否有定义，如果没有则默认使用ISO-8859-1解析。<br>而QueryString，无论POST请求还是GET请求，对它们的解码都是在request.getParameters()方法中，当然内部对POST和GET解码是不同的。<br>其中GET请求，是通过HTTP的Header传到服务端的，是通过useBodyEncodingForURL设置。因此在服务器最好设置URIEncoding和useBodyEncoding两个参数。</p>
-<h2 id="2-HTTP-Header的编解码"><a href="#2-HTTP-Header的编解码" class="headerlink" title="2. HTTP Header的编解码"></a>2. HTTP Header的编解码</h2><p>如Cookie等，一些头信息，Tomcat对Header解码是在调用request.getHeader()方法时进行的。如果有非ASCII字符，使用URLEncoder进行编码，网络传输。</p>
-<h2 id="3-POST表单的编解码"><a href="#3-POST表单的编解码" class="headerlink" title="3. POST表单的编解码"></a>3. POST表单的编解码</h2><p>提交时，浏览器先根据ContentType的Charset编码进行参数编码，然后再提交到服务端，服务端同样也用ContentType中的字符集进行解码。服务端可以通过
-request.setCharacterEncoding(charset)来设置。<br>注意：要在第一次调用request.getParameter()方法之前就设置request.setCharacterEncoding(charset)。<br>如果服务端没有设置request.setCharacterEncoding(charset)，那么表单提交的数据将会按照系统的默认编码方式解析。<br>另外，针对multipart/form-data类型的参数，即上传文件，也是通过ContentType定义的字符编码。上传文件是用字节流的方式传输到服务器的本地
-临时目录，这个过程并没有涉及字符编码，而真正编码是在讲文件内容添加到parameters，如果用这个不能编码，则会使用默认的ISO-8859-1编码。</p>
-<h2 id="4-HTTP-BODY的编解码"><a href="#4-HTTP-BODY的编解码" class="headerlink" title="4. HTTP BODY的编解码"></a>4. HTTP BODY的编解码</h2><p>通过Response返回给客户端浏览器。这个过程要经过编码，即response.setCharcterEncoding()来设置，它将会覆盖request.getCharacterEncoding()
-的值，并通过Header的Content-Type返回客户端，浏览器接收到返回的Socket流时将通过Content-Type的charset来解码。如果返回的HTTP Header中Content-Type
-没有设置charset，那么浏览器将根据浏览器的<mete http-equiv="Content-Type" content="text/html; charset=GBK">中的charset来解码，
-如果浏览器中没有定义，则使用默认的编码。<br>连接JDBC也是指定一致的编码：<code>jdbc:mysql://localhost:3306?DB?useUnicode=true&amp;characterEncoding=GBK</code>。</mete></p>
-<h1 id="5-在JS的编码"><a href="#5-在JS的编码" class="headerlink" title="5. 在JS的编码"></a>5. 在JS的编码</h1><h2 id="1-外部引入JS文件"><a href="#1-外部引入JS文件" class="headerlink" title="1. 外部引入JS文件"></a>1. 外部引入JS文件</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;script scr=<span class="string">"script.js"</span> charset=<span class="string">"gbk"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></div></pre></td></tr></table></figure>
-<p>而script.js脚本中，有如下代码：
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.write(<span class="string">"中国"</span>);</div></pre></td></tr></table></figure></p>
-<p>如果引入的时候没有设置charset，浏览器就会以当前页面的默认字符集解析这个JS文件。如果一致那就没问题，但是如果页面和js字符编码不一致，就会变成乱码。</p>
-<h2 id="2-JS的URL编码"><a href="#2-JS的URL编码" class="headerlink" title="2. JS的URL编码"></a>2. JS的URL编码</h2><h3 id="1-escape"><a href="#1-escape" class="headerlink" title="1. escape()"></a>1. escape()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-3.png" alt="escape()与unescape()"><br>这组函数已经从ECMAScript v3标准删除了，URL的编码可以用encodeURI和encodeURIComponent来代替。</p>
-<h3 id="2-encodeURI"><a href="#2-encodeURI" class="headerlink" title="2. encodeURI()"></a>2. encodeURI()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-4.png" alt="encodeURI()和decodeURI()"><br>对某些特殊的字符不进行编码如<code>!</code>、<code>a-z</code>、<code>A-Z</code>、<code>0-9</code>、<code>=</code>、<code>@</code>、<code>?</code>、<code>;</code>、<code>:</code>、<code>-</code>、<code>+</code>、<code>(</code>、<code>)</code>、<code>&amp;</code>、<code>#</code>、<code>.</code>、<code>~</code>、<code>*</code>。</p>
-<h3 id="3-encodeURIComponent"><a href="#3-encodeURIComponent" class="headerlink" title="3. encodeURIComponent()"></a>3. encodeURIComponent()</h3><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-5.png" alt="encodeURIComponent()和decodeURIComponent"><br>编码更加彻底，用于整个URL编码，因为它将<code>&amp;</code>也编码了。除了<code>!</code>、<code>a-z</code>、<code>A-Z</code>、<code>0-9</code>、<code>-</code>、、<code>.</code>、<code>~</code>、<code>*</code>。</p>
-<h3 id="4-Java与JS编解码问题"><a href="#4-Java与JS编解码问题" class="headerlink" title="4. Java与JS编解码问题"></a>4. Java与JS编解码问题</h3><p>Java端处理URL编解码有两个类，分别是URLEncoder和URLDecoder。这两个类可以将所有“%”加UTF-8码值用UTF-8解码，从而得到原始的值。<br>对应的前端JS是encodeURIComponent和decodeURLComponent。注意，前端用encodeURIComponent，服务端用URLDecoder解码可能会乱码，
-可能是两个字符编码类型不一致，JS编码默认是UTF-8编码，而服务端中文解码一般都是GBK或者GB2312，所以encodeURIComponent编码后是
-UTF-8，而Java用GBK去解码显然不对。<br>解决方式是encodeURIComponent两次编码，服务端使用request.getParameter()用GBK解码后，再用UTF-8解码。</p>
-<h1 id="6-常见编码问题"><a href="#6-常见编码问题" class="headerlink" title="6. 常见编码问题"></a>6. 常见编码问题</h1><h2 id="1-中文变成看不懂的字符"><a href="#1-中文变成看不懂的字符" class="headerlink" title="1. 中文变成看不懂的字符"></a>1. 中文变成看不懂的字符</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String a = <span class="string">"淘！我喜欢！"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = a.getBytes(<span class="string">"GBK"</span>);  <span class="comment">//可以表示中文，占两个字节</span></div><div class="line">String c = <span class="keyword">new</span> String(b, <span class="string">"ISO-8859-1"</span>);  <span class="comment">//将两个字节分别作为一个单独的字符显示</span></div><div class="line">System.out.println(c); <span class="comment">// output: ÌÔ£¡ÎÒÏ²»¶£¡</span></div></pre></td></tr></table></figure>
-<p>双字节变成单字节<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-6.png" alt="中文变成看不懂的字符"></p>
-<h2 id="2-中文变成一个问号"><a href="#2-中文变成一个问号" class="headerlink" title="2. 中文变成一个问号"></a>2. 中文变成一个问号</h2><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-7.png" alt="中文变成问号">
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String a = <span class="string">"淘！我喜欢！"</span>;</div><div class="line"><span class="keyword">byte</span>[] b = a.getBytes(<span class="string">"ISO-8859-1"</span>);    <span class="comment">//找不到对应的字符</span></div><div class="line">String c = <span class="keyword">new</span> String(b, <span class="string">"ISO-8859-1"</span>);</div><div class="line">System.out.println(c); <span class="comment">// ??????</span></div></pre></td></tr></table></figure></p>
-<h2 id="3-中文变成两个问号"><a href="#3-中文变成两个问号" class="headerlink" title="3. 中文变成两个问号"></a>3. 中文变成两个问号</h2><p>经过了多次的编码解码。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-8.png" alt="一个中文变两个问号"></p>
-<h2 id="4-一种不正常的正确编码"><a href="#4-一种不正常的正确编码" class="headerlink" title="4. 一种不正常的正确编码"></a>4. 一种不正常的正确编码</h2><p>直接调用
-<code>String value = request.getParameter(name);</code>会出现乱码。<br>但是
-<code>String value = new String(request.getParameter(name).getBytes(&quot;ISO-8859-1&quot;), &quot;GBK&quot;)</code>会正常，为什么呢？<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/deeplearnjavawebtech/deeplearnjavawebtech-3-1-9.png" alt="非正常编码"><br>网络通过GBK编码之后的字节数组进行传输，Tomcat没有配置useBodyEncodingForURI，造成第一次解析通过ISO-8859-1解析，
-这时候我们手动通过<code>ISO-8859-1</code>编码，再通过GBK解码就可以获得正确的值，但是额外增加了一次编解码过程。</p>
-<h1 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a>7. 总结</h1><p>总结了几种常见编码格式的区别：</p>
-<ul>
-<li>ISO-8859-1：单字节编码，最多能表示256个字符。</li>
-<li>GBK、GB2312：双字节编码，前者兼容后者。</li>
-<li>UTF-16：双字节编码，Java内部内存额字符存储格式，操作方便，全部都是两个字节，但是浪费空间。</li>
-<li>UTF-8：动态字节编码。<br>以及IO的编码实现类：StreamEncoder/StreamDecoder，对char和byte的编解码。</li>
-</ul>
-<p>HTTP过程的编码，包括：</p>
-<ul>
-<li>URL、URI的编码。</li>
-<li>Header的编解码。</li>
-<li>POST表单的编解码。Java使用request.getParameter()获取之前，先设置request.setCharacterEncoding(charset)。</li>
-<li>BODY的编解码，即Response的编解码。</li>
-<li>JS的编解码。</li>
-</ul>
-<p>Tomcat编解码源码。以及常见乱码问题的原因。<br>注意<strong>一定要手动设置编码的格式，实现真正的跨平台</strong>。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;1-几种常见的编码格式&quot;&gt;&lt;a href=&quot;#1-几种常见的编码格式&quot; class=&quot;headerlink&quot; title=&quot;1. 几种常见的编码格式&quot;&gt;&lt;/a&gt;1. 几种常见的编码格式&lt;/h1&gt;&lt;h2 id=&quot;1-为什么需要编码？&quot;&gt;&lt;a href=&quot;#1-为什么
     
     </summary>
     
