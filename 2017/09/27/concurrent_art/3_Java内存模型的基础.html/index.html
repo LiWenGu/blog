@@ -127,7 +127,13 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-1.png">
 <meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-2.png">
-<meta property="og:updated_time" content="2017-09-26T17:31:01.000Z">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-3.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-4.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-5.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-6.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-7.png">
+<meta property="og:image" content="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-8.png">
+<meta property="og:updated_time" content="2017-09-29T18:30:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="三、Java内存模型的基础">
 <meta name="twitter:description" content="1 Java 内存模型的基础1.1 并发编程模型的两个关键问题 线程之间如何通信 线程之间如何同步（这里的线程是指并发执行的活动实体）。  通信是指线程之间以何种机制来交换信息。在命令式编程中，线程之间的通信机制有两种：  共享内存。线程之间共享程序的公共状态，通过写读内存中的公共状态进行隐式通信。 消息传递。线程之间没有公共状态，线程之间必须通过发送消息来显式进行通信。  同步是指程序中用于控制">
@@ -460,7 +466,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  1,131
+                  2,734
                 </span>
               
 
@@ -476,7 +482,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  4
+                  10
                 </span>
               
             </div>
@@ -530,7 +536,46 @@ JMM 定义了线程和主内存之间的抽象关系：线程之间的共享变�
 </ol>
 <p>JMM 属于语言级的内存模型，它确保在不同的编译器和不同的处理器平台之上，通过禁止特定类型的编译器重排序和处理器重排序，为程序员提供一致的内存可见性保证。</p>
 <h2 id="1-4-并发编程模型的分类"><a href="#1-4-并发编程模型的分类" class="headerlink" title="1.4 并发编程模型的分类"></a>1.4 并发编程模型的分类</h2><p>现在的处理器使用写缓存区临时保存向内存写入的数据。同时，通过以批处理的方式刷新写缓存区，以及合并写缓冲区对统一内存的多次写，减少对内存总线的占用。</p>
-
+<h2 id="1-5-happens-before-简介"><a href="#1-5-happens-before-简介" class="headerlink" title="1.5 happens-before 简介"></a>1.5 happens-before 简介</h2><p>在 JMM 中，如果一个操作执行的结果需要对另一个操作可见，那么这两个操作之间必须要存在 happens-before 关系。这里提到的两个操作既可以是在一个线程之内，
+也可以是在不同线程之间。  </p>
+<p>与程序员密切相关的 happens-before 规则如下：<br>程序顺序规则： 一个线程中的每个操作， happens-before 于该线程中的任意后续操作。<br>监视器锁规则： 对一个锁的解锁， happens-before 与随后对这个锁的加锁。<br><code>volatile</code> 变量规则： 对一个 <code>volatile</code> 域的写， happens-before 与任意后续对这个 <code>volatile</code> 域的读。<br>传递性： 如果 A happens-before B ,且 B happens-before C , 那么 A happens-before C 。<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-3.png" alt=""><br>一个 happens-before 规则对应一个或多个编译器和处理器重排序规则。它避免程序员为了理解 JMM 提供的内存可见性保证而去学习复杂的重排序规则。</p>
+<h1 id="2-重排序"><a href="#2-重排序" class="headerlink" title="2 重排序"></a>2 重排序</h1><p>重排序是指编译器和处理器为了优化程序性能而对指令序列进行重新排序的一种手段。
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</div><div class="line">    bolean flag = <span class="keyword">false</span>;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</div><div class="line">        a = <span class="number">1</span>;            <span class="comment">// A</span></div><div class="line">        flag = <span class="keyword">true</span>;      <span class="comment">// B</span></div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (flag) &#123;       <span class="comment">// C</span></div><div class="line">            <span class="keyword">int</span> i = a * a; <span class="comment">// D</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>假设有两个线程分别执行这两个方法，由于 a 变量和 flag 变量没有 happens-before 关系，因此有以下可能：<br>B-&gt;C-&gt;D-&gt;A。且由于 C 和 D 存在控制依赖关系，因此执行 <code>reader()</code> 方法的县横可以提前读取并计算 a * a ，然后把计算结果临时保存到一个名为重排序缓冲（Reorder Buffer，ROB）的硬件缓存中。
+到为真时，就把该计算结果写入变量 i 中。因此，重排序在这里破坏了多线程程序的语义！  </p>
+<p>在单线程程序中，重排序不会改变执行结果。但是在多线程程序中，对存在控制依赖的操作重排序，可能会改变程序的执行结果。</p>
+<h1 id="3-顺序一致性"><a href="#3-顺序一致性" class="headerlink" title="3 顺序一致性"></a>3 顺序一致性</h1><p>顺序一致性内存模型是一个理论参考模型，在设计的时候，处理器的内存模型和编程语言的内存模型都会以顺序一致性内存模型作为参考。  </p>
+<h2 id="3-1-数据竞争与顺序一致性"><a href="#3-1-数据竞争与顺序一致性" class="headerlink" title="3.1 数据竞争与顺序一致性"></a>3.1 数据竞争与顺序一致性</h2><p>JMM 保证，如果程序时正确同步的，程序的执行将具有顺序一致性——即程序的执行结果与该程序的顺序一致性内存模型中的执行结果相同。
+这里的同步是指广义上的同步，包括对常用同步原语（<code>synchronized</code> 、 <code>volatile</code> 、 <code>final</code>）的正确使用。  </p>
+<h2 id="3-2-顺序一致性内存模型"><a href="#3-2-顺序一致性内存模型" class="headerlink" title="3.2 顺序一致性内存模型"></a>3.2 顺序一致性内存模型</h2><p>顺序一致性内存模型是一个被理想化了的理论参考模型：</p>
+<ol>
+<li>一个线程中的所有操作必须按照程序的顺序来执行。</li>
+<li>不管程序是否同步，所有线程都只能看到一个单一的曾作执行顺序。在顺序一致性内存模型中，每个操作都必须原子执行且立刻对所有线程可见。如下：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-4.png" alt="" title="顺序一致性内存模型"><br>这个内存通过一个左右摆动的开关可以连接任意一个线程，同时每一个线程必须按照程序的顺序来执行内存读/写操作。当多个线程并发执行时，图中的开关装置能把所有下城的所有内存读/写操作串行化。  </li>
+</ol>
+<h2 id="3-3-同步程序的顺序一致性效果"><a href="#3-3-同步程序的顺序一致性效果" class="headerlink" title="3.3 同步程序的顺序一致性效果"></a>3.3 同步程序的顺序一致性效果</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SynchronizedExample</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</div><div class="line">    <span class="function"><span class="keyword">boolean</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;  <span class="comment">// 获取锁</span></div><div class="line">        a = <span class="number">1</span>;</div><div class="line">        flag = <span class="keyword">true</span>;</div><div class="line">    &#125;                                     <span class="comment">// 释放锁</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;   <span class="comment">// 获取锁</span></div><div class="line">        <span class="keyword">if</span> (flag) &#123;</div><div class="line">            <span class="keyword">int</span> i = a;</div><div class="line">            ......</div><div class="line">        &#125;</div><div class="line">    &#125;                                     <span class="comment">// 释放锁</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下面是该程序在两个内存模型中执行时序对比图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-5.png" alt=""><br>可以得知， JMM 在具体实现上的基本方针为：在不改变（正确同步的）程序执行结果的前提下，尽可能地位编译器和处理器的优化打开方便之门。</p>
+<h2 id="3-4-总线的工作机制"><a href="#3-4-总线的工作机制" class="headerlink" title="3.4 总线的工作机制"></a>3.4 总线的工作机制</h2><p><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-6.png" alt=""><br>总线保证了处理器之间的串行化</p>
+<h1 id="4-volatile-的内存语义"><a href="#4-volatile-的内存语义" class="headerlink" title="4 volatile 的内存语义"></a>4 volatile 的内存语义</h1><p>实例代码如下：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileFeaturesExample</span> </span>&#123;</div><div class="line">    <span class="keyword">volatile</span> <span class="keyword">long</span> i = <span class="number">0L</span>;     </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">long</span> i)</span> </span>&#123;   </div><div class="line">        <span class="keyword">this</span>.i = i; </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getAndIncrement</span><span class="params">()</span> </span>&#123;</div><div class="line">        i++;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> i;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>假设有多个线程分别调用上面程序的 3 个方法，这个程序在语义上和下面程序等价：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileFeaturesExample</span> </span>&#123;</div><div class="line">    <span class="keyword">volatile</span> <span class="keyword">long</span> i = <span class="number">0L</span>;     </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">long</span> i)</span> </span>&#123;   </div><div class="line">        <span class="keyword">this</span>.i = i; </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getAndIncrement</span><span class="params">()</span> </span>&#123; </div><div class="line">        <span class="keyword">long</span> temp = get();              <span class="comment">// 调用已同步的读方法</span></div><div class="line">        temp += <span class="number">1L</span>;</div><div class="line">        set(temp);                      <span class="comment">// 调用已同步的写方法</span></div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> i;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接着看第二个实例代码：
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestVolatile</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</div><div class="line">        a = <span class="number">1</span>;</div><div class="line">        flag = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (flag) &#123;</div><div class="line">            System.out.println(a);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当写一个 <code>volatile</code> 变量时， JMM 会把该线程对应的本地内存中的共享变量值刷新到主内存。在读一个 <code>volatile</code> 变量时，
+ JMM 会把该线程对应的本地内存置为无效。如下图：<br><img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-7.png" alt=""><br>在读 flag 变量后，本地内存B 包含的值已经被置为无效。此时，线程B 必须从主内存中读取共享变量。线程B 的读取操作将导致本地内存B 与主内存中的共享变量的值一致。
+<img src="http://leran2deeplearnjavawebtech.oss-cn-beijing.aliyuncs.com/learn/concurrent_art/3-8.png" alt=""><br><code>volatile</code> 内存语义的总结：  </p>
+<ol>
+<li>线程A 写一个 <code>volatile</code> 变量，实质上是线程A 向接下来将要读这个 <code>volatile</code> 变量的某个线程发出了（其对共享变量所做修改的）消息。</li>
+<li>线程B 读一个 <code>volatile</code> 变量，实质上是线程B 接收了之前某个线程发出的（在读这个 <code>volatile</code> 变量之前对共享变量所做修改的）消息。</li>
+<li>线程A 写一个 <code>volatile</code> 变量，随后线程B 读这个 <code>volatile</code> 变量，这个过程实质上是线程A 通过主内存向线程B 发送消息。</li>
+</ol>
+<h2 id="4-1-volatile-内存语义的实现"><a href="#4-1-volatile-内存语义的实现" class="headerlink" title="4.1 volatile 内存语义的实现"></a>4.1 volatile 内存语义的实现</h2><p>下面看看 JMM 如何实现 <code>volatile</code> 写/读的内存语义：</p>
+<ol>
+<li>当第一个操作是 <code>volatile</code> 读时，不管第二个操作是什么，都不能重排序。</li>
+<li>当第一个操作是 <code>volatile</code> 写时，第二个操作是 <code>volatile</code> 读时，不能重排序。</li>
+<li>当第二个操作是 <code>volatile</code> 写时，不管第一个操作是什么，都不能重排序。</li>
+</ol>
+<h2 id="4-2-volatile-实践必读：https-www-ibm-com-developerworks-cn-java-j-jtp06197-html"><a href="#4-2-volatile-实践必读：https-www-ibm-com-developerworks-cn-java-j-jtp06197-html" class="headerlink" title="4.2 volatile 实践必读：https://www.ibm.com/developerworks/cn/java/j-jtp06197.html"></a>4.2 volatile 实践必读：<a href="https://www.ibm.com/developerworks/cn/java/j-jtp06197.html" target="_blank" rel="external">https://www.ibm.com/developerworks/cn/java/j-jtp06197.html</a></h2>
       
     </div>
 
@@ -561,7 +606,7 @@ JMM 定义了线程和主内存之间的抽象关系：线程之间的共享变�
   <p><span>本文标题:</span><a href="/2017/09/27/concurrent_art/3_Java内存模型的基础.html/">三、Java内存模型的基础</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 TheOthers 的个人博客">TheOthers</a></p>
   <p><span>发布时间:</span>2017年09月27日 - 21:09</p>
-  <p><span>最后更新:</span>2017年09月27日 - 01:09</p>
+  <p><span>最后更新:</span>2017年09月30日 - 02:09</p>
   <p><span>原始链接:</span><a href="/2017/09/27/concurrent_art/3_Java内存模型的基础.html/" title="三、Java内存模型的基础">http://www.liwenguang.cn/2017/09/27/concurrent_art/3_Java内存模型的基础.html/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://www.liwenguang.cn/2017/09/27/concurrent_art/3_Java内存模型的基础.html/"  aria-label="复制成功！"></i></span>
   </p>
@@ -689,7 +734,7 @@ JMM 定义了线程和主内存之间的抽象关系：线程之间的共享变�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -788,7 +833,7 @@ JMM 定义了线程和主内存之间的抽象关系：线程之间的共享变�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Java-内存模型的基础"><span class="nav-text">1 Java 内存模型的基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-并发编程模型的两个关键问题"><span class="nav-text">1.1 并发编程模型的两个关键问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Java-内存模型的抽象结构"><span class="nav-text">1.2 Java 内存模型的抽象结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-从源代码到指令序列的重排序"><span class="nav-text">1.3 从源代码到指令序列的重排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-并发编程模型的分类"><span class="nav-text">1.4 并发编程模型的分类</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Java-内存模型的基础"><span class="nav-text">1 Java 内存模型的基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-并发编程模型的两个关键问题"><span class="nav-text">1.1 并发编程模型的两个关键问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Java-内存模型的抽象结构"><span class="nav-text">1.2 Java 内存模型的抽象结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-从源代码到指令序列的重排序"><span class="nav-text">1.3 从源代码到指令序列的重排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-并发编程模型的分类"><span class="nav-text">1.4 并发编程模型的分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-happens-before-简介"><span class="nav-text">1.5 happens-before 简介</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-重排序"><span class="nav-text">2 重排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-顺序一致性"><span class="nav-text">3 顺序一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-数据竞争与顺序一致性"><span class="nav-text">3.1 数据竞争与顺序一致性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-顺序一致性内存模型"><span class="nav-text">3.2 顺序一致性内存模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-同步程序的顺序一致性效果"><span class="nav-text">3.3 同步程序的顺序一致性效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-总线的工作机制"><span class="nav-text">3.4 总线的工作机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-volatile-的内存语义"><span class="nav-text">4 volatile 的内存语义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-volatile-内存语义的实现"><span class="nav-text">4.1 volatile 内存语义的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-volatile-实践必读：https-www-ibm-com-developerworks-cn-java-j-jtp06197-html"><span class="nav-text">4.2 volatile 实践必读：https://www.ibm.com/developerworks/cn/java/j-jtp06197.html</span></a></li></ol></li></ol></div>
             
 
           </div>
